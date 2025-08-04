@@ -211,44 +211,46 @@ export default function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <Menubar className="hidden md:flex bg-transparent border-0 shadow-none h-auto p-0">
+            <Menubar className="hidden md:flex bg-transparent border-0 shadow-none h-auto p-0 gap-1">
               <MenubarMenu>
-                <MenubarTrigger className="text-sm font-medium uppercase tracking-wide text-gray-900 hover:text-gray-600 bg-transparent hover:bg-transparent data-[state=open]:bg-transparent px-4 py-2">
+                <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                   ROUPAS
                 </MenubarTrigger>
-                <MenubarContent className="min-w-[320px]">
-                  {roupasItems.map((item) => (
-                    <div key={item.name} className="p-2">
+                <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-3">
+                  {roupasItems.map((item, index) => (
+                    <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
                       <MenubarItem asChild>
-                        <Link href={item.href} className="text-sm font-medium text-gray-900 uppercase tracking-wide">
+                        <Link href={item.href} className="group block text-sm font-medium text-gray-900 uppercase tracking-wide hover:text-black transition-colors duration-200 pb-1">
                           {item.name}
                         </Link>
                       </MenubarItem>
                       {item.subcategories && (
-                        <div className="ml-4 mt-1 space-y-1">
+                        <div className="ml-2 mt-1 space-y-0.5">
                           {item.subcategories.map((subcat) => (
                             <MenubarItem key={subcat.name} asChild>
-                              <Link href={subcat.href} className="text-xs text-gray-600 hover:text-gray-900">
+                              <Link href={subcat.href} className="block text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-150">
                                 {subcat.name}
                               </Link>
                             </MenubarItem>
                           ))}
                         </div>
                       )}
-                      <MenubarSeparator />
+                      {index < roupasItems.length - 1 && (
+                        <MenubarSeparator className="my-2 bg-gray-200" />
+                      )}
                     </div>
                   ))}
                 </MenubarContent>
               </MenubarMenu>
 
               <MenubarMenu>
-                <MenubarTrigger className="text-sm font-medium uppercase tracking-wide text-gray-900 hover:text-gray-600 bg-transparent hover:bg-transparent data-[state=open]:bg-transparent px-4 py-2">
+                <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                   LOOK COMPLETO
                 </MenubarTrigger>
-                <MenubarContent>
+                <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
                   {lookCompletoItems.map((item) => (
                     <MenubarItem key={item.name} asChild>
-                      <Link href={item.href} className="text-sm font-medium text-gray-900 uppercase tracking-wide">
+                      <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
                         {item.name}
                       </Link>
                     </MenubarItem>
@@ -257,13 +259,13 @@ export default function Header() {
               </MenubarMenu>
 
               <MenubarMenu>
-                <MenubarTrigger className="text-sm font-medium uppercase tracking-wide text-gray-900 hover:text-gray-600 bg-transparent hover:bg-transparent data-[state=open]:bg-transparent px-4 py-2">
+                <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                   MODA PRAIA
                 </MenubarTrigger>
-                <MenubarContent>
+                <MenubarContent className="min-w-[160px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
                   {modaPraiaItems.map((item) => (
                     <MenubarItem key={item.name} asChild>
-                      <Link href={item.href} className="text-sm font-medium text-gray-900 uppercase tracking-wide">
+                      <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
                         {item.name}
                       </Link>
                     </MenubarItem>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { checkAdminAuth } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -24,6 +25,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { isAdmin } = await checkAdminAuth();
+    
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
     const { name, description } = await request.json();
 
     if (!name || name.trim() === '') {

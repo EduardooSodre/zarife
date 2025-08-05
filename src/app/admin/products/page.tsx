@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { checkAdminAuth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -8,18 +8,9 @@ import { Plus, Edit, Trash2, Eye, Search, Package, ArrowLeft } from "lucide-reac
 import Image from "next/image";
 
 export default async function AdminProductsPage() {
-    const { userId } = await auth();
+    const { isAdmin } = await checkAdminAuth();
 
-    if (!userId) {
-        redirect("/sign-in");
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-        where: { clerkId: userId },
-    });
-
-    if (!user || user.role !== "ADMIN") {
+    if (!isAdmin) {
         redirect("/");
     }
 

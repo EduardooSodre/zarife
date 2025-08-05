@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { checkAdminAuth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -69,23 +69,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { isAdmin } = await checkAdminAuth();
     
-    if (!userId) {
+    if (!isAdmin) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
-    });
-
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden" },
+        { success: false, error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }

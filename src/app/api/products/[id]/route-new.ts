@@ -113,18 +113,18 @@ export async function PUT(
 
       // Atualizar imagens se fornecidas
       if (images && Array.isArray(images)) {
-        // Deletar imagens existentes
+        // Remover imagens existentes
         await tx.productImage.deleteMany({
           where: { productId: id },
         });
 
-        // Criar novas imagens
+        // Adicionar novas imagens
         if (images.length > 0) {
           await tx.productImage.createMany({
-            data: images.map((img: { url: string; order: number }) => ({
+            data: images.map((image: { url: string; order: number }) => ({
               productId: id,
-              url: img.url,
-              order: img.order,
+              url: image.url,
+              order: image.order,
             })),
           });
         }
@@ -174,7 +174,7 @@ export async function DELETE(
       );
     }
 
-    // Deletar produto e suas imagens (cascade)
+    // Deletar produto (imagens serão deletadas em cascata)
     await prisma.product.delete({
       where: { id: id },
     });

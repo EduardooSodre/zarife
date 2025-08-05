@@ -100,6 +100,10 @@ export async function POST(request: NextRequest) {
       categoryId,
       isFeatured,
       isActive,
+      material,
+      brand,
+      season,
+      gender,
       images,
       variants,
     } = body;
@@ -114,6 +118,10 @@ export async function POST(request: NextRequest) {
         categoryId,
         isFeatured: Boolean(isFeatured),
         isActive: Boolean(isActive),
+        material,
+        brand,
+        season,
+        gender,
         images: {
           create: images?.map((image: { url: string; order: number }) => ({
             url: image.url,

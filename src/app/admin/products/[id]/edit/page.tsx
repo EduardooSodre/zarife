@@ -34,9 +34,16 @@ interface ProductVariant {
   stock: number;
 }
 
-export default function NewProductPage() {
+interface EditProductPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditProductPage({ params }: EditProductPageProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -62,21 +69,57 @@ export default function NewProductPage() {
   const seasonOptions = ['Primavera/Verão', 'Outono/Inverno', 'Todo o Ano'];
   const genderOptions = ['Feminino', 'Masculino', 'Unissex'];
 
-  // Carregar categorias da API
+  // Carregar categorias e produto
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetch('/api/categories');
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data.data || []);
+        // Carregar categorias
+        const categoriesResponse = await fetch('/api/categories');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.data || []);
+        }
+
+        // Carregar produto
+        const productResponse = await fetch(`/api/products/${params.id}`);
+        if (productResponse.ok) {
+          const productData = await productResponse.json();
+          const product = productData.data;
+          
+          setFormData({
+            name: product.name || '',
+            description: product.description || '',
+            price: product.price?.toString() || '',
+            oldPrice: product.oldPrice?.toString() || '',
+            stock: product.stock?.toString() || '',
+            categoryId: product.categoryId || '',
+            isFeatured: product.isFeatured || false,
+            isActive: product.isActive !== false,
+            material: product.material || '',
+            brand: product.brand || '',
+            season: product.season || '',
+            gender: product.gender || '',
+          });
+
+          // Converter imagens para o formato esperado
+          const productImages = product.images?.map((img: { id?: string; url: string; order?: number }, index: number) => ({
+            id: img.id || Math.random().toString(36).substr(2, 9),
+            url: img.url,
+            order: img.order !== undefined ? img.order : index,
+          })) || [];
+          setImages(productImages);
+
+          // Carregar variações
+          setVariants(product.variants || []);
         }
       } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
+        console.error('Erro ao carregar dados:', error);
+      } finally {
+        setLoadingProduct(false);
       }
     };
-    loadCategories();
-  }, []);
+    loadData();
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,8 +131,8 @@ export default function NewProductPage() {
         order: index,
       }));
 
-      const response = await fetch('/api/products', {
-        method: 'POST',
+      const response = await fetch(`/api/products/${params.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -107,11 +150,11 @@ export default function NewProductPage() {
         router.push('/admin/products');
         router.refresh();
       } else {
-        throw new Error('Erro ao criar produto');
+        throw new Error('Erro ao atualizar produto');
       }
     } catch (error) {
       console.error('Erro:', error);
-      alert('Erro ao criar produto. Tente novamente.');
+      alert('Erro ao atualizar produto. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -139,17 +182,28 @@ export default function NewProductPage() {
     setVariants(prev => prev.filter((_, i) => i !== index));
   };
 
+  if (loadingProduct) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p>Carregando produto...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Novo Produto</h1>
-            <p className="text-sm sm:text-base text-gray-600">Adicionar um novo produto ao catálogo</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Editar Produto</h1>
+            <p className="text-sm sm:text-base text-gray-600">Atualizar informações do produto</p>
           </div>
-          <Link href="/admin/products" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors gap-2 cursor-pointer w-auto">
+          <Link href={`/admin/products/${params.id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors gap-2 cursor-pointer w-auto">
             <ArrowLeft className="w-4 h-4" />
-            Voltar aos Produtos
+            Voltar ao Produto
           </Link>
         </div>
 
@@ -519,7 +573,7 @@ export default function NewProductPage() {
           {/* Botões de Ação */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
-              <Link href="/admin/products" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <Link href={`/admin/products/${params.id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Cancelar
               </Link>
               <button 
@@ -527,7 +581,7 @@ export default function NewProductPage() {
                 className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
-                {isLoading ? 'A Criar...' : 'Criar Produto'}
+                {isLoading ? 'A Atualizar...' : 'Atualizar Produto'}
               </button>
             </div>
           </div>

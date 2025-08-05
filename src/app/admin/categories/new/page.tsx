@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft } from 'lucide-react';
 
 export default function NewCategoryPage() {
   const router = useRouter();
@@ -54,8 +55,11 @@ export default function NewCategoryPage() {
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Link href="/admin/categories">
-              <Button variant="outline">← Voltar</Button>
+            <Link href="/admin/categories" className="inline-block">
+              <Button variant="outline" className="flex items-center gap-2 cursor-pointer w-auto">
+                <ArrowLeft className="w-4 h-4" />
+                Voltar às Categorias
+              </Button>
             </Link>
             <h1 className="text-3xl font-bold text-gray-900">Nova Categoria</h1>
           </div>

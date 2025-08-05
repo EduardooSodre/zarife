@@ -1,9 +1,30 @@
-"use client"
-
 import Link from "next/link";
+import Image from "next/image";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { prisma } from "@/lib/db";
 
-export default function Home() {
+export default async function Home() {
+  // Fetch featured products from database
+  const featuredProducts = await prisma.product.findMany({
+    where: {
+      isFeatured: true,
+      isActive: true,
+    },
+    include: {
+      images: {
+        orderBy: {
+          order: 'asc',
+        },
+      },
+      category: true,
+    },
+    take: 3,
+  });
+
+  // Fetch categories for the category grid
+  const categories = await prisma.category.findMany({
+    take: 4,
+  });
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section with fashion imagery */}
@@ -116,99 +137,133 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Product 1 */}
-            <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-              <div className="aspect-square bg-gray-200 overflow-hidden">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                  <span className="text-sm">Vestido Elegante</span>
+            {featuredProducts.length > 0 ? (
+              featuredProducts.map((product) => (
+                <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                    {product.images && product.images.length > 0 ? (
+                      <Image
+                        src={product.images[0].url}
+                        alt={product.name}
+                        width={400}
+                        height={400}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                        <span className="text-sm">{product.name}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {product.description || 'Produto de qualidade premium'}
+                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xl font-medium text-primary">€{product.price.toFixed(2)}</span>
+                      {product.oldPrice && product.oldPrice > product.price && (
+                        <span className="text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
+                      )}
+                    </div>
+                    <AddToCartButton
+                      product={{
+                        id: product.id,
+                        name: product.name,
+                        price: Number(product.price),
+                        image: product.images?.[0]?.url || '/placeholder-product.jpg',
+                        size: "Único",
+                        color: "Padrão"
+                      }}
+                      className="w-full uppercase tracking-widest text-sm"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Vestido Elegante Preto
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Vestido sofisticado para ocasiões especiais
-                </p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xl font-medium text-primary">€89.99</span>
-                  <span className="text-sm text-gray-500 line-through">€119.99</span>
+              ))
+            ) : (
+              // Fallback products if no featured products exist
+              <>
+                {/* Product 1 */}
+                <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                    <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                      <span className="text-sm">Produto em Breve</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      Produto em Destaque
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Em breve teremos produtos incríveis aqui
+                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xl font-medium text-primary">€0.00</span>
+                    </div>
+                    <button
+                      disabled
+                      className="w-full uppercase tracking-widest text-sm px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+                    >
+                      Em Breve
+                    </button>
+                  </div>
                 </div>
-                <AddToCartButton
-                  product={{
-                    id: "featured-1",
-                    name: "Vestido Elegante Preto",
-                    price: 89.99,
-                    image: "/placeholder-product.jpg",
-                    size: "M",
-                    color: "Preto"
-                  }}
-                  className="w-full uppercase tracking-widest text-sm"
-                />
-              </div>
-            </div>
 
-            {/* Product 2 */}
-            <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-              <div className="aspect-square bg-gray-200 overflow-hidden">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                  <span className="text-sm">Blusa Sofisticada</span>
+                {/* Product 2 */}
+                <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                    <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                      <span className="text-sm">Produto em Breve</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      Produto em Destaque
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Em breve teremos produtos incríveis aqui
+                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xl font-medium text-primary">€0.00</span>
+                    </div>
+                    <button
+                      disabled
+                      className="w-full uppercase tracking-widest text-sm px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+                    >
+                      Em Breve
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Blusa Sofisticada Branca
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Blusa elegante para o dia a dia
-                </p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xl font-medium text-primary">€59.99</span>
-                </div>
-                <AddToCartButton
-                  product={{
-                    id: "featured-2",
-                    name: "Blusa Sofisticada Branca",
-                    price: 59.99,
-                    image: "/placeholder-product.jpg",
-                    size: "S",
-                    color: "Branco"
-                  }}
-                  className="w-full uppercase tracking-widest text-sm"
-                />
-              </div>
-            </div>
 
-            {/* Product 3 */}
-            <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-              <div className="aspect-square bg-gray-200 overflow-hidden">
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                  <span className="text-sm">Conjunto Executivo</span>
+                {/* Product 3 */}
+                <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                    <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                      <span className="text-sm">Produto em Breve</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      Produto em Destaque
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Em breve teremos produtos incríveis aqui
+                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xl font-medium text-primary">€0.00</span>
+                    </div>
+                    <button
+                      disabled
+                      className="w-full uppercase tracking-widest text-sm px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+                    >
+                      Em Breve
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Conjunto Executivo
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Conjunto completo para ambiente profissional
-                </p>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xl font-medium text-primary">€149.99</span>
-                </div>
-                <AddToCartButton
-                  product={{
-                    id: "featured-3",
-                    name: "Conjunto Executivo",
-                    price: 149.99,
-                    image: "/placeholder-product.jpg",
-                    size: "M",
-                    color: "Azul Marinho"
-                  }}
-                  className="w-full uppercase tracking-widest text-sm"
-                />
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </section>

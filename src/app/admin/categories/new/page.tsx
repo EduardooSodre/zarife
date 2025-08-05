@@ -1,70 +1,67 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function NewCategoryPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    name: "",
+    description: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.name.trim()) {
+      alert("Por favor, insira o nome da categoria");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/categories', {
-        method: 'POST',
+      const response = await fetch("/api/categories", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        router.push('/admin/categories');
-        router.refresh();
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Categoria criada com sucesso!");
+        router.push("/admin/categories");
       } else {
-        throw new Error('Erro ao criar categoria');
+        alert(`Erro: ${data.error}`);
       }
     } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro ao criar categoria. Tente novamente.');
+      console.error("Error creating category:", error);
+      alert("Erro ao criar categoria");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Link href="/admin/categories" className="inline-block">
-              <Button variant="outline" className="flex items-center gap-2 cursor-pointer w-auto">
-                <ArrowLeft className="w-4 h-4" />
-                Voltar às Categorias
-              </Button>
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Nova Categoria</h1>
-          </div>
-        </div>
-
+    <div className="container mx-auto py-8">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8">Nova Categoria</h1>
+        
         <Card>
           <CardHeader>
             <CardTitle>Criar Nova Categoria</CardTitle>
@@ -72,34 +69,45 @@ export default function NewCategoryPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome da Categoria
+                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                  Nome da Categoria *
                 </label>
                 <Input
-                  type="text"
                   id="name"
                   name="name"
+                  type="text"
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Ex: Bikinis, Maiôs, Acessórios..."
+                  placeholder="Ex: Vestidos"
                   required
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  Escolha um nome descritivo para a categoria
-                </p>
               </div>
 
-              <div className="flex gap-4 pt-6">
-                <Link href="/admin/categories">
-                  <Button type="button" variant="outline">
-                    Cancelar
-                  </Button>
-                </Link>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium mb-2">
+                  Descrição
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Descrição opcional da categoria"
+                  className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
                 <Button
-                  type="submit"
-                  disabled={isLoading || !formData.name.trim()}
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/admin/categories")}
+                  disabled={isLoading}
                 >
-                  {isLoading ? 'Criando...' : 'Criar Categoria'}
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Criando..." : "Criar Categoria"}
                 </Button>
               </div>
             </form>

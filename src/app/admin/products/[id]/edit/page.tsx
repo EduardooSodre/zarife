@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, ArrowLeft, Palette, Ruler } from 'lucide-react';
@@ -35,13 +35,14 @@ interface ProductVariant {
 }
 
 interface EditProductPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EditProductPage({ params }: EditProductPageProps) {
   const router = useRouter();
+  const resolvedParams = use(params);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -81,7 +82,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         }
 
         // Carregar produto
-        const productResponse = await fetch(`/api/products/${params.id}`);
+        const productResponse = await fetch(`/api/products/${resolvedParams.id}`);
         if (productResponse.ok) {
           const productData = await productResponse.json();
           const product = productData.data;
@@ -119,7 +120,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       }
     };
     loadData();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +132,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         order: index,
       }));
 
-      const response = await fetch(`/api/products/${params.id}`, {
+      const response = await fetch(`/api/products/${resolvedParams.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -201,7 +202,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Editar Produto</h1>
             <p className="text-sm sm:text-base text-gray-600">Atualizar informações do produto</p>
           </div>
-          <Link href={`/admin/products/${params.id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors gap-2 cursor-pointer w-auto">
+          <Link href={`/admin/products/${resolvedParams.id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors gap-2 cursor-pointer w-auto">
             <ArrowLeft className="w-4 h-4" />
             Voltar ao Produto
           </Link>
@@ -573,7 +574,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           {/* Botões de Ação */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
-              <Link href={`/admin/products/${params.id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <Link href={`/admin/products/${resolvedParams.id}`} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Cancelar
               </Link>
               <button 

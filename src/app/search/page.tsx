@@ -1,181 +1,245 @@
-"use client"
-
-import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import { prisma } from "@/lib/db";
 import Link from 'next/link'
-import { ArrowLeft, Filter } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import Image from 'next/image'
+import { ArrowLeft } from 'lucide-react'
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
-// Mock search results - replace with actual search functionality
-const mockProducts = [
-  {
-    id: "1",
-    name: "Vestido Elegante Preto",
-    price: 89.99,
-    originalPrice: 119.99,
-    image: "/placeholder-product.jpg",
-    category: "Vestidos"
-  },
-  {
-    id: "2",
-    name: "Blusa Sofisticada Branca",
-    price: 59.99,
-    image: "/placeholder-product.jpg", 
-    category: "Blusas"
-  },
-  {
-    id: "3",
-    name: "Conjunto Executivo",
-    price: 149.99,
-    image: "/placeholder-product.jpg",
-    category: "Conjuntos"
-  }
-]
+interface SearchPageProps {
+  searchParams: Promise<{
+    q?: string;
+  }>;
+}
 
-function SearchResults() {
-  const searchParams = useSearchParams()
-  const query = searchParams.get('q') || ''
-
-  // Filter products based on search query
-  const filteredProducts = mockProducts.filter(product =>
-    product.name.toLowerCase().includes(query.toLowerCase()) ||
-    product.category.toLowerCase().includes(query.toLowerCase())
-  )
+async function SearchResults({ query }: { query: string }) {
+  // Search products by name, description, brand, or category
+  const products = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        {
+          description: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        {
+          brand: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        {
+          category: {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ],
+    },
+    include: {
+      category: true,
+      images: {
+        orderBy: { order: "asc" },
+        take: 1,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12">
-          <Link href="/" className="inline-flex items-center text-primary hover:text-primary/80 mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            <span className="text-sm uppercase tracking-widest">Voltar</span>
-          </Link>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-light text-primary mb-4 tracking-wider uppercase">
-                Resultados da Busca
-              </h1>
-              {query && (
-                <p className="text-gray-600 text-lg">
-                  Resultados para: <span className="font-medium">&ldquo;{query}&rdquo;</span>
-                </p>
-              )}
-              <p className="text-gray-500 mt-2">
-                {filteredProducts.length} produto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
-              </p>
-            </div>
-            
-            <Button variant="outline" className="flex items-center space-x-2">
-              <Filter className="w-4 h-4" />
-              <span>Filtros</span>
-            </Button>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Results Count */}
+      <div className="flex items-center justify-between">
+        <p className="text-gray-600">
+          {products.length} {products.length === 1 ? 'resultado encontrado' : 'resultados encontrados'} para &ldquo;{query}&rdquo;
+        </p>
+      </div>
 
-        {/* Search Results */}
-        {filteredProducts.length === 0 ? (
-          <div className="text-center py-16">
-            <h2 className="text-2xl font-light text-gray-900 mb-4">
-              Nenhum produto encontrado
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Tente buscar com palavras-chave diferentes ou navegue pelas nossas categorias
-            </p>
-            <Link href="/">
-              <Button className="bg-primary hover:bg-primary/90 text-white uppercase tracking-widest">
-                Ver Todos os Produtos
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+      {/* Products Grid */}
+      {products.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="text-6xl mb-4">🔍</div>
+          <h3 className="text-2xl font-light text-gray-900 mb-4">
+            Nenhum produto encontrado
+          </h3>
+          <p className="text-gray-600 mb-8">
+            Tente pesquisar com outras palavras-chave ou visite nossa coleção completa.
+          </p>
+          <Link href="/produtos" className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest hover:bg-gray-800 transition-colors">
+            Ver Todos os Produtos
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <Card key={product.id} className="border-0 shadow-sm hover:shadow-lg transition-shadow group">
+              <CardContent className="p-0">
                 {/* Product Image */}
-                <div className="aspect-square bg-gray-200 overflow-hidden">
-                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                    {/* Placeholder for product image */}
-                    <span className="text-sm">Imagem do Produto</span>
+                <Link href={`/product/${product.id}`}>
+                  <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
+                    {product.images && product.images.length > 0 ? (
+                      <Image
+                        src={product.images[0].url}
+                        alt={product.name}
+                        width={300}
+                        height={300}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <span className="text-sm">Sem imagem</span>
+                      </div>
+                    )}
                   </div>
-                </div>
+                </Link>
 
                 {/* Product Details */}
-                <div className="p-6">
-                  <div className="mb-3">
-                    <span className="text-xs text-gray-500 uppercase tracking-widest">
-                      {product.category}
-                    </span>
+                <div className="p-4 space-y-3">
+                  {/* Category & Featured Badge */}
+                  <div className="flex items-center justify-between">
+                    <Link href={`/category/${product.category.slug}`}>
+                      <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-50">
+                        {product.category.name}
+                      </Badge>
+                    </Link>
+                    {product.isFeatured && (
+                      <Badge className="bg-black text-white text-xs">
+                        Destaque
+                      </Badge>
+                    )}
                   </div>
-                  
-                  <h3 className="text-lg font-medium text-gray-900 mb-3 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-                  
+
+                  {/* Product Name */}
+                  <Link href={`/product/${product.id}`}>
+                    <h3 className="font-medium text-gray-900 hover:text-black transition-colors cursor-pointer line-clamp-2">
+                      {product.name}
+                    </h3>
+                  </Link>
+
+                  {/* Brand */}
+                  {product.brand && (
+                    <p className="text-sm text-gray-600">
+                      {product.brand}
+                    </p>
+                  )}
+
+                  {/* Price */}
                   <div className="flex items-center space-x-2">
-                    <span className="text-lg font-medium text-primary">
-                      €{product.price.toFixed(2)}
+                    <span className="text-lg font-medium text-black">
+                      €{Number(product.price).toFixed(2)}
                     </span>
-                    {product.originalPrice && (
+                    {product.oldPrice && Number(product.oldPrice) > Number(product.price) && (
                       <span className="text-sm text-gray-500 line-through">
-                        €{product.originalPrice.toFixed(2)}
+                        €{Number(product.oldPrice).toFixed(2)}
                       </span>
                     )}
                   </div>
 
-                  <Button className="w-full mt-4 bg-transparent border border-primary text-primary hover:bg-primary hover:text-white transition-all uppercase tracking-widest text-sm">
-                    Ver Detalhes
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  {/* Stock Status */}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <span className={`text-xs ${product.stock > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                      {product.stock > 0 ? 'Em stock' : 'Esgotado'}
+                    </span>
+                  </div>
 
-        {/* Suggested Categories */}
-        {filteredProducts.length > 0 && (
-          <div className="mt-16 border-t border-gray-200 pt-16">
-            <h2 className="text-2xl font-light text-primary mb-8 tracking-wider uppercase text-center">
-              Explore Outras Categorias
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-              {[
-                { name: "Roupas", href: "/roupas" },
-                { name: "Looks Completos", href: "/looks-completos" },
-                { name: "Conjuntos", href: "/conjuntos" },
-                { name: "Vestidos", href: "/vestidos" },
-                { name: "Moda Praia", href: "/moda-praia" },
-              ].map((category) => (
-                <Link
-                  key={category.name}
-                  href={category.href}
-                  className="text-center p-6 border border-gray-200 hover:border-primary hover:bg-gray-50 transition-all group"
-                >
-                  <span className="text-sm font-medium text-gray-900 group-hover:text-primary uppercase tracking-wide">
-                    {category.name}
-                  </span>
-                </Link>
-              ))}
+                  {/* Add to Cart */}
+                  <AddToCartButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: Number(product.price),
+                      image: product.images?.[0]?.url || '/placeholder-product.jpg',
+                      size: "Único",
+                      color: "Padrão"
+                    }}
+                    className="w-full bg-black text-white py-2 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams.q || '';
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+          <Link href="/" className="hover:text-black transition-colors">
+            Início
+          </Link>
+          <span>/</span>
+          <span className="text-black">Busca</span>
+        </nav>
+
+        {/* Back Button */}
+        <div className="mb-6">
+          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Link>
+        </div>
+
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-4xl lg:text-5xl font-light text-black mb-4 tracking-wider uppercase">
+            Resultados da Busca
+          </h1>
+          <div className="w-24 h-px bg-black mx-auto mb-6"></div>
+          {query && (
+            <p className="text-gray-600 text-lg text-center">
+              Mostrando resultados para: <span className="font-medium text-black">&ldquo;{query}&rdquo;</span>
+            </p>
+          )}
+        </div>
+
+        {/* Search Results */}
+        {query ? (
+          <Suspense fallback={
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+              <p>Buscando produtos...</p>
             </div>
+          }>
+            <SearchResults query={query} />
+          </Suspense>
+        ) : (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-2xl font-light text-gray-900 mb-4">
+              Digite algo para buscar
+            </h3>
+            <p className="text-gray-600 mb-8">
+              Use a barra de pesquisa acima para encontrar produtos.
+            </p>
+            <Link href="/produtos" className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest hover:bg-gray-800 transition-colors">
+              Ver Todos os Produtos
+            </Link>
           </div>
         )}
       </div>
     </div>
-  )
-}
-
-export default function SearchPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando resultados...</p>
-        </div>
-      </div>
-    }>
-      <SearchResults />
-    </Suspense>
-  )
+  );
 }

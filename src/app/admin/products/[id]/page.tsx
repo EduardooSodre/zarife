@@ -9,12 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit, Package, Star, Calendar, Tag, Palette, Ruler } from "lucide-react";
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
+  const resolvedParams = await params;
   const { userId } = await auth();
 
   if (!userId) {
@@ -32,7 +33,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Get product
   const product = await prisma.product.findUnique({
-    where: { id: params.id },
+    where: { id: resolvedParams.id },
     include: {
       category: true,
       images: {

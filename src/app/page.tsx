@@ -40,11 +40,11 @@ export default async function Home() {
                 Elegância e sofisticação para a mulher moderna
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Link href="/look-completo/vestidos" className="bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium">
+                <Link href="/produtos" className="bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium">
                   DESCOBRIR COLEÇÃO
                 </Link>
-                <Link href="/look-completo" className="border border-black text-black px-12 py-4 text-sm uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 font-medium">
-                  LOOKS COMPLETOS
+                <Link href="/produtos" className="border border-black text-black px-12 py-4 text-sm uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 font-medium">
+                  VER PRODUTOS
                 </Link>
               </div>
             </div>
@@ -63,65 +63,40 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Roupas */}
-            <Link href="/roupas" className="group cursor-pointer">
-              <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <h3 className="text-xl font-medium">ROUPAS</h3>
-                  <p className="text-sm">PARTES DE CIMA E BAIXO</p>
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-black mb-2 tracking-wide">ROUPAS</h3>
-                <p className="text-gray-600 text-sm">Blusas, camisas, shorts, saias e calças</p>
-              </div>
-            </Link>
-
-            {/* Look Completo */}
-            <Link href="/look-completo" className="group cursor-pointer">
-              <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <h3 className="text-xl font-medium">LOOK COMPLETO</h3>
-                  <p className="text-sm">VESTIDOS E CONJUNTOS</p>
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-black mb-2 tracking-wide">LOOK COMPLETO</h3>
-                <p className="text-gray-600 text-sm">Vestidos e conjuntos coordenados</p>
-              </div>
-            </Link>
-
-            {/* Moda Praia */}
-            <Link href="/moda-praia" className="group cursor-pointer">
-              <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <h3 className="text-xl font-medium">MODA PRAIA</h3>
-                  <p className="text-sm">BIQUÍNI, MAIÔ E SAÍDAS</p>
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-black mb-2 tracking-wide">MODA PRAIA</h3>
-                <p className="text-gray-600 text-sm">Biquíni, maiô e saídas de praia</p>
-              </div>
-            </Link>
-
-            {/* Novidades */}
-            <Link href="/novidades" className="group cursor-pointer">
-              <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <h3 className="text-xl font-medium">NOVIDADES</h3>
-                  <p className="text-sm">ÚLTIMOS LANÇAMENTOS</p>
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-black mb-2 tracking-wide">NOVIDADES</h3>
-                <p className="text-gray-600 text-sm">Últimos lançamentos da coleção</p>
-              </div>
-            </Link>
+            {categories.length > 0 ? (
+              categories.map((category) => (
+                <Link key={category.id} href={`/category/${category.slug}`} className="group cursor-pointer">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <h3 className="text-xl font-medium">{category.name.toUpperCase()}</h3>
+                      <p className="text-sm">Veja nossa coleção</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium text-black mb-2 tracking-wide">{category.name.toUpperCase()}</h3>
+                    <p className="text-gray-600 text-sm">Produtos selecionados para você</p>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              // Categorias padrão caso não haja categorias no banco
+              <>
+                <Link href="/produtos" className="group cursor-pointer">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <h3 className="text-xl font-medium">PRODUTOS</h3>
+                      <p className="text-sm">TODA A COLEÇÃO</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium text-black mb-2 tracking-wide">PRODUTOS</h3>
+                    <p className="text-gray-600 text-sm">Toda nossa coleção disponível</p>
+                  </div>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -140,25 +115,29 @@ export default async function Home() {
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
                 <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-square bg-gray-200 overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
-                      <Image
-                        src={product.images[0].url}
-                        alt={product.name}
-                        width={400}
-                        height={400}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                        <span className="text-sm">{product.name}</span>
-                      </div>
-                    )}
-                  </div>
+                  <Link href={`/product/${product.id}`}>
+                    <div className="aspect-square bg-gray-200 overflow-hidden cursor-pointer">
+                      {product.images && product.images.length > 0 ? (
+                        <Image
+                          src={product.images[0].url}
+                          alt={product.name}
+                          width={400}
+                          height={400}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                          <span className="text-sm">{product.name}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
                   <div className="p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      {product.name}
-                    </h3>
+                    <Link href={`/product/${product.id}`}>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer">
+                        {product.name}
+                      </h3>
+                    </Link>
                     <p className="text-gray-600 text-sm mb-4">
                       {product.description || 'Produto de qualidade premium'}
                     </p>

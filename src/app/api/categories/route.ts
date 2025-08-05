@@ -1,22 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
-import { generateSlug } from "@/lib/utils";
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
-      orderBy: { name: "asc" },
+      orderBy: { name: 'asc' },
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: categories,
-    });
+    return NextResponse.json(categories);
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error('Erro ao buscar categorias:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch categories" },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     );
   }
@@ -24,66 +24,53 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
+    const { name, description } = await request.json();
+
+    if (!name || name.trim() === '') {
       return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
-    });
-
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    const body = await request.json();
-    const { name } = body;
-
-    if (!name) {
-      return NextResponse.json(
-        { success: false, error: "Name is required" },
+        { error: 'Nome é obrigatório' },
         { status: 400 }
       );
     }
 
-    const slug = generateSlug(name);
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
 
-    // Check if category with this slug already exists
-    const existingCategory = await prisma.category.findUnique({
-      where: { slug },
+    const existingCategory = await prisma.category.findFirst({
+      where: { name: name.trim() },
     });
 
     if (existingCategory) {
       return NextResponse.json(
-        { success: false, error: "Category with this name already exists" },
-        { status: 409 }
+        { error: 'Uma categoria com este nome já existe' },
+        { status: 400 }
       );
     }
 
     const category = await prisma.category.create({
       data: {
-        name,
+        name: name.trim(),
         slug,
+        description: description?.trim() || null,
+      },
+      include: {
+        _count: {
+          select: { products: true }
+        }
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: category,
-    });
+    return NextResponse.json(category, { status: 201 });
   } catch (error) {
-    console.error("Error creating category:", error);
+    console.error('Erro ao criar categoria:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to create category" },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     );
   }

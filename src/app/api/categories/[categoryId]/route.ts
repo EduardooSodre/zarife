@@ -64,7 +64,7 @@ export async function PUT(
       );
     }
 
-    const { name, description } = await request.json();
+    const { name, description, image, isActive } = await request.json();
 
     if (!name || name.trim() === '') {
       return NextResponse.json(
@@ -116,6 +116,8 @@ export async function PUT(
         name: name.trim(),
         slug,
         description: description?.trim() || null,
+        image: image?.trim() || null,
+        isActive: isActive !== undefined ? isActive : existingCategory.isActive,
       },
       include: {
         _count: {

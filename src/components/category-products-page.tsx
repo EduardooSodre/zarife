@@ -19,13 +19,13 @@ export default async function CategoryProductsPage({
   description,
   breadcrumb = title,
 }: CategoryProductsPageProps) {
-  // Get products from specified category patterns
+  // Get products from specified category patterns or all products if no patterns
   const categories = await prisma.category.findMany({
-    where: {
+    where: categoryPatterns.length > 0 ? {
       OR: categoryPatterns.map(pattern => ({
         name: { contains: pattern, mode: "insensitive" as const }
       }))
-    },
+    } : undefined, // If no patterns, get all categories
     include: {
       products: {
         where: { isActive: true },

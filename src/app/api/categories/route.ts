@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, description } = await request.json();
+    const { name, description, image, isActive } = await request.json();
 
     if (!name || name.trim() === '') {
       return NextResponse.json(
@@ -68,6 +68,8 @@ export async function POST(request: NextRequest) {
         name: name.trim(),
         slug,
         description: description?.trim() || null,
+        image: image?.trim() || null,
+        isActive: isActive !== undefined ? isActive : true,
       },
       include: {
         _count: {
@@ -76,7 +78,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(category, { status: 201 });
+    return NextResponse.json({ success: true, data: category }, { status: 201 });
   } catch (error) {
     console.error('Erro ao criar categoria:', error);
     return NextResponse.json(

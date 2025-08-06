@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { ImageUploadGuide } from '@/components/ui/image-upload-guide';
@@ -55,7 +56,7 @@ export default function NewProductPage() {
 
   const [images, setImages] = useState<ImageData[]>([]);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
-  
+
   // Opções predefinidas para loja de roupas
   const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '34', '36', '38', '40', '42', '44'];
   const colorOptions = ['Preto', 'Branco', 'Azul', 'Vermelho', 'Verde', 'Rosa', 'Amarelo', 'Roxo', 'Cinza', 'Bege', 'Laranja'];
@@ -69,7 +70,9 @@ export default function NewProductPage() {
         const response = await fetch('/api/categories');
         if (response.ok) {
           const data = await response.json();
-          setCategories(data.data || []);
+          setCategories(data);
+        } else {
+          console.error('Erro ao carregar categorias:', response.statusText);
         }
       } catch (error) {
         console.error('Erro ao carregar categorias:', error);
@@ -130,7 +133,7 @@ export default function NewProductPage() {
   };
 
   const updateVariant = (index: number, field: keyof ProductVariant, value: string | number) => {
-    setVariants(prev => prev.map((variant, i) => 
+    setVariants(prev => prev.map((variant, i) =>
       i === index ? { ...variant, [field]: value } : variant
     ));
   };
@@ -140,27 +143,38 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Novo Produto</h1>
-            <p className="text-sm sm:text-base text-gray-600">Adicionar um novo produto ao catálogo</p>
-          </div>
-          <Link href="/admin/products" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors gap-2 cursor-pointer w-auto">
-            <ArrowLeft className="w-4 h-4" />
-            Voltar aos Produtos
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* Botão de retorno */}
+        <div className="mb-6">
+          <Link href="/admin/products" className="inline-block">
+            <Button variant="outline" className="flex items-center gap-2 cursor-pointer w-auto">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar aos Produtos
+            </Button>
           </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 lg:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* Header */}
+        <div className="mb-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-light text-black mb-4 tracking-wider uppercase">
+              Novo Produto
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Adicionar um novo produto ao catálogo
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border p-6 lg:p-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12">
             {/* Informações Básicas */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Informações Básicas</h3>
-                
-                <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">Informações Básicas</h3>
+
+                <div className="space-y-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                       Nome do Produto *
@@ -213,7 +227,7 @@ export default function NewProductPage() {
                     </Select>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
                         Marca
@@ -245,7 +259,7 @@ export default function NewProductPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="season" className="block text-sm font-medium text-gray-700 mb-2">
                         Temporada
@@ -293,12 +307,12 @@ export default function NewProductPage() {
             </div>
 
             {/* Preços e Stock */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Preços e Stock</h3>
-                
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">Preços e Stock</h3>
+
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
                         Preço Atual (€) *
@@ -358,20 +372,20 @@ export default function NewProductPage() {
           </div>
 
           {/* Variações de Produto */}
-          <div className="mt-8 space-y-6">
+          <div className="mt-12 space-y-8">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Variações de Produto</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Variações de Produto</h3>
                 <button
                   type="button"
                   onClick={addVariant}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors gap-2"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Adicionar Variação
                 </button>
               </div>
-              
+
               {variants.length === 0 ? (
                 <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                   <div className="flex flex-col items-center text-gray-500">
@@ -384,9 +398,9 @@ export default function NewProductPage() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {variants.map((variant, index) => (
-                    <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg border">
+                    <div key={index} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-gray-50 rounded-lg border">
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                           Tamanho
@@ -407,7 +421,7 @@ export default function NewProductPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                           Cor
@@ -428,7 +442,7 @@ export default function NewProductPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                           Stock
@@ -442,7 +456,7 @@ export default function NewProductPage() {
                           placeholder="0"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                           Ação
@@ -463,9 +477,9 @@ export default function NewProductPage() {
           </div>
 
           {/* Imagens do Produto */}
-          <div className="mt-8 space-y-6">
+          <div className="mt-12 space-y-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Imagens do Produto</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Imagens do Produto</h3>
               <ImageUploadGuide />
               <ImageUpload
                 images={images}
@@ -476,20 +490,20 @@ export default function NewProductPage() {
           </div>
 
           {/* Configurações */}
-          <div className="mt-8 space-y-6">
+          <div className="mt-12 space-y-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Configurações</h3>
-              
-              <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Configurações</h3>
+
+              <div className="space-y-6">
                 <div className="flex items-center space-x-3">
                   <Checkbox
                     id="isFeatured"
                     checked={formData.isFeatured}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, isFeatured: !!checked }))
                     }
                   />
-                  <label 
+                  <label
                     htmlFor="isFeatured"
                     className="text-sm font-medium text-gray-700 cursor-pointer"
                   >
@@ -501,11 +515,11 @@ export default function NewProductPage() {
                   <Checkbox
                     id="isActive"
                     checked={formData.isActive}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, isActive: !!checked }))
                     }
                   />
-                  <label 
+                  <label
                     htmlFor="isActive"
                     className="text-sm font-medium text-gray-700 cursor-pointer"
                   >
@@ -517,14 +531,14 @@ export default function NewProductPage() {
           </div>
 
           {/* Botões de Ação */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
-              <Link href="/admin/products" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
+              <Link href="/admin/products" className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Cancelar
               </Link>
-              <button 
-                type="submit" 
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
                 {isLoading ? 'A Criar...' : 'Criar Produto'}

@@ -78,7 +78,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         const categoriesResponse = await fetch('/api/categories');
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
-          setCategories(categoriesData.data || []);
+          setCategories(categoriesData);
         }
 
         // Carregar produto

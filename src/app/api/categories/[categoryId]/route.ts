@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { checkAdminAuth } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { checkAdminAuth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { categoryId } = await context.params;
-    
+
     const category = await prisma.category.findUnique({
       where: {
         id: categoryId,
@@ -18,20 +19,20 @@ export async function GET(
           where: { isActive: true },
           include: {
             images: {
-              orderBy: { order: 'asc' },
+              orderBy: { order: "asc" },
               take: 1,
             },
           },
         },
         _count: {
-          select: { products: true }
-        }
+          select: { products: true },
+        },
       },
     });
 
     if (!category) {
       return NextResponse.json(
-        { error: 'Categoria não encontrada' },
+        { error: "Categoria não encontrada" },
         { status: 404 }
       );
     }
@@ -41,9 +42,9 @@ export async function GET(
       data: category,
     });
   } catch (error) {
-    console.error('Erro ao buscar categoria:', error);
+    console.error("Erro ao buscar categoria:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -56,28 +57,28 @@ export async function PUT(
   try {
     const { categoryId } = await context.params;
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
 
     const { name, description, image, isActive } = await request.json();
 
-    console.log('📝 Dados recebidos para atualizar categoria:', {
+    console.log("📝 Dados recebidos para atualizar categoria:", {
       categoryId,
       name,
       description,
-      image: image ? 'Imagem fornecida' : 'Sem imagem',
+      image: image ? "Imagem fornecida" : "Sem imagem",
       imageLength: image?.length,
-      isActive
+      isActive,
     });
 
-    if (!name || name.trim() === '') {
+    if (!name || name.trim() === "") {
       return NextResponse.json(
-        { error: 'Nome é obrigatório' },
+        { error: "Nome é obrigatório" },
         { status: 400 }
       );
     }
@@ -89,14 +90,14 @@ export async function PUT(
 
     if (!existingCategory) {
       return NextResponse.json(
-        { error: 'Categoria não encontrada' },
+        { error: "Categoria não encontrada" },
         { status: 404 }
       );
     }
 
     if (!existingCategory) {
       return NextResponse.json(
-        { error: 'Categoria não encontrada' },
+        { error: "Categoria não encontrada" },
         { status: 404 }
       );
     }
@@ -104,27 +105,36 @@ export async function PUT(
     // Generate new slug
     const slug = name
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
       .trim();
 
     // Check if another category with same name exists
     const duplicateCategory = await prisma.category.findFirst({
-      where: { 
+      where: {
         name: name.trim(),
-        id: { not: categoryId }
+        id: { not: categoryId },
       },
     });
 
     if (duplicateCategory) {
       return NextResponse.json(
-        { error: 'Uma categoria com este nome já existe' },
+        { error: "Uma categoria com este nome já existe" },
         { status: 400 }
       );
     }
+
+    console.log("💾 Executando SQL para atualizar categoria:", {
+      categoryId,
+      name: name.trim(),
+      slug,
+      description: description?.trim() || null,
+      image: image?.trim() || null,
+      isActive: isActive !== undefined ? isActive : true,
+    });
 
     // Atualizar usando raw SQL para garantir que funciona
     await prisma.$executeRaw`
@@ -139,12 +149,14 @@ export async function PUT(
       WHERE id = ${categoryId}
     `;
 
+    console.log("✅ SQL executado com sucesso");
+
     // Buscar a categoria atualizada usando raw SQL também
-    const updatedCategory = await prisma.$queryRaw`
+    const updatedCategory = (await prisma.$queryRaw`
       SELECT id, name, slug, description, image, is_active as "isActive", created_at as "createdAt", updated_at as "updatedAt"
       FROM categories 
       WHERE id = ${categoryId}
-    ` as Array<{
+    `) as Array<{
       id: string;
       name: string;
       slug: string;
@@ -155,14 +167,24 @@ export async function PUT(
       updatedAt: Date | null;
     }>;
 
+    console.log("📋 Categoria após atualização:", updatedCategory[0]);
+
+    // Revalidar cache das páginas relacionadas
+    revalidatePath("/");
+    revalidatePath("/admin/categories");
+    revalidatePath(`/admin/categories/${categoryId}`);
+    revalidatePath(`/category/${updatedCategory[0].slug}`);
+
+    console.log("🔄 Cache revalidado para páginas de categorias");
+
     return NextResponse.json({
       success: true,
       data: updatedCategory[0],
     });
   } catch (error) {
-    console.error('Erro ao atualizar categoria:', error);
+    console.error("Erro ao atualizar categoria:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -174,12 +196,12 @@ export async function DELETE(
 ) {
   try {
     const { categoryId } = await context.params;
-    
+
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
@@ -189,14 +211,14 @@ export async function DELETE(
       where: { id: categoryId },
       include: {
         _count: {
-          select: { products: true }
-        }
+          select: { products: true },
+        },
       },
     });
 
     if (!existingCategory) {
       return NextResponse.json(
-        { error: 'Categoria não encontrada' },
+        { error: "Categoria não encontrada" },
         { status: 404 }
       );
     }
@@ -204,7 +226,7 @@ export async function DELETE(
     // Check if category has products
     if (existingCategory._count.products > 0) {
       return NextResponse.json(
-        { error: 'Não é possível deletar uma categoria que possui produtos' },
+        { error: "Não é possível deletar uma categoria que possui produtos" },
         { status: 400 }
       );
     }
@@ -215,12 +237,12 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Categoria deletada com sucesso',
+      message: "Categoria deletada com sucesso",
     });
   } catch (error) {
-    console.error('Erro ao deletar categoria:', error);
+    console.error("Erro ao deletar categoria:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }

@@ -42,7 +42,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
         if (response.ok) {
           const data = await response.json();
           const category = data.data;
-          
+
           setFormData({
             name: category.name || '',
             description: category.description || '',
@@ -77,6 +77,13 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
     try {
       const imageUrl = images.length > 0 ? images[0].url : null;
 
+      console.log('📤 Enviando dados para atualizar categoria:', {
+        categoryId: resolvedParams.id,
+        formData,
+        imageUrl,
+        imagesArray: images
+      });
+
       const response = await fetch(`/api/categories/${resolvedParams.id}`, {
         method: 'PUT',
         headers: {
@@ -88,11 +95,19 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
         }),
       });
 
+      console.log('📡 Resposta da API:', {
+        status: response.status,
+        ok: response.ok
+      });
+
       if (response.ok) {
+        const responseData = await response.json();
+        console.log('✅ Categoria atualizada com sucesso:', responseData);
         router.push(`/admin/categories/${resolvedParams.id}`);
         router.refresh();
       } else {
         const errorData = await response.json();
+        console.error('❌ Erro na resposta:', errorData);
         throw new Error(errorData.error || 'Erro ao atualizar categoria');
       }
     } catch (error) {
@@ -237,8 +252,8 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
               <Link href={`/admin/categories/${resolvedParams.id}`} className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Cancelar
               </Link>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >

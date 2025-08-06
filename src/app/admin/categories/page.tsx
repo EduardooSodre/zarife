@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Eye } from 'lucide-react';
@@ -17,7 +18,7 @@ export default async function CategoriesPage() {
     });
 
     const totalProducts = categories.reduce((acc, cat) => acc + cat._count.products, 0);
-    
+
     // Estatísticas simples - assumir todas ativas por enquanto
     const activeCategories = categories; // Simplificado
     const inactiveCategories: typeof categories = []; // Vazio por enquanto
@@ -117,9 +118,19 @@ export default async function CategoriesPage() {
                                     >
                                         {/* Imagem da categoria */}
                                         <div className="aspect-video bg-gray-100 relative">
-                                            <div className="flex items-center justify-center h-full text-gray-400">
-                                                <span className="text-sm">Categoria</span>
-                                            </div>
+                                            {category.image ? (
+                                                <Image
+                                                    src={category.image}
+                                                    alt={category.name}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full text-gray-400">
+                                                    <span className="text-sm">Sem imagem</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="p-4">
@@ -139,13 +150,13 @@ export default async function CategoriesPage() {
                                                     </Badge>
                                                 </div>
                                             </div>
-                                            
+
                                             {category.description && (
                                                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                                                     {category.description}
                                                 </p>
                                             )}
-                                            
+
                                             <p className="text-xs text-gray-500 mb-4">
                                                 Slug: {category.slug}
                                             </p>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Eye } from 'lucide-react';
+import { DeleteCategoryButton } from '@/components/admin/delete-category-button';
 
 export default async function CategoriesPage() {
     // Query simplificada para evitar problemas de tipos
@@ -114,7 +115,7 @@ export default async function CategoriesPage() {
                                 {categories.map((category) => (
                                     <div
                                         key={category.id}
-                                        className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                                        className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-90"
                                     >
                                         {/* Imagem da categoria */}
                                         <div className="aspect-video bg-gray-100 relative">
@@ -133,15 +134,12 @@ export default async function CategoriesPage() {
                                             )}
                                         </div>
 
-                                        <div className="p-4">
+                                        <div className="p-4 flex flex-col h-full">
                                             <div className="flex items-start justify-between mb-2">
                                                 <div className="flex-1">
                                                     <h3 className="text-lg font-semibold text-gray-900">
                                                         {category.name}
                                                     </h3>
-                                                    <p className="text-xs text-gray-500 mt-1">
-                                                        Slug: {category.slug}
-                                                    </p>
                                                 </div>
                                                 <div className="flex items-center gap-2 ml-2">
                                                     <Eye className="w-4 h-4 text-green-500" />
@@ -151,18 +149,16 @@ export default async function CategoriesPage() {
                                                 </div>
                                             </div>
 
-                                            {category.description && (
-                                                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                                                    {category.description}
-                                                </p>
-                                            )}
+                                            <div className="flex-1">
+                                                {category.description && (
+                                                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                                        {category.description}
+                                                    </p>
+                                                )}
+                                            </div>
 
-                                            <p className="text-xs text-gray-500 mb-4">
-                                                Slug: {category.slug}
-                                            </p>
-
-                                            {/* Ações */}
-                                            <div className="flex gap-2">
+                                            {/* Ações - sempre no bottom */}
+                                            <div className="flex gap-2 mt-auto">
                                                 <Link href={`/admin/categories/${category.id}`} className="flex-1">
                                                     <Button variant="outline" size="sm" className="w-full">
                                                         <Eye className="w-4 h-4 mr-1" />
@@ -175,6 +171,11 @@ export default async function CategoriesPage() {
                                                         Editar
                                                     </Button>
                                                 </Link>
+                                                <DeleteCategoryButton
+                                                    categoryId={category.id}
+                                                    categoryName={category.name}
+                                                    hasProducts={category._count.products > 0}
+                                                />
                                             </div>
                                         </div>
                                     </div>

@@ -137,26 +137,39 @@ export function ImageUpload({
   );
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
-    // Para desenvolvimento, vamos usar base64. Em produção, substitua pela implementação real do Cloudinary
-    return convertToBase64(file);
-    
-    // Implementação real do Cloudinary (descomente quando configurar):
-    /*
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'zarife');
-    
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload`,
-      {
+    try {
+      console.log('🔄 Iniciando upload do arquivo:', file.name);
+      
+      // Usar nossa API de upload
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+      });
+      
+      console.log('📡 Resposta da API de upload:', {
+        status: response.status,
+        ok: response.ok
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Erro na API de upload:', errorData);
+        throw new Error(errorData.error || 'Erro no upload');
       }
-    );
-    
-    const data = await response.json();
-    return data.secure_url;
-    */
+      
+      const data = await response.json();
+      console.log('✅ Upload realizado com sucesso:', data.url);
+      return data.url;
+    } catch (error) {
+      console.error('💥 Erro no upload para Cloudinary, usando fallback base64:', error);
+      // Fallback para base64 apenas se o Cloudinary falhar
+      const base64Url = await convertToBase64(file);
+      console.log('📄 Usando base64 como fallback');
+      return base64Url;
+    }
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {

@@ -66,6 +66,15 @@ export async function PUT(
 
     const { name, description, image, isActive } = await request.json();
 
+    console.log('📝 Dados recebidos para atualizar categoria:', {
+      categoryId,
+      name,
+      description,
+      image: image ? 'Imagem fornecida' : 'Sem imagem',
+      imageLength: image?.length,
+      isActive
+    });
+
     if (!name || name.trim() === '') {
       return NextResponse.json(
         { error: 'Nome é obrigatório' },
@@ -77,6 +86,13 @@ export async function PUT(
     const existingCategory = await prisma.category.findUnique({
       where: { id: categoryId },
     });
+
+    if (!existingCategory) {
+      return NextResponse.json(
+        { error: 'Categoria não encontrada' },
+        { status: 404 }
+      );
+    }
 
     if (!existingCategory) {
       return NextResponse.json(
@@ -110,25 +126,38 @@ export async function PUT(
       );
     }
 
-    const updatedCategory = await prisma.category.update({
-      where: { id: categoryId },
-      data: {
-        name: name.trim(),
-        slug,
-        description: description?.trim() || null,
-        image: image?.trim() || null,
-        isActive: isActive !== undefined ? isActive : existingCategory.isActive,
-      },
-      include: {
-        _count: {
-          select: { products: true }
-        }
-      },
-    });
+    // Atualizar usando raw SQL para garantir que funciona
+    await prisma.$executeRaw`
+      UPDATE categories 
+      SET 
+        name = ${name.trim()},
+        slug = ${slug},
+        description = ${description?.trim() || null},
+        image = ${image?.trim() || null},
+        is_active = ${isActive !== undefined ? isActive : true},
+        updated_at = NOW()
+      WHERE id = ${categoryId}
+    `;
+
+    // Buscar a categoria atualizada usando raw SQL também
+    const updatedCategory = await prisma.$queryRaw`
+      SELECT id, name, slug, description, image, is_active as "isActive", created_at as "createdAt", updated_at as "updatedAt"
+      FROM categories 
+      WHERE id = ${categoryId}
+    ` as Array<{
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      image: string | null;
+      isActive: boolean;
+      createdAt: Date | null;
+      updatedAt: Date | null;
+    }>;
 
     return NextResponse.json({
       success: true,
-      data: updatedCategory,
+      data: updatedCategory[0],
     });
   } catch (error) {
     console.error('Erro ao atualizar categoria:', error);

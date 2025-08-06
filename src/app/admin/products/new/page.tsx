@@ -27,6 +27,27 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  parent?: {
+    id: string;
+    name: string;
+    parent?: {
+      id: string;
+      name: string;
+    }
+  };
+  children?: Category[];
+  _count: {
+    products: number;
+  };
+}
+
+interface CategoriesResponse {
+  all: Category[];
+  byLevel: {
+    level1: Category[];
+    level2: Category[];
+    level3: Category[];
+  };
 }
 
 interface ProductVariant {
@@ -39,6 +60,19 @@ export default function NewProductPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesByLevel, setCategoriesByLevel] = useState<{
+    level1: Category[];
+    level2: Category[];
+    level3: Category[];
+  }>({
+    level1: [],
+    level2: [],
+    level3: []
+  });
+  const [selectedLevel1, setSelectedLevel1] = useState('');
+  const [selectedLevel2, setSelectedLevel2] = useState('');
+  const [selectedLevel3, setSelectedLevel3] = useState('');
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -67,10 +101,11 @@ export default function NewProductPage() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const response = await fetch('/api/categories');
+        const response = await fetch('/api/categories/for-products');
         if (response.ok) {
           const data = await response.json();
-          setCategories(data);
+          setCategories(data.all);
+          setCategoriesByLevel(data.byLevel);
         } else {
           console.error('Erro ao carregar categorias:', response.statusText);
         }
@@ -142,6 +177,45 @@ export default function NewProductPage() {
     setVariants(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Funções para hierarquia de categorias
+  const getLevel2Categories = () => {
+    if (!selectedLevel1) return [];
+    return categoriesByLevel.level2.filter(cat => cat.parent?.id === selectedLevel1);
+  };
+
+  const getLevel3Categories = () => {
+    if (!selectedLevel2) return [];
+    return categoriesByLevel.level3.filter(cat => cat.parent?.id === selectedLevel2);
+  };
+
+  const handleLevel1Change = (value: string) => {
+    setSelectedLevel1(value);
+    setSelectedLevel2('');
+    setSelectedLevel3('');
+    setFormData(prev => ({ ...prev, categoryId: value }));
+  };
+
+  const handleLevel2Change = (value: string) => {
+    setSelectedLevel2(value);
+    setSelectedLevel3('');
+    setFormData(prev => ({ ...prev, categoryId: value }));
+  };
+
+  const handleLevel3Change = (value: string) => {
+    setSelectedLevel3(value);
+    setFormData(prev => ({ ...prev, categoryId: value }));
+  };
+
+  // Função para obter o nome completo da categoria (hierárquico)
+  const getCategoryFullName = (category: Category): string => {
+    if (category.parent?.parent) {
+      return `${category.parent.parent.name} > ${category.parent.name} > ${category.name}`;
+    } else if (category.parent) {
+      return `${category.parent.name} > ${category.name}`;
+    }
+    return category.name;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
@@ -206,25 +280,97 @@ export default function NewProductPage() {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-2">
-                      Categoria *
-                    </label>
-                    <Select
-                      value={formData.categoryId}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-4">
+                        Categoria do Produto *
+                      </label>
+                      
+                      {/* Nível 1 - Categoria Principal */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            1. Categoria Principal
+                          </label>
+                          <Select
+                            value={selectedLevel1}
+                            onValueChange={handleLevel1Change}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Selecione a categoria principal" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categoriesByLevel.level1.map(category => (
+                                <SelectItem key={category.id} value={category.id}>
+                                  {category.name} ({category._count.products} produtos)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Nível 2 - Subcategoria */}
+                        {selectedLevel1 && (
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                              2. Subcategoria (opcional)
+                            </label>
+                            <Select
+                              value={selectedLevel2}
+                              onValueChange={handleLevel2Change}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecione uma subcategoria (opcional)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getLevel2Categories().map(category => (
+                                  <SelectItem key={category.id} value={category.id}>
+                                    {category.name} ({category._count.products} produtos)
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {/* Nível 3 - Sub-subcategoria */}
+                        {selectedLevel2 && (
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                              3. Categoria Específica (opcional)
+                            </label>
+                            <Select
+                              value={selectedLevel3}
+                              onValueChange={handleLevel3Change}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecione a categoria específica (opcional)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getLevel3Categories().map(category => (
+                                  <SelectItem key={category.id} value={category.id}>
+                                    {category.name} ({category._count.products} produtos)
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {/* Categoria Selecionada */}
+                        {formData.categoryId && (
+                          <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
+                            <p className="text-sm text-gray-600 mb-1">Categoria selecionada:</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {(() => {
+                                const selectedCategory = categories.find(c => c.id === formData.categoryId);
+                                return selectedCategory ? getCategoryFullName(selectedCategory) : '';
+                              })()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

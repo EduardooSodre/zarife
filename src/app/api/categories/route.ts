@@ -9,6 +9,15 @@ export async function GET() {
       include: {
         _count: {
           select: { products: true }
+        },
+        parent: true,
+        children: {
+          include: {
+            children: true,
+            _count: {
+              select: { products: true }
+            }
+          }
         }
       },
     });

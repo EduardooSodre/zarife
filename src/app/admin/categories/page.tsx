@@ -12,6 +12,16 @@ interface CategoryWithCount {
     description: string | null;
     image?: string | null;
     isActive?: boolean;
+    parentId?: string | null;
+    parent?: {
+        id: string;
+        name: string;
+        parent?: {
+            id: string;
+            name: string;
+        }
+    };
+    children?: CategoryWithCount[];
     _count: {
         products: number;
     };
@@ -22,6 +32,16 @@ export default async function CategoriesPage() {
         include: {
             _count: {
                 select: { products: true }
+            },
+            parent: {
+                include: {
+                    parent: true
+                }
+            },
+            children: {
+                include: {
+                    children: true
+                }
             }
         },
         orderBy: { name: "asc" },
@@ -30,6 +50,23 @@ export default async function CategoriesPage() {
     const totalProducts = categories.reduce((acc, cat) => acc + cat._count.products, 0);
     const activeCategories = categories.filter(cat => cat.isActive !== false);
     const inactiveCategories = categories.filter(cat => cat.isActive === false);
+
+    // Função para obter o nome completo da categoria (hierárquico)
+    const getCategoryFullName = (category: CategoryWithCount): string => {
+        if (category.parent?.parent) {
+            return `${category.parent.parent.name} > ${category.parent.name} > ${category.name}`;
+        } else if (category.parent) {
+            return `${category.parent.name} > ${category.name}`;
+        }
+        return category.name;
+    };
+
+    // Organizar categorias por nível para exibição
+    const categoriesByLevel = {
+        level1: categories.filter(cat => !cat.parent),
+        level2: categories.filter(cat => cat.parent && !cat.parent.parent),
+        level3: categories.filter(cat => cat.parent?.parent),
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -142,9 +179,19 @@ export default async function CategoriesPage() {
 
                                         <div className="p-4">
                                             <div className="flex items-start justify-between mb-2">
-                                                <h3 className="text-lg font-semibold text-gray-900 flex-1">
-                                                    {category.name}
-                                                </h3>
+                                                <div className="flex-1">
+                                                    <h3 className="text-lg font-semibold text-gray-900">
+                                                        {category.name}
+                                                    </h3>
+                                                    {category.parent && (
+                                                        <p className="text-xs text-gray-500 mt-1">
+                                                            Subcategoria de: {category.parent.parent ? 
+                                                                `${category.parent.parent.name} > ${category.parent.name}` : 
+                                                                category.parent.name
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
                                                 <div className="flex items-center gap-2 ml-2">
                                                     {category.isActive !== false ? (
                                                         <Eye className="w-4 h-4 text-green-500" />
@@ -154,6 +201,11 @@ export default async function CategoriesPage() {
                                                     <Badge variant="secondary">
                                                         {category._count.products} produto{category._count.products !== 1 ? 's' : ''}
                                                     </Badge>
+                                                    {category.children && category.children.length > 0 && (
+                                                        <Badge variant="outline">
+                                                            {category.children.length} sub{category.children.length > 1 ? 's' : ''}
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
                                             

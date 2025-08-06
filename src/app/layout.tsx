@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
-        <body className={`${inter.className} antialiased`}>
+        <body className={`${playfair.className} antialiased`}>
           <CartProvider>
             <div className="min-h-screen flex flex-col">
               <UserSync />

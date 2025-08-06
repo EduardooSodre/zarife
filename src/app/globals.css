@@ -51,33 +51,33 @@
 
 /* LIGHT MODE */
 :root {
-  --radius: 0.625rem; /* branco puro */ /* preto sofisticado */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0); /* preto elegante */
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0); /* cinza muito claro */
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0); /* dourado elegante */
-  --accent-foreground: oklch(0.205 0 0);
+  --radius: 0.625rem;
+  --card: #E9E8E8; /* Off White */
+  --card-foreground: #1F1F1F; /* Cinza Antracite */
+  --popover: #E9E8E8; /* Off White */
+  --popover-foreground: #1F1F1F; /* Cinza Antracite */
+  --primary: #1F1F1F; /* Cinza Antracite */
+  --primary-foreground: #E9E8E8; /* Off White */
+  --secondary: #E9E8E8; /* Off White */
+  --secondary-foreground: #1F1F1F; /* Cinza Antracite */
+  --muted: #E9E8E8; /* Off White */
+  --muted-foreground: #9E9E9E; /* Cinza Médio */
+  --accent: #9E9E9E; /* Cinza Médio */
+  --accent-foreground: #1F1F1F; /* Cinza Antracite */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --border: #9E9E9E; /* Cinza Médio */
+  --input: #E9E8E8; /* Off White */
+  --ring: #9E9E9E; /* Cinza Médio */
+  --sidebar: #E9E8E8; /* Off White */
+  --sidebar-foreground: #1F1F1F; /* Cinza Antracite */
+  --sidebar-primary: #1F1F1F; /* Cinza Antracite */
+  --sidebar-primary-foreground: #E9E8E8; /* Off White */
+  --sidebar-accent: #E9E8E8; /* Off White */
+  --sidebar-accent-foreground: #1F1F1F; /* Cinza Antracite */
+  --sidebar-border: #9E9E9E; /* Cinza Médio */
+  --sidebar-ring: #9E9E9E; /* Cinza Médio */
+  --background: #E9E8E8; /* Off White */
+  --foreground: #1F1F1F; /* Cinza Antracite */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -87,32 +87,32 @@
 
 /* DARK MODE */
 .dark {
-  --background: oklch(0.145 0 0); /* preto profundo */
-  --foreground: oklch(0.985 0 0); /* branco puro */
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0); /* branco no dark mode */
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0); /* dourado mantém no dark */
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #1F1F1F; /* Cinza Antracite */
+  --foreground: #E9E8E8; /* Off White */
+  --card: #1F1F1F; /* Cinza Antracite */
+  --card-foreground: #E9E8E8; /* Off White */
+  --popover: #1F1F1F; /* Cinza Antracite */
+  --popover-foreground: #E9E8E8; /* Off White */
+  --primary: #E9E8E8; /* Off White no dark mode */
+  --primary-foreground: #1F1F1F; /* Cinza Antracite */
+  --secondary: #9E9E9E; /* Cinza Médio */
+  --secondary-foreground: #E9E8E8; /* Off White */
+  --muted: #9E9E9E; /* Cinza Médio */
+  --muted-foreground: #E9E8E8; /* Off White */
+  --accent: #9E9E9E; /* Cinza Médio */
+  --accent-foreground: #E9E8E8; /* Off White */
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: #9E9E9E; /* Cinza Médio */
+  --input: #9E9E9E; /* Cinza Médio */
+  --ring: #9E9E9E; /* Cinza Médio */
+  --sidebar: #1F1F1F; /* Cinza Antracite */
+  --sidebar-foreground: #E9E8E8; /* Off White */
+  --sidebar-primary: #E9E8E8; /* Off White */
+  --sidebar-primary-foreground: #1F1F1F; /* Cinza Antracite */
+  --sidebar-accent: #9E9E9E; /* Cinza Médio */
+  --sidebar-accent-foreground: #E9E8E8; /* Off White */
+  --sidebar-border: #9E9E9E; /* Cinza Médio */
+  --sidebar-ring: #9E9E9E; /* Cinza Médio */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

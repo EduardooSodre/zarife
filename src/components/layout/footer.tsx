@@ -1,9 +1,50 @@
+'use client'
+
 import Link from "next/link";
 import {
   Instagram
 } from "lucide-react";
+import { useEffect, useState } from 'react'
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+  parent?: { id: string; name: string; slug: string }
+}
+
+interface HeaderCategory {
+  id: string
+  name: string
+  slug: string
+  parent?: { id: string; name: string; slug: string }
+  children?: HeaderCategory[]
+}
 
 export function Footer() {
+  const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetch('/api/categories/header')
+        const data = await response.json()
+        // Pega apenas as categorias principais (sem parent)
+        const mainCategories = data
+          .filter((category: HeaderCategory) => !category.parent)
+          .map((category: HeaderCategory) => ({
+            id: category.id,
+            name: category.name,
+            slug: category.slug
+          }))
+        setCategories(mainCategories)
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   return (
     <footer className="text-black" style={{ backgroundColor: '#f4f4f4' }}>
@@ -90,16 +131,10 @@ export function Footer() {
             <div>
               <h4 className="text-lg font-medium mb-6 uppercase tracking-wider text-gray-800">MENU PRINCIPAL</h4>
               <ul className="space-y-3">
-                {[
-                  { name: "Roupas", href: "/roupas" },
-                  { name: "Looks Completos", href: "/looks-completos" },
-                  { name: "Conjuntos", href: "/conjuntos" },
-                  { name: "Vestidos", href: "/vestidos" },
-                  { name: "Moda Praia", href: "/moda-praia" },
-                ].map((link) => (
-                  <li key={link.name}>
-                    <Link href={link.href} className="text-gray-600 hover:text-gray-800 transition-colors text-sm">
-                      {link.name}
+                {categories.map((category) => (
+                  <li key={category.id}>
+                    <Link href={`/category/${category.slug}`} className="text-gray-600 hover:text-gray-800 transition-colors text-sm">
+                      {category.name}
                     </Link>
                   </li>
                 ))}

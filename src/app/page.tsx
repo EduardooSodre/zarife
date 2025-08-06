@@ -18,7 +18,7 @@ export default async function Home() {
       },
       category: true,
     },
-    take: 3,
+    take: 8,
   });
 
   // Fetch categories for the category grid
@@ -111,7 +111,7 @@ export default async function Home() {
             <div className="w-24 h-px bg-accent mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
                 <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
@@ -121,28 +121,28 @@ export default async function Home() {
                         <Image
                           src={product.images[0].url}
                           alt={product.name}
-                          width={400}
-                          height={400}
+                          width={300}
+                          height={300}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                          <span className="text-sm">{product.name}</span>
+                          <span className="text-sm text-center px-2">{product.name}</span>
                         </div>
                       )}
                     </div>
                   </Link>
-                  <div className="p-6">
+                  <div className="p-4">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer">
+                      <h3 className="text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-12 line-clamp-2 overflow-hidden">
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 text-sm mb-3 h-10 line-clamp-2 overflow-hidden">
                       {product.description || 'Produto de qualidade premium'}
                     </p>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-medium text-primary">€{product.price.toFixed(2)}</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-medium text-primary">€{product.price.toFixed(2)}</span>
                       {product.oldPrice && product.oldPrice > product.price && (
                         <span className="text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
                       )}
@@ -156,93 +156,50 @@ export default async function Home() {
                         size: "Único",
                         color: "Padrão"
                       }}
-                      className="w-full uppercase tracking-widest text-sm"
+                      className="w-full uppercase tracking-widest text-xs py-2"
                     />
                   </div>
                 </div>
               ))
             ) : (
               // Fallback products if no featured products exist
-              <>
-                {/* Product 1 */}
-                <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
                   <div className="aspect-square bg-gray-200 overflow-hidden">
                     <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
                       <span className="text-sm">Produto em Breve</span>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Produto em Destaque
+                  <div className="p-4">
+                    <h3 className="text-base font-medium text-gray-900 mb-2">
+                      Produto em Destaque {index + 1}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 text-sm mb-3">
                       Em breve teremos produtos incríveis aqui
                     </p>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-medium text-primary">€0.00</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-medium text-primary">€0.00</span>
                     </div>
                     <button
                       disabled
-                      className="w-full uppercase tracking-widest text-sm px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+                      className="w-full uppercase tracking-widest text-xs py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
                     >
                       Em Breve
                     </button>
                   </div>
                 </div>
-
-                {/* Product 2 */}
-                <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-square bg-gray-200 overflow-hidden">
-                    <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                      <span className="text-sm">Produto em Breve</span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Produto em Destaque
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4">
-                      Em breve teremos produtos incríveis aqui
-                    </p>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-medium text-primary">€0.00</span>
-                    </div>
-                    <button
-                      disabled
-                      className="w-full uppercase tracking-widest text-sm px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
-                    >
-                      Em Breve
-                    </button>
-                  </div>
-                </div>
-
-                {/* Product 3 */}
-                <div className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-square bg-gray-200 overflow-hidden">
-                    <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                      <span className="text-sm">Produto em Breve</span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Produto em Destaque
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4">
-                      Em breve teremos produtos incríveis aqui
-                    </p>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-medium text-primary">€0.00</span>
-                    </div>
-                    <button
-                      disabled
-                      className="w-full uppercase tracking-widest text-sm px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
-                    >
-                      Em Breve
-                    </button>
-                  </div>
-                </div>
-              </>
+              ))
             )}
+          </div>
+
+          {/* Ver Todos os Produtos Button */}
+          <div className="text-center mt-12">
+            <Link 
+              href="/produtos" 
+              className="inline-block bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium"
+            >
+              VER TODOS OS PRODUTOS
+            </Link>
           </div>
         </div>
       </section>

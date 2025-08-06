@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UserButton, SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { ShoppingCart, User, Search, Menu, X } from 'lucide-react'
 import { useCart } from '@/contexts/cart-context'
@@ -23,11 +23,47 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
+interface HeaderCategory {
+  id: string;
+  name: string;
+  slug: string;
+  href: string;
+  children: {
+    id: string;
+    name: string;
+    slug: string;
+    href: string;
+    children: {
+      id: string;
+      name: string;
+      slug: string;
+      href: string;
+    }[];
+  }[];
+}
+
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [categories, setCategories] = useState<HeaderCategory[]>([])
   const { totalItems, setIsOpen } = useCart()
+
+  // Carregar categorias do banco
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('/api/categories/header')
+        if (response.ok) {
+          const data = await response.json()
+          setCategories(data)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error)
+      }
+    }
+    loadCategories()
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,36 +79,12 @@ export default function Header() {
     setIsOpen(true)
   }
 
-  const roupasItems = [
-    { 
-      name: "PARTES DE CIMA", 
-      href: "/roupas/partes-de-cima",
-      subcategories: [
-        { name: "Blusas", href: "/roupas/partes-de-cima/blusas" },
-        { name: "Camisas", href: "/roupas/partes-de-cima/camisas" }
-      ]
-    },
-    { 
-      name: "PARTES DE BAIXO", 
-      href: "/roupas/partes-de-baixo",
-      subcategories: [
-        { name: "Shorts", href: "/roupas/partes-de-baixo/shorts" },
-        { name: "Saias", href: "/roupas/partes-de-baixo/saias" },
-        { name: "Calças", href: "/roupas/partes-de-baixo/calcas" }
-      ]
-    }
-  ]
-
-  const lookCompletoItems = [
-    { name: "Vestidos", href: "/look-completo/vestidos" },
-    { name: "Conjuntos", href: "/look-completo/conjuntos" }
-  ]
-
-  const modaPraiaItems = [
-    { name: "Biquíni", href: "/moda-praia/biquini" },
-    { name: "Maiô", href: "/moda-praia/maio" },
-    { name: "Saídas de Praia", href: "/moda-praia/saidas-de-praia" }
-  ]
+  // Encontrar categorias específicas
+  const roupasCategory = categories.find(cat => cat.slug === 'roupas')
+  const vestidosCategory = categories.find(cat => cat.slug === 'vestidos')
+  const conjuntosCategory = categories.find(cat => cat.slug === 'conjuntos')
+  const modaPraiaCategory = categories.find(cat => cat.slug === 'moda-praia')
+  const lookCompletoCategory = categories.find(cat => cat.slug === 'look-completo')
 
   return (
     <>
@@ -115,88 +127,145 @@ export default function Header() {
                 <nav className="border-b border-gray-200 pb-4 mb-4">
                   <div className="space-y-1">
                     {/* ROUPAS */}
-                    <div>
-                      <Link 
-                        href="/roupas" 
-                        className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        ROUPAS
-                      </Link>
-                      <div className="bg-gray-50">
-                        {roupasItems.map((item) => (
-                          <div key={item.name}>
+                    {/* ROUPAS */}
+                    {roupasCategory && (
+                      <div>
+                        <Link 
+                          href={roupasCategory.href} 
+                          className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {roupasCategory.name}
+                        </Link>
+                        <div className="bg-gray-50">
+                          {roupasCategory.children.map((item) => (
+                            <div key={item.name}>
+                              <Link 
+                                href={item.href} 
+                                className="flex items-center px-8 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 uppercase tracking-wide"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {item.name}
+                              </Link>
+                              {item.children && item.children.length > 0 && (
+                                <div>
+                                  {item.children.map((subcat) => (
+                                    <Link 
+                                      key={subcat.name} 
+                                      href={subcat.href} 
+                                      className="flex items-center px-12 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      {subcat.name}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* VESTIDOS */}
+                    {vestidosCategory && (
+                      <div>
+                        <Link 
+                          href={vestidosCategory.href} 
+                          className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {vestidosCategory.name}
+                        </Link>
+                        <div className="bg-gray-50">
+                          {vestidosCategory.children.map((item) => (
                             <Link 
+                              key={item.name} 
                               href={item.href} 
-                              className="flex items-center px-8 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 uppercase tracking-wide"
+                              className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
                               {item.name}
                             </Link>
-                            {item.subcategories && (
-                              <div>
-                                {item.subcategories.map((subcat) => (
-                                  <Link 
-                                    key={subcat.name} 
-                                    href={subcat.href} 
-                                    className="flex items-center px-12 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                  >
-                                    {subcat.name}
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    
-                    {/* LOOK COMPLETO */}
-                    <div>
-                      <Link 
-                        href="/look-completo" 
-                        className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        LOOK COMPLETO
-                      </Link>
-                      <div className="bg-gray-50">
-                        {lookCompletoItems.map((item) => (
-                          <Link 
-                            key={item.name} 
-                            href={item.href} 
-                            className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            {item.name}
-                          </Link>
-                        ))}
+                    )}
+
+                    {/* CONJUNTOS */}
+                    {conjuntosCategory && (
+                      <div>
+                        <Link 
+                          href={conjuntosCategory.href} 
+                          className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {conjuntosCategory.name}
+                        </Link>
+                        <div className="bg-gray-50">
+                          {conjuntosCategory.children.map((item) => (
+                            <Link 
+                              key={item.name} 
+                              href={item.href} 
+                              className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* MODA PRAIA */}
-                    <div>
-                      <Link 
-                        href="/moda-praia" 
-                        className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        MODA PRAIA
-                      </Link>
-                      <div className="bg-gray-50">
-                        {modaPraiaItems.map((item) => (
-                          <Link 
-                            key={item.name} 
-                            href={item.href} 
-                            className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            {item.name}
-                          </Link>
-                        ))}
+                    {modaPraiaCategory && (
+                      <div>
+                        <Link 
+                          href={modaPraiaCategory.href} 
+                          className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {modaPraiaCategory.name}
+                        </Link>
+                        <div className="bg-gray-50">
+                          {modaPraiaCategory.children.map((item) => (
+                            <Link 
+                              key={item.name} 
+                              href={item.href} 
+                              className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* LOOK COMPLETO */}
+                    {lookCompletoCategory && (
+                      <div>
+                        <Link 
+                          href={lookCompletoCategory.href} 
+                          className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {lookCompletoCategory.name}
+                        </Link>
+                        <div className="bg-gray-50">
+                          {lookCompletoCategory.children.map((item) => (
+                            <Link 
+                              key={item.name} 
+                              href={item.href} 
+                              className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </nav>
               </SheetContent>
@@ -218,66 +287,111 @@ export default function Header() {
             <div className="hidden md:flex items-center">
               {/* Fixed Menu Items */}
               <Menubar className="bg-transparent border-0 shadow-none h-auto p-0 gap-1 mr-6">
-                <MenubarMenu>
-                  <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
-                    ROUPAS
-                  </MenubarTrigger>
-                  <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-3">
-                    {roupasItems.map((item, index) => (
-                      <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
-                        <MenubarItem asChild>
-                          <Link href={item.href} className="group block text-sm font-medium text-gray-900 uppercase tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                {/* Menu ROUPAS */}
+                {roupasCategory && (
+                  <MenubarMenu>
+                    <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                      {roupasCategory.name}
+                    </MenubarTrigger>
+                    <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-3">
+                      {roupasCategory.children.map((item, index) => (
+                        <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
+                          <MenubarItem asChild>
+                            <Link href={item.href} className="group block text-sm font-medium text-gray-900 uppercase tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                              {item.name}
+                            </Link>
+                          </MenubarItem>
+                          {item.children && item.children.length > 0 && (
+                            <div className="ml-2 mt-1 space-y-0.5">
+                              {item.children.map((subcat) => (
+                                <MenubarItem key={subcat.name} asChild>
+                                  <Link href={subcat.href} className="block text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-150">
+                                    {subcat.name}
+                                  </Link>
+                                </MenubarItem>
+                              ))}
+                            </div>
+                          )}
+                          {index < roupasCategory.children.length - 1 && (
+                            <MenubarSeparator className="my-2 bg-gray-200" />
+                          )}
+                        </div>
+                      ))}
+                    </MenubarContent>
+                  </MenubarMenu>
+                )}
+
+                {/* Menu VESTIDOS */}
+                {vestidosCategory && (
+                  <MenubarMenu>
+                    <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                      {vestidosCategory.name}
+                    </MenubarTrigger>
+                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                      {vestidosCategory.children.map((item) => (
+                        <MenubarItem key={item.name} asChild>
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
                             {item.name}
                           </Link>
                         </MenubarItem>
-                        {item.subcategories && (
-                          <div className="ml-2 mt-1 space-y-0.5">
-                            {item.subcategories.map((subcat) => (
-                              <MenubarItem key={subcat.name} asChild>
-                                <Link href={subcat.href} className="block text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-150">
-                                  {subcat.name}
-                                </Link>
-                              </MenubarItem>
-                            ))}
-                          </div>
-                        )}
-                        {index < roupasItems.length - 1 && (
-                          <MenubarSeparator className="my-2 bg-gray-200" />
-                        )}
-                      </div>
-                    ))}
-                  </MenubarContent>
-                </MenubarMenu>
+                      ))}
+                    </MenubarContent>
+                  </MenubarMenu>
+                )}
 
-                <MenubarMenu>
-                  <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
-                    LOOK COMPLETO
-                  </MenubarTrigger>
-                  <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
-                    {lookCompletoItems.map((item) => (
-                      <MenubarItem key={item.name} asChild>
-                        <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
-                          {item.name}
-                        </Link>
-                      </MenubarItem>
-                    ))}
-                  </MenubarContent>
-                </MenubarMenu>
+                {/* Menu CONJUNTOS */}
+                {conjuntosCategory && (
+                  <MenubarMenu>
+                    <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                      {conjuntosCategory.name}
+                    </MenubarTrigger>
+                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                      {conjuntosCategory.children.map((item) => (
+                        <MenubarItem key={item.name} asChild>
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
+                            {item.name}
+                          </Link>
+                        </MenubarItem>
+                      ))}
+                    </MenubarContent>
+                  </MenubarMenu>
+                )}
 
-                <MenubarMenu>
-                  <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
-                    MODA PRAIA
-                  </MenubarTrigger>
-                  <MenubarContent className="min-w-[160px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
-                    {modaPraiaItems.map((item) => (
-                      <MenubarItem key={item.name} asChild>
-                        <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
-                          {item.name}
-                        </Link>
-                      </MenubarItem>
-                    ))}
-                  </MenubarContent>
-                </MenubarMenu>
+                {/* Menu MODA PRAIA */}
+                {modaPraiaCategory && (
+                  <MenubarMenu>
+                    <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                      {modaPraiaCategory.name}
+                    </MenubarTrigger>
+                    <MenubarContent className="min-w-[160px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                      {modaPraiaCategory.children.map((item) => (
+                        <MenubarItem key={item.name} asChild>
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
+                            {item.name}
+                          </Link>
+                        </MenubarItem>
+                      ))}
+                    </MenubarContent>
+                  </MenubarMenu>
+                )}
+
+                {/* Menu LOOK COMPLETO */}
+                {lookCompletoCategory && (
+                  <MenubarMenu>
+                    <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                      {lookCompletoCategory.name}
+                    </MenubarTrigger>
+                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                      {lookCompletoCategory.children.map((item) => (
+                        <MenubarItem key={item.name} asChild>
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
+                            {item.name}
+                          </Link>
+                        </MenubarItem>
+                      ))}
+                    </MenubarContent>
+                  </MenubarMenu>
+                )}
               </Menubar>
             </div>
 

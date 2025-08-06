@@ -11,8 +11,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        serif: ["var(--font-playfair-display)", "serif"],
+        inter: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       spacing: {
         '18': '4.5rem',

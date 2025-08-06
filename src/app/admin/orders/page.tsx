@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { checkAdminAuth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -7,11 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Eye, Search, Filter, Download, ArrowLeft } from "lucide-react";
 
 export default async function AdminOrdersPage() {
-    const { isAdmin } = await checkAdminAuth();
-
-    if (!isAdmin) {
-        redirect("/");
-    }
 
     // Get all orders
     const orders = await prisma.order.findMany({

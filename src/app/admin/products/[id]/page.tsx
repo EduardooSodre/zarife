@@ -1,5 +1,4 @@
-import { redirect, notFound } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,20 +15,6 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const resolvedParams = await params;
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
-
-  // Check if user is admin
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-  });
-
-  if (!user || user.role !== "ADMIN") {
-    redirect("/");
-  }
 
   // Get product
   const product = await prisma.product.findUnique({

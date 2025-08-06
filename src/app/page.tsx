@@ -3,8 +3,11 @@ import Image from "next/image";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { prisma } from "@/lib/db";
 
+// Cache por 1 hora (3600 segundos)
+export const revalidate = 3600;
+
 export default async function Home() {
-  // Fetch featured products from database
+  // Fetch featured products with optimized query
   const featuredProducts = await prisma.product.findMany({
     where: {
       isFeatured: true,
@@ -12,18 +15,30 @@ export default async function Home() {
     },
     include: {
       images: {
+        take: 1, // Apenas a primeira imagem
         orderBy: {
           order: 'asc',
         },
       },
-      category: true,
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
     },
     take: 8,
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
-  // Fetch categories for the category grid
+  // Fetch categories for the category grid - simplificado
   const categories = await prisma.category.findMany({
     take: 4,
+    orderBy: {
+      name: 'asc',
+    },
   });
   return (
     <main className="min-h-screen bg-white">

@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { checkAdminAuth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -7,21 +5,13 @@ import {
   ShoppingBag, 
   Users, 
   Package, 
-  Eye,
-  Plus,
-  Grid3X3,
   Euro,
-  ArrowRight
+  Plus,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default async function AdminDashboard() {
-  const { isAdmin } = await checkAdminAuth();
-
-  if (!isAdmin) {
-    redirect("/");
-  }
-
   // Get dashboard stats
   const [
     totalProducts,
@@ -49,41 +39,6 @@ export default async function AdminDashboard() {
   // Calculate revenue
   const revenue = recentOrders.reduce((sum, order) => sum + Number(order.total), 0);
 
-  const adminNavigation = [
-    {
-      name: "Produtos",
-      href: "/admin/products",
-      icon: <Package className="h-6 w-6" />,
-      description: "Gerir produtos e inventário",
-      color: "bg-blue-500",
-      count: totalProducts,
-    },
-    {
-      name: "Pedidos",
-      href: "/admin/orders",
-      icon: <ShoppingBag className="h-6 w-6" />,
-      description: "Visualizar e gerir pedidos",
-      color: "bg-green-500",
-      count: totalOrders,
-    },
-    {
-      name: "Clientes",
-      href: "/admin/users", 
-      icon: <Users className="h-6 w-6" />,
-      description: "Gerir base de clientes",
-      color: "bg-purple-500",
-      count: totalUsers,
-    },
-    {
-      name: "Categorias",
-      href: "/admin/categories",
-      icon: <Grid3X3 className="h-6 w-6" />,
-      description: "Organizar produtos",
-      color: "bg-orange-500",
-      count: 3,
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
@@ -99,128 +54,89 @@ export default async function AdminDashboard() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <Card className="border border-gray-200 hover:shadow-sm transition-shadow duration-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
                     Receita Total
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-semibold text-gray-900">
                     €{revenue.toFixed(2)}
                   </p>
-                  <p className="text-xs text-green-600 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     +12% vs. mês anterior
                   </p>
                 </div>
-                <div className="bg-green-100 p-3 rounded-lg">
-                  <Euro className="h-6 w-6 text-green-600" />
+                <div className="p-3 rounded-lg bg-gray-50">
+                  <Euro className="h-5 w-5 text-gray-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <Card className="border border-gray-200 hover:shadow-sm transition-shadow duration-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
                     Produtos
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-semibold text-gray-900">
                     {totalProducts}
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     Em catálogo
                   </p>
                 </div>
-                <div className="bg-blue-100 p-3 rounded-lg">
-                  <Package className="h-6 w-6 text-blue-600" />
+                <div className="p-3 rounded-lg bg-gray-50">
+                  <Package className="h-5 w-5 text-gray-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <Card className="border border-gray-200 hover:shadow-sm transition-shadow duration-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
                     Pedidos
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-semibold text-gray-900">
                     {totalOrders}
                   </p>
-                  <p className="text-xs text-purple-600 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     Este mês
                   </p>
                 </div>
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <ShoppingBag className="h-6 w-6 text-purple-600" />
+                <div className="p-3 rounded-lg bg-gray-50">
+                  <ShoppingBag className="h-5 w-5 text-gray-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <Card className="border border-gray-200 hover:shadow-sm transition-shadow duration-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
                     Clientes
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-semibold text-gray-900">
                     {totalUsers}
                   </p>
-                  <p className="text-xs text-orange-600 mt-1">
+                  <p className="text-xs text-gray-500 mt-1">
                     Registados
                   </p>
                 </div>
-                <div className="bg-orange-100 p-3 rounded-lg">
-                  <Users className="h-6 w-6 text-orange-600" />
+                <div className="p-3 rounded-lg bg-gray-50">
+                  <Users className="h-5 w-5 text-gray-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Navigation Grid */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-light text-primary mb-8 tracking-wider uppercase">
-            Gestão da Loja
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {adminNavigation.map((item) => (
-              <Link key={item.name} href={item.href} className="group">
-                <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-200 group-hover:scale-105">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className={`p-3 rounded-lg ${item.color} bg-opacity-10`}>
-                        <div className={`${item.color.replace('bg-', 'text-')}`}>
-                          {item.icon}
-                        </div>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-gray-900">
-                        {item.count}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        Itens
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
         </div>
 
         {/* Main Content Grid */}

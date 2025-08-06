@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { checkAdminAuth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -7,11 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Users, Search, Filter, UserCheck, Crown, ArrowLeft } from "lucide-react";
 
 export default async function AdminUsersPage() {
-    const { isAdmin } = await checkAdminAuth();
-
-    if (!isAdmin) {
-        redirect("/");
-    }
 
     // Get all users with order statistics
     const users = await prisma.user.findMany({
@@ -241,14 +234,7 @@ export default async function AdminUsersPage() {
                     </div>
                 )}
 
-                {/* Back to Dashboard */}
-                <div className="mt-8">
-                    <Link href="/admin">
-                        <Button variant="outline">
-                            ← Voltar ao Dashboard
-                        </Button>
-                    </Link>
-                </div>
+
             </div>
         </div>
     );

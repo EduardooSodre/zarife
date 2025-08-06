@@ -74,7 +74,6 @@ export async function PUT(
       season,
       gender,
       images,
-      variants,
     } = data;
 
     // Verificar se o produto existe
@@ -107,7 +106,6 @@ export async function PUT(
           brand,
           season,
           gender,
-          variants: variants || [],
         },
       });
 

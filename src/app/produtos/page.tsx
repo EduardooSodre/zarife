@@ -3,24 +3,52 @@ import Image from "next/image";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { prisma } from "@/lib/db";
 
-export default async function ProdutosPage() {
-  // Fetch all active products
-  const products = await prisma.product.findMany({
-    where: {
-      isActive: true,
-    },
-    include: {
-      images: {
-        orderBy: {
-          order: 'asc',
+// Cache por 30 minutos
+export const revalidate = 1800;
+
+interface ProdutosPageProps {
+  searchParams: { page?: string };
+}
+
+export default async function ProdutosPage({ searchParams }: ProdutosPageProps) {
+  const page = parseInt(searchParams.page || '1');
+  const limit = 16; // Produtos por página
+  const skip = (page - 1) * limit;
+
+  // Fetch products with pagination and optimized queries
+  const [products, totalCount] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        isActive: true,
+      },
+      include: {
+        images: {
+          take: 1, // Apenas a primeira imagem
+          orderBy: {
+            order: 'asc',
+          },
+        },
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
         },
       },
-      category: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: limit,
+      skip: skip,
+    }),
+    prisma.product.count({
+      where: {
+        isActive: true,
+      },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / limit);
 
   return (
     <main className="min-h-screen bg-white">
@@ -46,7 +74,7 @@ export default async function ProdutosPage() {
             <>
               <div className="mb-8">
                 <p className="text-gray-600">
-                  Mostrando {products.length} produto{products.length !== 1 ? 's' : ''}
+                  Mostrando {(page - 1) * limit + 1} - {Math.min(page * limit, totalCount)} de {totalCount} produto{totalCount !== 1 ? 's' : ''}
                 </p>
               </div>
               
@@ -105,6 +133,48 @@ export default async function ProdutosPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Paginação */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-2 mt-12">
+                  {page > 1 && (
+                    <Link
+                      href={`/produtos?page=${page - 1}`}
+                      className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                      Anterior
+                    </Link>
+                  )}
+                  
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const pageNum = Math.max(1, Math.min(page - 2 + i, totalPages - 4)) + i;
+                    if (pageNum > totalPages) return null;
+                    
+                    return (
+                      <Link
+                        key={pageNum}
+                        href={`/produtos?page=${pageNum}`}
+                        className={`px-4 py-2 border transition-colors ${
+                          pageNum === page
+                            ? 'bg-black text-white border-black'
+                            : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </Link>
+                    );
+                  })}
+                  
+                  {page < totalPages && (
+                    <Link
+                      href={`/produtos?page=${page + 1}`}
+                      className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                      Próxima
+                    </Link>
+                  )}
+                </div>
+              )}
             </>
           ) : (
             <div className="text-center py-16">

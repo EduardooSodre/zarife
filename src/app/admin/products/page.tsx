@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { checkAdminAuth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -8,26 +6,40 @@ import { Plus, Edit, Trash2, Eye, Search, Package, ArrowLeft } from "lucide-reac
 import Image from "next/image";
 
 export default async function AdminProductsPage() {
-    const { isAdmin } = await checkAdminAuth();
 
-    if (!isAdmin) {
-        redirect("/");
-    }
-
-    // Get all products
+    // Get products with optimized queries
     const products = await prisma.product.findMany({
         include: {
-            category: true,
+            category: {
+                select: {
+                    name: true,
+                    slug: true,
+                },
+            },
             images: {
+                take: 1, // Apenas a primeira imagem
                 orderBy: {
                     order: 'asc',
                 },
             },
+            _count: {
+                select: {
+                    images: true,
+                },
+            },
         },
         orderBy: { createdAt: "desc" },
+        take: 50, // Limitar a 50 produtos por vez
     });
 
-    const categories = await prisma.category.findMany();
+    const categories = await prisma.category.findMany({
+        select: {
+            id: true,
+            name: true,
+            slug: true,
+        },
+        take: 20, // Limitar categorias
+    });
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -179,8 +191,8 @@ export default async function AdminProductsPage() {
                                         {/* Stock Status */}
                                         <div className="absolute top-2 sm:top-3 left-2 sm:left-3">
                                             <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full ${product.stock > 0
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-red-100 text-red-800"
+                                                ? "bg-green-100 text-green-800"
+                                                : "bg-red-100 text-red-800"
                                                 }`}>
                                                 {product.stock > 0 ? `${product.stock} em stock` : "Esgotado"}
                                             </span>
@@ -270,14 +282,7 @@ export default async function AdminProductsPage() {
                     </div>
                 )}
 
-                {/* Back to Dashboard */}
-                <div className="mt-6 sm:mt-8">
-                    <Link href="/admin">
-                        <Button variant="outline" className="text-sm">
-                            ← Voltar ao Dashboard
-                        </Button>
-                    </Link>
-                </div>
+
             </div>
         </div>
     );

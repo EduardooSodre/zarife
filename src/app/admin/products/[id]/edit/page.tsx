@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, ArrowLeft, Palette, Ruler } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -26,12 +26,6 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-}
-
-interface ProductVariant {
-  size?: string;
-  color?: string;
-  stock: number;
 }
 
 interface EditProductPageProps {
@@ -62,11 +56,8 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   });
 
   const [images, setImages] = useState<ImageData[]>([]);
-  const [variants, setVariants] = useState<ProductVariant[]>([]);
   
   // Opções predefinidas para loja de roupas
-  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '34', '36', '38', '40', '42', '44'];
-  const colorOptions = ['Preto', 'Branco', 'Azul', 'Vermelho', 'Verde', 'Rosa', 'Amarelo', 'Roxo', 'Cinza', 'Bege', 'Laranja'];
   const seasonOptions = ['Primavera/Verão', 'Outono/Inverno', 'Todo o Ano'];
   const genderOptions = ['Feminino', 'Masculino', 'Unissex'];
 
@@ -109,9 +100,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             order: img.order !== undefined ? img.order : index,
           })) || [];
           setImages(productImages);
-
-          // Carregar variações
-          setVariants(product.variants || []);
         }
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -143,7 +131,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           oldPrice: formData.oldPrice ? parseFloat(formData.oldPrice) : null,
           stock: parseInt(formData.stock),
           images: imagesData,
-          variants: variants,
         }),
       });
 
@@ -167,20 +154,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
-  };
-
-  const addVariant = () => {
-    setVariants(prev => [...prev, { size: '', color: '', stock: 0 }]);
-  };
-
-  const updateVariant = (index: number, field: keyof ProductVariant, value: string | number) => {
-    setVariants(prev => prev.map((variant, i) => 
-      i === index ? { ...variant, [field]: value } : variant
-    ));
-  };
-
-  const removeVariant = (index: number) => {
-    setVariants(prev => prev.filter((_, i) => i !== index));
   };
 
   if (loadingProduct) {
@@ -409,111 +382,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Variações de Produto */}
-          <div className="mt-8 space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Variações de Produto</h3>
-                <button
-                  type="button"
-                  onClick={addVariant}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Adicionar Variação
-                </button>
-              </div>
-              
-              {variants.length === 0 ? (
-                <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                  <div className="flex flex-col items-center text-gray-500">
-                    <div className="flex space-x-2 mb-2">
-                      <Ruler className="w-6 h-6" />
-                      <Palette className="w-6 h-6" />
-                    </div>
-                    <p className="text-sm">Nenhuma variação adicionada</p>
-                    <p className="text-xs">Adicione tamanhos e cores para diferentes variações do produto</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {variants.map((variant, index) => (
-                    <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg border">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Tamanho
-                        </label>
-                        <Select
-                          value={variant.size || ''}
-                          onValueChange={(value) => updateVariant(index, 'size', value)}
-                        >
-                          <SelectTrigger className="w-full h-8">
-                            <SelectValue placeholder="Selecionar" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {sizeOptions.map(size => (
-                              <SelectItem key={size} value={size}>
-                                {size}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Cor
-                        </label>
-                        <Select
-                          value={variant.color || ''}
-                          onValueChange={(value) => updateVariant(index, 'color', value)}
-                        >
-                          <SelectTrigger className="w-full h-8">
-                            <SelectValue placeholder="Selecionar" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {colorOptions.map(color => (
-                              <SelectItem key={color} value={color}>
-                                {color}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Stock
-                        </label>
-                        <input
-                          type="number"
-                          value={variant.stock}
-                          onChange={(e) => updateVariant(index, 'stock', parseInt(e.target.value) || 0)}
-                          className="w-full px-2 py-1.5 h-8 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-black focus:border-transparent"
-                          min="0"
-                          placeholder="0"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Ação
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => removeVariant(index)}
-                          className="w-full h-8 px-3 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50 transition-colors"
-                        >
-                          Remover
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

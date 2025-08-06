@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import Header from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { UserSync } from "@/components/user-sync";
-import { CartProvider } from "@/contexts/cart-context";
-import { CartSheet } from "@/components/cart/cart-sheet";
+import { LayoutWrapper } from "@/components/layout-wrapper";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -45,17 +41,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
         <body className={`${playfair.className} antialiased`}>
-          <CartProvider>
-            <div className="min-h-screen flex flex-col">
-              <UserSync />
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-              <CartSheet />
-            </div>
-          </CartProvider>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </body>
       </html>
     </ClerkProvider>

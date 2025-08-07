@@ -1,28 +1,100 @@
-import { prisma } from '@/lib/db';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Eye } from 'lucide-react';
-import { DeleteCategoryButton } from '@/components/admin/delete-category-button';
+'use client';
 
-export default async function CategoriesPage() {
-    // Query simplificada para evitar problemas de tipos
-    const categories = await prisma.category.findMany({
-        include: {
-            _count: {
-                select: { products: true }
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Info } from 'lucide-react';
+import { CategorySortableList } from '@/components/admin/category-sortable-list';
+
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    image: string | null;
+    isActive: boolean;
+    order: number;
+    _count: {
+        products: number;
+    };
+}
+
+export default function CategoriesPage() {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
+
+    // Carregar categorias
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch('/api/categories');
+            if (response.ok) {
+                const data = await response.json();
+                setCategories(data.data || []);
             }
-        },
-        orderBy: { name: "asc" },
-        take: 50, // Limitar a 50 categorias por vez
-    });
+        } catch (error) {
+            console.error('Erro ao carregar categorias:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleReorder = async (newOrder: Category[]) => {
+        // Atualizar ordem localmente primeiro para feedback imediato
+        const updatedCategories = newOrder.map((category, index) => ({
+            ...category,
+            order: index
+        }));
+        setCategories(updatedCategories);
+        setUpdating(true);
+
+        try {
+            const categoryOrders = updatedCategories.map((category, index) => ({
+                id: category.id,
+                order: index
+            }));
+
+            const response = await fetch('/api/categories/reorder', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ categoryOrders }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao atualizar ordem');
+            }
+
+            // Recarregar categorias para garantir sincronização
+            await fetchCategories();
+        } catch (error) {
+            console.error('Erro ao reordenar categorias:', error);
+            // Reverter para ordem original em caso de erro
+            await fetchCategories();
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+                    <p className="text-gray-600">Carregando categorias...</p>
+                </div>
+            </div>
+        );
+    }
 
     const totalProducts = categories.reduce((acc, cat) => acc + cat._count.products, 0);
-
-    // Estatísticas simples - assumir todas ativas por enquanto
-    const activeCategories = categories; // Simplificado
-    const inactiveCategories: typeof categories = []; // Vazio por enquanto
+    const activeCategories = categories.filter(cat => cat.isActive);
+    const inactiveCategories = categories.filter(cat => !cat.isActive);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -97,10 +169,34 @@ export default async function CategoriesPage() {
                     </div>
                 </div>
 
-                {/* Lista de Categorias */}
+                {/* Aviso sobre ordenação */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                    <div className="flex items-start gap-3">
+                        <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <div>
+                            <h3 className="text-sm font-semibold text-blue-900 mb-1">
+                                Ordem das Categorias na Página Inicial
+                            </h3>
+                            <p className="text-sm text-blue-800">
+                                As primeiras 4 categorias <strong>ativas</strong> na ordem abaixo aparecem na página inicial. 
+                                Arraste e solte para reordenar. Categorias inativas não aparecem na página inicial.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Lista de Categorias com Drag and Drop */}
                 <div className="bg-white rounded-lg shadow-sm border">
                     <div className="p-6 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-900">Todas as Categorias</h2>
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold text-gray-900">Ordenação das Categorias</h2>
+                            {updating && (
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                                    Salvando ordem...
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div className="p-6">
                         {categories.length === 0 ? (
@@ -111,76 +207,10 @@ export default async function CategoriesPage() {
                                 </Link>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {categories.map((category) => (
-                                    <div
-                                        key={category.id}
-                                        className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-90"
-                                    >
-                                        {/* Imagem da categoria */}
-                                        <div className="aspect-video bg-gray-100 relative">
-                                            {category.image ? (
-                                                <Image
-                                                    src={category.image}
-                                                    alt={category.name}
-                                                    fill
-                                                    className="object-cover"
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full text-gray-400">
-                                                    <span className="text-sm">Sem imagem</span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="p-4 flex flex-col h-full">
-                                            <div className="flex items-start justify-between mb-2">
-                                                <div className="flex-1">
-                                                    <h3 className="text-lg font-semibold text-gray-900">
-                                                        {category.name}
-                                                    </h3>
-                                                </div>
-                                                <div className="flex items-center gap-2 ml-2">
-                                                    <Eye className="w-4 h-4 text-green-500" />
-                                                    <Badge variant="secondary">
-                                                        {category._count.products} produto{category._count.products !== 1 ? 's' : ''}
-                                                    </Badge>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex-1">
-                                                {category.description && (
-                                                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                                                        {category.description}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Ações - sempre no bottom */}
-                                            <div className="flex gap-2 mt-auto">
-                                                <Link href={`/admin/categories/${category.id}`} className="flex-1">
-                                                    <Button variant="outline" size="sm" className="w-full">
-                                                        <Eye className="w-4 h-4 mr-1" />
-                                                        Ver
-                                                    </Button>
-                                                </Link>
-                                                <Link href={`/admin/categories/${category.id}/edit`} className="flex-1">
-                                                    <Button variant="outline" size="sm" className="w-full">
-                                                        <Edit className="w-4 h-4 mr-1" />
-                                                        Editar
-                                                    </Button>
-                                                </Link>
-                                                <DeleteCategoryButton
-                                                    categoryId={category.id}
-                                                    categoryName={category.name}
-                                                    hasProducts={category._count.products > 0}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <CategorySortableList 
+                                categories={categories} 
+                                onReorder={handleReorder}
+                            />
                         )}
                     </div>
                 </div>

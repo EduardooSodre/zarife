@@ -33,12 +33,16 @@ export default async function Home() {
     },
   });
 
-  // Fetch categories for the category grid - simplificado
+  // Fetch categories for the category grid - apenas ativas e por ordem
   const categories = await prisma.category.findMany({
-    take: 4,
-    orderBy: {
-      name: 'asc',
+    where: {
+      isActive: true,
     },
+    take: 4,
+    orderBy: [
+      { order: 'asc' },
+      { name: 'asc' }
+    ],
   });
   return (
     <main className="min-h-screen bg-white">

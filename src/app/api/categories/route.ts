@@ -5,24 +5,21 @@ import { checkAdminAuth } from '@/lib/auth';
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
-      orderBy: { name: 'asc' },
       include: {
         _count: {
           select: { products: true }
-        },
-        parent: true,
-        children: {
-          include: {
-            children: true,
-            _count: {
-              select: { products: true }
-            }
-          }
         }
       },
+      orderBy: [
+        { order: 'asc' },
+        { name: 'asc' }
+      ],
     });
 
-    return NextResponse.json(categories);
+    return NextResponse.json({
+      success: true,
+      data: categories
+    });
   } catch (error) {
     console.error('Erro ao buscar categorias:', error);
     return NextResponse.json(

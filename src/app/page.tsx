@@ -146,40 +146,37 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
-                <div key={product.id} className="group cursor-pointer">
+                <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
                   <Link href={`/product/${product.id}`}>
-                    <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                    <div className="aspect-square bg-gray-200 overflow-hidden cursor-pointer">
                       {product.images && product.images.length > 0 ? (
                         <Image
                           src={product.images[0].url}
                           alt={product.name}
-                          width={400}
-                          height={533}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          width={300}
+                          height={300}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400 text-sm">Sem imagem</span>
-                        </div>
-                      )}
-                      {/* Overlay para preço em destaque no hover */}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
-                      {product.oldPrice && product.oldPrice > product.price && (
-                        <div className="absolute top-3 left-3 bg-accent text-white px-2 py-1 text-xs font-medium rounded">
-                          PROMOÇÃO
+                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+                          <span className="text-sm text-center px-2">{product.name}</span>
                         </div>
                       )}
                     </div>
                   </Link>
-                  <div className="text-center">
+                  <div className="p-4">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="text-sm font-medium text-black mb-2 uppercase tracking-wide group-hover:text-accent transition-colors">
+                      <h3 className="text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-12 overflow-hidden">
                         {product.name}
                       </h3>
                     </Link>
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                      <span className="text-lg font-light text-black">€{product.price.toFixed(2)}</span>
+                    {product.category && (
+                      <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">
+                        {product.category.name}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-medium text-black">€{product.price.toFixed(2)}</span>
                       {product.oldPrice && product.oldPrice > product.price && (
                         <span className="text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
                       )}

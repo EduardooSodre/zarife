@@ -122,7 +122,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
                   onClick={() => setSelectedSize(size)}
                   disabled={!isAvailable}
                   className={cn(
-                    "min-w-[2.5rem] h-10",
+                    "min-w-[2.5rem] h-10 rounded-none",
                     isSelected && "bg-black text-white hover:bg-gray-800",
                     !isAvailable && "opacity-50 cursor-not-allowed line-through"
                   )}
@@ -154,7 +154,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
                   onClick={() => setSelectedColor(color)}
                   disabled={!isAvailable}
                   className={cn(
-                    "min-w-[4rem] h-10 capitalize",
+                    "min-w-[4rem] h-10 capitalize rounded-none",
                     isSelected && "bg-black text-white hover:bg-gray-800",
                     !isAvailable && "opacity-50 cursor-not-allowed line-through"
                   )}

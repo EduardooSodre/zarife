@@ -56,15 +56,15 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
             color: selectedVariant.color || undefined
           }}
           disabled={selectedVariant.stock === 0}
-          className="w-full bg-black text-white py-4 text-lg uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-black text-white py-4 text-lg uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
         />
 
         <div className="flex space-x-4">
-          <Button variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1 rounded-none">
             <Heart className="w-4 h-4 mr-2" />
             Favoritar
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button variant="outline" className="flex-1 rounded-none">
             <Share2 className="w-4 h-4 mr-2" />
             Partilhar
           </Button>

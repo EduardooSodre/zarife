@@ -21,7 +21,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="aspect-square bg-gray-100 flex items-center justify-center">
         <div className="text-center text-gray-500">
           <div className="text-4xl mb-2">📷</div>
           <p>Sem imagens disponíveis</p>
@@ -45,7 +45,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
+      <div className="relative aspect-square bg-gray-100 overflow-hidden group">
         <Image
           src={images[currentImageIndex].url}
           alt={`${productName} - Imagem ${currentImageIndex + 1}`}
@@ -61,7 +61,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <Button
               variant="ghost"
               size="sm"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity rounded-none"
               onClick={prevImage}
             >
               <ChevronLeft className="w-4 h-4" />
@@ -69,7 +69,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <Button
               variant="ghost"
               size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity rounded-none"
               onClick={nextImage}
             >
               <ChevronRight className="w-4 h-4" />
@@ -92,7 +92,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <button
               key={image.id}
               onClick={() => goToImage(index)}
-              className={`relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors ${
+              className={`relative w-20 h-20 bg-gray-100 overflow-hidden flex-shrink-0 border-2 transition-colors ${
                 index === currentImageIndex
                   ? 'border-black'
                   : 'border-transparent hover:border-gray-300'

@@ -81,7 +81,7 @@ export default async function Home() {
             <div className="w-24 h-px bg-accent mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {categories.length > 0 ? (
               categories.map((category) => (
                 <Link key={category.id} href={`/category/${category.slug}`} className="group cursor-pointer">
@@ -143,7 +143,7 @@ export default async function Home() {
             <div className="w-24 h-px bg-accent mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
                 <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
@@ -164,9 +164,9 @@ export default async function Home() {
                       )}
                     </div>
                   </Link>
-                  <div className="p-4">
+                  <div className="p-2 md:p-4">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-12 overflow-hidden">
+                      <h3 className="text-sm md:text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-10 md:h-12 overflow-hidden">
                         {product.name}
                       </h3>
                     </Link>
@@ -175,10 +175,10 @@ export default async function Home() {
                         {product.category.name}
                       </p>
                     )}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-medium text-black">€{product.price.toFixed(2)}</span>
+                    <div className="flex items-center justify-between mb-2 md:mb-3">
+                      <span className="text-sm md:text-lg font-medium text-black">€{product.price.toFixed(2)}</span>
                       {product.oldPrice && product.oldPrice > product.price && (
-                        <span className="text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
+                        <span className="text-xs md:text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
                       )}
                     </div>
                     <HomeAddToCartButton

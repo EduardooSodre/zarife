@@ -22,6 +22,7 @@ function ParallaxBanner() {
           fill
           className="object-cover object-center scale-110"
           priority
+          quality={100}
           sizes="100vw"
         />
       </div>

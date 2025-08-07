@@ -47,6 +47,7 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [categories, setCategories] = useState<HeaderCategory[]>([])
+  const [isScrolled, setIsScrolled] = useState(false)
   const { totalItems, setIsOpen } = useCart()
 
   // Carregar categorias do banco
@@ -63,6 +64,21 @@ export default function Header() {
       }
     }
     loadCategories()
+  }, [])
+
+  // Controlar transparência do header baseado no scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      // Header transparente até finalizar a hero section (100vh - 2rem do top banner)
+      const heroHeight = window.innerHeight - 32 // 32px = 2rem
+      setIsScrolled(window.scrollY > heroHeight)
+    }
+
+    // Executar imediatamente para definir o estado inicial
+    handleScroll()
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -89,19 +105,24 @@ export default function Header() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-black text-white text-center py-2">
+      <div className="bg-black text-white text-center py-1">
         <p className="text-xs uppercase tracking-widest">
           COMPRE ONLINE E EM NOSSA LOJA
         </p>
       </div>
 
-      <header className="border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+      <header 
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
+        }`}
+        style={{ top: isScrolled ? '0' : '2rem' }}
+      >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Mobile Menu Button */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <button className="md:hidden p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                <button className="md:hidden p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-md transition-colors">
                   <Menu className="w-6 h-6" />
                   <span className="sr-only">Abrir menu</span>
                 </button>
@@ -412,7 +433,7 @@ export default function Header() {
                     <button 
                       type="button"
                       onClick={() => setIsSearchOpen(false)}
-                      className="ml-2 p-2 text-gray-900 hover:text-gray-600"
+                      className="ml-2 p-2 text-gray-900 hover:text-gray-600 transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>

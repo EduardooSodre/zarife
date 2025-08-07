@@ -28,7 +28,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   // Layout padrão com header, footer e carrinho
   return (
     <CartProvider>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col relative">
         <UserSync />
         <Header />
         <main className="flex-1">

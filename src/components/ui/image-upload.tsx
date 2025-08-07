@@ -47,7 +47,12 @@ interface SortableImageItemProps {
   isFirst: boolean;
 }
 
-function SortableImageItem({ image, index, onRemove, isFirst }: SortableImageItemProps) {
+function SortableImageItem({ 
+  image, 
+  index, 
+  onRemove, 
+  isFirst
+}: SortableImageItemProps) {
   const {
     attributes,
     listeners,
@@ -94,9 +99,11 @@ function SortableImageItem({ image, index, onRemove, isFirst }: SortableImageIte
         <button
           type="button"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             onRemove(image.id);
           }}
+          style={{ pointerEvents: 'auto' }}
           className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100 z-10"
         >
           <X className="w-4 h-4" />
@@ -107,7 +114,7 @@ function SortableImageItem({ image, index, onRemove, isFirst }: SortableImageIte
           {index + 1}
         </div>
 
-        {/* Drag overlay - só aparece quando não está arrastando */}
+        {/* Drag overlay - aparece quando não está arrastando */}
         {!isDragging && (
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors pointer-events-none flex items-center justify-center">
             <div className="bg-white/90 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -130,7 +137,11 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

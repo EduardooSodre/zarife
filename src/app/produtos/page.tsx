@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { HomeAddToCartButton } from '@/components/cart/home-add-to-cart-button';
 import { prisma } from "@/lib/db";
 
 // Cache por 30 minutos
@@ -78,7 +78,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {products.map((product) => (
                   <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
                     <Link href={`/product/${product.id}`}>
@@ -98,9 +98,9 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                         )}
                       </div>
                     </Link>
-                    <div className="p-4">
+                    <div className="p-2 md:p-4">
                       <Link href={`/product/${product.id}`}>
-                        <h3 className="text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-12 overflow-hidden">
+                        <h3 className="text-sm md:text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-10 md:h-12 overflow-hidden">
                           {product.name}
                         </h3>
                       </Link>
@@ -109,25 +109,19 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                           {product.category.name}
                         </p>
                       )}
-                      <p className="text-gray-600 text-sm mb-3 h-10 overflow-hidden">
-                        {product.description || 'Produto de qualidade premium'}
-                      </p>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-lg font-medium text-primary">€{product.price.toFixed(2)}</span>
+                      <div className="flex items-center justify-between mb-2 md:mb-3">
+                        <span className="text-sm md:text-lg font-medium text-black">€{product.price.toFixed(2)}</span>
                         {product.oldPrice && product.oldPrice > product.price && (
-                          <span className="text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
+                          <span className="text-xs md:text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
                         )}
                       </div>
-                      <AddToCartButton
+                      <HomeAddToCartButton
                         product={{
                           id: product.id,
                           name: product.name,
                           price: Number(product.price),
                           image: product.images?.[0]?.url || '/placeholder-product.jpg',
-                          size: "Único",
-                          color: "Padrão"
                         }}
-                        className="w-full uppercase tracking-widest text-xs py-2"
                       />
                     </div>
                   </div>
@@ -140,7 +134,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                   {page > 1 && (
                     <Link
                       href={`/produtos?page=${page - 1}`}
-                      className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors rounded-none"
                     >
                       Anterior
                     </Link>
@@ -154,7 +148,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                       <Link
                         key={pageNum}
                         href={`/produtos?page=${pageNum}`}
-                        className={`px-4 py-2 border transition-colors ${
+                        className={`px-4 py-2 border transition-colors rounded-none ${
                           pageNum === page
                             ? 'bg-black text-white border-black'
                             : 'border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -168,7 +162,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                   {page < totalPages && (
                     <Link
                       href={`/produtos?page=${page + 1}`}
-                      className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors rounded-none"
                     >
                       Próxima
                     </Link>

@@ -41,15 +41,6 @@ interface Category {
   };
 }
 
-interface CategoriesResponse {
-  all: Category[];
-  byLevel: {
-    level1: Category[];
-    level2: Category[];
-    level3: Category[];
-  };
-}
-
 interface ProductVariant {
   size?: string;
   color?: string;
@@ -104,8 +95,12 @@ export default function NewProductPage() {
         const response = await fetch('/api/categories/for-products');
         if (response.ok) {
           const data = await response.json();
-          setCategories(data.all);
-          setCategoriesByLevel(data.byLevel);
+          if (data.all && Array.isArray(data.all)) {
+            setCategories(data.all);
+          }
+          if (data.byLevel && data.byLevel.level1 && Array.isArray(data.byLevel.level1)) {
+            setCategoriesByLevel(data.byLevel);
+          }
         } else {
           console.error('Erro ao carregar categorias:', response.statusText);
         }
@@ -180,12 +175,12 @@ export default function NewProductPage() {
   // Funções para hierarquia de categorias
   const getLevel2Categories = () => {
     if (!selectedLevel1) return [];
-    return categoriesByLevel.level2.filter(cat => cat.parent?.id === selectedLevel1);
+    return (categoriesByLevel.level2 || []).filter(cat => cat.parent?.id === selectedLevel1);
   };
 
   const getLevel3Categories = () => {
     if (!selectedLevel2) return [];
-    return categoriesByLevel.level3.filter(cat => cat.parent?.id === selectedLevel2);
+    return (categoriesByLevel.level3 || []).filter(cat => cat.parent?.id === selectedLevel2);
   };
 
   const handleLevel1Change = (value: string) => {
@@ -300,7 +295,7 @@ export default function NewProductPage() {
                               <SelectValue placeholder="Selecione a categoria principal" />
                             </SelectTrigger>
                             <SelectContent>
-                              {categoriesByLevel.level1.map(category => (
+                              {(categoriesByLevel.level1 || []).map(category => (
                                 <SelectItem key={category.id} value={category.id}>
                                   {category.name} ({category._count.products} produtos)
                                 </SelectItem>
@@ -323,7 +318,7 @@ export default function NewProductPage() {
                                 <SelectValue placeholder="Selecione uma subcategoria (opcional)" />
                               </SelectTrigger>
                               <SelectContent>
-                                {getLevel2Categories().map(category => (
+                                {(getLevel2Categories() || []).map(category => (
                                   <SelectItem key={category.id} value={category.id}>
                                     {category.name} ({category._count.products} produtos)
                                   </SelectItem>
@@ -347,7 +342,7 @@ export default function NewProductPage() {
                                 <SelectValue placeholder="Selecione a categoria específica (opcional)" />
                               </SelectTrigger>
                               <SelectContent>
-                                {getLevel3Categories().map(category => (
+                                {(getLevel3Categories() || []).map(category => (
                                   <SelectItem key={category.id} value={category.id}>
                                     {category.name} ({category._count.products} produtos)
                                   </SelectItem>

@@ -126,7 +126,7 @@ export default async function AdminProductsPage() {
                             </div>
                             <select className="px-3 sm:px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm">
                                 <option value="">Todas as categorias</option>
-                                {categories.map((category) => (
+                                {(categories || []).map((category) => (
                                     <option key={category.id} value={category.id}>
                                         {category.name}
                                     </option>

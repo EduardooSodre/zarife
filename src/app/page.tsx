@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { prisma } from "@/lib/db";
+import { HomeAddToCartButton } from "@/components/cart/home-add-to-cart-button";
 
 // Cache por 1 hora (3600 segundos)
 export const revalidate = 3600;
@@ -134,7 +134,7 @@ export default async function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-white">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-light text-black mb-4 tracking-wider">
@@ -143,52 +143,54 @@ export default async function Home() {
             <div className="w-24 h-px bg-accent mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product) => (
-                <div key={product.id} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
+                <div key={product.id} className="group cursor-pointer">
                   <Link href={`/product/${product.id}`}>
-                    <div className="aspect-square bg-gray-200 overflow-hidden cursor-pointer">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
                       {product.images && product.images.length > 0 ? (
                         <Image
                           src={product.images[0].url}
                           alt={product.name}
-                          width={300}
-                          height={300}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          width={400}
+                          height={533}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                          <span className="text-sm text-center px-2">{product.name}</span>
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-sm">Sem imagem</span>
+                        </div>
+                      )}
+                      {/* Overlay para preço em destaque no hover */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
+                      {product.oldPrice && product.oldPrice > product.price && (
+                        <div className="absolute top-3 left-3 bg-accent text-white px-2 py-1 text-xs font-medium rounded">
+                          PROMOÇÃO
                         </div>
                       )}
                     </div>
                   </Link>
-                  <div className="p-4">
+                  <div className="text-center">
                     <Link href={`/product/${product.id}`}>
-                      <h3 className="text-base font-medium text-gray-900 mb-2 hover:text-black transition-colors cursor-pointer h-12 line-clamp-2 overflow-hidden">
+                      <h3 className="text-sm font-medium text-black mb-2 uppercase tracking-wide group-hover:text-accent transition-colors">
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="text-gray-600 text-sm mb-3 h-10 line-clamp-2 overflow-hidden">
-                      {product.description || 'Produto de qualidade premium'}
-                    </p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-medium text-primary">€{product.price.toFixed(2)}</span>
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <span className="text-lg font-light text-black">€{product.price.toFixed(2)}</span>
                       {product.oldPrice && product.oldPrice > product.price && (
                         <span className="text-sm text-gray-500 line-through">€{product.oldPrice.toFixed(2)}</span>
                       )}
                     </div>
-                    <AddToCartButton
+                    <HomeAddToCartButton
                       product={{
                         id: product.id,
                         name: product.name,
                         price: Number(product.price),
                         image: product.images?.[0]?.url || '/placeholder-product.jpg',
-                        size: "Único",
-                        color: "Padrão"
                       }}
-                      className="w-full uppercase tracking-widest text-xs py-2"
                     />
                   </div>
                 </div>
@@ -196,25 +198,22 @@ export default async function Home() {
             ) : (
               // Fallback products if no featured products exist
               Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-square bg-gray-200 overflow-hidden">
-                    <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                      <span className="text-sm">Produto em Breve</span>
+                <div key={index} className="group cursor-pointer">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-400 text-sm">Produto em Breve</span>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-base font-medium text-gray-900 mb-2">
+                  <div className="text-center">
+                    <h3 className="text-sm font-medium text-black mb-2 uppercase tracking-wide">
                       Produto em Destaque {index + 1}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-3">
-                      Em breve teremos produtos incríveis aqui
-                    </p>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-medium text-primary">€0.00</span>
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <span className="text-lg font-light text-black">€0.00</span>
                     </div>
                     <button
                       disabled
-                      className="w-full uppercase tracking-widest text-xs py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+                      className="w-full bg-transparent border border-gray-300 text-gray-400 cursor-not-allowed uppercase tracking-widest text-xs py-3 font-medium"
                     >
                       Em Breve
                     </button>

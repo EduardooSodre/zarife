@@ -69,7 +69,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         const categoriesResponse = await fetch('/api/categories');
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
-          setCategories(categoriesData);
+          setCategories(categoriesData.data || []);
         }
 
         // Carregar produto
@@ -232,7 +232,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                         <SelectValue placeholder="Selecione uma categoria" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map(category => (
+                        {(categories || []).map(category => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.name}
                           </SelectItem>

@@ -129,14 +129,14 @@ export function Footer() {
 
             {/* About */}
             <div>
-              <h4 className="text-base md:text-lg font-medium mb-4 md:mb-6 text-gray-900">Sobre a Zarife</h4>
-              <p className="text-gray-600 mb-4 md:mb-6 text-sm leading-relaxed">
+              <h4 className="text-base md:text-lg font-medium mb-3 md:mb-6 text-gray-900">Sobre a Zarife</h4>
+              <p className="text-gray-600 mb-3 md:mb-6 text-sm leading-relaxed">
                 Moda feminina contemporânea com foco em qualidade, estilo e sustentabilidade.
                 Criamos peças únicas para mulheres modernas e autênticas.
               </p>
               <div className="space-y-1 md:space-y-2">
                 <p className="text-xs text-gray-500 font-medium">Visite nossa loja:</p>
-                <p className="text-xs md:text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
                   Rua dos Jacintos, Nº 48<br />
                   Herdade da Aroeira<br />
                   2820-567 Charneca da Caparica<br />
@@ -145,10 +145,76 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Links Úteis */}
-            <div>
-              <h4 className="text-base md:text-lg font-medium mb-4 md:mb-6 text-gray-900">Links Úteis</h4>
-              <ul className="space-y-2 md:space-y-3">
+            {/* Mobile: Three columns layout */}
+            <div className="grid grid-cols-3 gap-3 md:hidden col-span-1">
+              {/* Links Úteis */}
+              <div>
+                <h4 className="text-sm font-medium mb-3 text-gray-900">Links</h4>
+                <ul className="space-y-2">
+                  <li>
+                    <Link href="/sobre" className="text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                      Sobre
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/size-guide" className="text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                      Tamanhos
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/shipping" className="text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                      Envios
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/care" className="text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                      Cuidados
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Categorias */}
+              <div>
+                <h4 className="text-sm font-medium mb-3 text-gray-900">Categorias</h4>
+                <ul className="space-y-2">
+                  {categories.slice(0, 4).map((category) => (
+                    <li key={category.id}>
+                      <Link 
+                        href={`/category/${category.slug}`} 
+                        className="text-gray-600 hover:text-gray-900 transition-colors text-xs"
+                      >
+                        {category.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Suporte */}
+              <div>
+                <h4 className="text-sm font-medium mb-3 text-gray-900">Suporte</h4>
+                <div className="space-y-2">
+                  <a href="#" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                    WhatsApp
+                  </a>
+                  <a href="mailto:contato@zarife.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                    E-mail
+                  </a>
+                  <a href="#" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                    Instagram
+                  </a>
+                  <Link href="/contactos" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                    Contactos
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Links Úteis - Desktop */}
+            <div className="hidden md:block">
+              <h4 className="text-lg font-medium mb-6 text-gray-900">Links Úteis</h4>
+              <ul className="space-y-3">
                 <li>
                   <Link href="/sobre" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
                     Sobre Nós
@@ -170,43 +236,6 @@ export function Footer() {
                   </Link>
                 </li>
               </ul>
-            </div>
-
-            {/* Mobile: Menu e Ajuda lado a lado */}
-            <div className="flex justify-between md:hidden col-span-1">
-              <div className="w-[48%]">
-                <h4 className="text-base font-medium mb-4 text-gray-900">Categorias</h4>
-                <ul className="space-y-2">
-                  {categories.slice(0, 4).map((category) => (
-                    <li key={category.id}>
-                      <Link
-                        href={`/category/${category.slug}`}
-                        className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
-                      >
-                        {category.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="w-[48%]">
-                <h4 className="text-base font-medium mb-4 text-gray-900">Suporte</h4>
-                <div className="space-y-2">
-                  <a href="#" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    WhatsApp
-                  </a>
-                  <a href="mailto:contato@zarife.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    E-mail
-                  </a>
-                  <a href="#" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    Instagram
-                  </a>
-                  <Link href="/contactos" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                    Contactos
-                  </Link>
-                </div>
-              </div>
             </div>
 
             {/* Desktop: Categorias */}

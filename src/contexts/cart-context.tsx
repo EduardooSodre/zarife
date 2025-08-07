@@ -17,8 +17,8 @@ interface CartContextType {
   isOpen: boolean
   setIsOpen: (open: boolean) => void
   addItem: (item: Omit<CartItem, 'quantity'>) => void
-  removeItem: (id: string) => void
-  updateQuantity: (id: string, quantity: number) => void
+  removeItem: (id: string, size?: string, color?: string) => void
+  updateQuantity: (id: string, quantity: number, size?: string, color?: string) => void
   clearCart: () => void
   totalItems: number
   totalPrice: number
@@ -49,17 +49,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = (newItem: Omit<CartItem, 'quantity'>) => {
     setItems(currentItems => {
-      const existingItem = currentItems.find(item => 
-        item.id === newItem.id && 
-        item.size === newItem.size && 
-        item.color === newItem.color
-      )
+      // Criar um ID único para o item incluindo variações
+      const itemKey = `${newItem.id}-${newItem.size || 'no-size'}-${newItem.color || 'no-color'}`
+      const existingItemIndex = currentItems.findIndex(item => {
+        const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
+        return existingKey === itemKey
+      })
 
-      if (existingItem) {
-        return currentItems.map(item =>
-          item.id === existingItem.id && 
-          item.size === existingItem.size && 
-          item.color === existingItem.color
+      if (existingItemIndex !== -1) {
+        return currentItems.map((item, index) =>
+          index === existingItemIndex
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
@@ -69,20 +68,40 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
-  const removeItem = (id: string) => {
-    setItems(currentItems => currentItems.filter(item => item.id !== id))
+  const removeItem = (id: string, size?: string, color?: string) => {
+    setItems(currentItems => {
+      if (size !== undefined || color !== undefined) {
+        // Remove item específico com variações
+        const itemKey = `${id}-${size || 'no-size'}-${color || 'no-color'}`
+        return currentItems.filter(item => {
+          const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
+          return existingKey !== itemKey
+        })
+      } else {
+        // Remove todos os itens com o mesmo ID (compatibilidade)
+        return currentItems.filter(item => item.id !== id)
+      }
+    })
   }
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number, size?: string, color?: string) => {
     if (quantity <= 0) {
-      removeItem(id)
+      removeItem(id, size, color)
       return
     }
 
     setItems(currentItems =>
-      currentItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
+      currentItems.map(item => {
+        if (size !== undefined || color !== undefined) {
+          // Atualizar item específico com variações
+          const itemKey = `${id}-${size || 'no-size'}-${color || 'no-color'}`
+          const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
+          return existingKey === itemKey ? { ...item, quantity } : item
+        } else {
+          // Atualizar por ID apenas (compatibilidade)
+          return item.id === id ? { ...item, quantity } : item
+        }
+      })
     )
   }
 

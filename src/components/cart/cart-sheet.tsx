@@ -119,7 +119,7 @@ export function CartSheet() {
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
                             className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 text-gray-600"
                           >
                             <Minus className="w-3 h-3" />
@@ -130,7 +130,7 @@ export function CartSheet() {
                           </span>
                           
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
                             className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 text-gray-600"
                           >
                             <Plus className="w-3 h-3" />
@@ -141,7 +141,7 @@ export function CartSheet() {
 
                     {/* Remove Button */}
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.id, item.size, item.color)}
                       className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -7,7 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Heart, Share2 } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { ProductVariants } from "@/components/product/product-variants";
 import ProductImageGallery from "./product-image-gallery";
+import ProductClientWrapper from "./product-client-wrapper";
 
 interface ProductPageProps {
   params: Promise<{
@@ -29,6 +31,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
       images: {
         orderBy: { order: "asc" },
       },
+      variants: {
+        orderBy: [
+          { size: "asc" },
+          { color: "asc" }
+        ]
+      }
     },
   });
 
@@ -148,39 +156,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
               )}
             </div>
 
-            {/* Stock Status */}
-            <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className={`font-medium ${product.stock > 0 ? 'text-green-700' : 'text-red-700'}`}>
-                {product.stock > 0 ? `${product.stock} em stock` : 'Esgotado'}
-              </span>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-4 pt-6">
-              <AddToCartButton
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  price: Number(product.price),
-                  image: product.images?.[0]?.url || '/placeholder-product.jpg',
-                  size: "Único",
-                  color: "Padrão"
-                }}
-                className="w-full bg-black text-white py-4 text-lg uppercase tracking-widest hover:bg-gray-800 transition-colors"
-              />
-
-              <div className="flex space-x-4">
-                <Button variant="outline" className="flex-1">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Favoritar
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Partilhar
-                </Button>
+            {/* Stock Status - apenas se não há variações */}
+            {(!product.variants || product.variants.length === 0) && (
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className={`font-medium ${product.stock > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  {product.stock > 0 ? `${product.stock} em stock` : 'Esgotado'}
+                </span>
               </div>
-            </div>
+            )}
+
+            {/* Product Variants and Actions */}
+            <ProductClientWrapper
+              product={{
+                id: product.id,
+                name: product.name,
+                price: Number(product.price),
+                images: product.images || []
+              }}
+              variants={product.variants || []}
+            />
           </div>
         </div>
 

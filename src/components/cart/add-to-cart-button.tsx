@@ -14,12 +14,14 @@ interface AddToCartButtonProps {
     color?: string
   }
   className?: string
+  disabled?: boolean
 }
 
-export function AddToCartButton({ product, className = "" }: AddToCartButtonProps) {
+export function AddToCartButton({ product, className = "", disabled = false }: AddToCartButtonProps) {
   const { addItem, setIsOpen } = useCart()
 
   const handleAddToCart = () => {
+    if (disabled) return
     addItem(product)
     setIsOpen(true)
   }
@@ -27,10 +29,11 @@ export function AddToCartButton({ product, className = "" }: AddToCartButtonProp
   return (
     <Button 
       onClick={handleAddToCart}
-      className={`bg-primary hover:bg-primary/90 text-white transition-all ${className}`}
+      disabled={disabled}
+      className={`bg-primary hover:bg-primary/90 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
       <ShoppingCart className="w-4 h-4 mr-2" />
-      Adicionar ao Carrinho
+      {disabled ? 'Indisponível' : 'Adicionar ao Carrinho'}
     </Button>
   )
 }

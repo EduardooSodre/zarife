@@ -78,8 +78,8 @@ export default function CartPage() {
                         {item.name}
                       </h3>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p>Tamanho: {item.size}</p>
-                        <p>Cor: {item.color}</p>
+                        {item.size && <p>Tamanho: {item.size}</p>}
+                        {item.color && <p>Cor: {item.color}</p>}
                       </div>
                       <p className="text-lg font-medium text-primary mt-2">
                         €{item.price.toFixed(2)}
@@ -89,7 +89,7 @@ export default function CartPage() {
                     {/* Quantity Controls */}
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
                         className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                       >
                         <Minus className="w-4 h-4" />
@@ -98,7 +98,7 @@ export default function CartPage() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
                         className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                       >
                         <Plus className="w-4 h-4" />
@@ -107,8 +107,8 @@ export default function CartPage() {
 
                     {/* Remove Button */}
                     <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                      onClick={() => removeItem(item.id, item.size, item.color)}
+                      className="text-gray-400 hover:text-red-500 transition-colors p-2"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>

@@ -51,7 +51,7 @@ export function MotionWrapper({
   )
 }
 
-export function MotionContainer({ children, className = '', staggerChildren = 0.1 }: {
+export function MotionContainer({ children, className = '', staggerChildren = 0.03 }: {
   children: ReactNode
   className?: string
   staggerChildren?: number
@@ -61,7 +61,7 @@ export function MotionContainer({ children, className = '', staggerChildren = 0.
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.1 }}
       variants={{
         hidden: {},
         visible: {
@@ -84,18 +84,18 @@ export function MotionCard({ children, className = '', delay = 0 }: {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       whileHover={{ 
         y: -8, 
         scale: 1.02,
-        transition: { duration: 0.3, ease: "easeOut" }
+        transition: { duration: 0.2, ease: "easeOut" }
       }}
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.1 }}
       transition={{
-        duration: 0.6,
+        duration: 0.3,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: "easeOut",
       }}
     >
       {children}

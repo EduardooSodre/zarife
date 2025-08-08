@@ -108,18 +108,13 @@ async function SearchResults({ query }: { query: string }) {
 
                 {/* Product Details */}
                 <div className="p-4 space-y-3">
-                  {/* Category & Featured Badge */}
+                  {/* Category Badge */}
                   <div className="flex items-center justify-between">
                     <Link href={`/category/${product.category.slug}`}>
                       <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-50">
                         {product.category.name}
                       </Badge>
                     </Link>
-                    {product.isFeatured && (
-                      <Badge className="bg-black text-white text-xs">
-                        Destaque
-                      </Badge>
-                    )}
                   </div>
 
                   {/* Product Name */}

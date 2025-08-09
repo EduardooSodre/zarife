@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { UserButton, SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { ShoppingCart, User, Search, Menu, X } from 'lucide-react'
 import { useCart } from '@/contexts/cart-context'
@@ -48,6 +49,10 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [categories, setCategories] = useState<HeaderCategory[]>([])
   const [isScrolled, setIsScrolled] = useState(false)
+  const pathname = usePathname()
+  
+  // Verificar se estamos na home page
+  const isHomePage = pathname === '/'
   const { totalItems, setIsOpen } = useCart()
 
   // Carregar categorias do banco
@@ -69,17 +74,24 @@ export default function Header() {
   // Controlar transparência do header baseado no scroll
   useEffect(() => {
     const handleScroll = () => {
-      // Header transparente até finalizar a hero section (100vh - 2rem do top banner)
-      const heroHeight = window.innerHeight - 32 // 32px = 2rem
-      setIsScrolled(window.scrollY > heroHeight)
+      if (isHomePage) {
+        // Na home: Header transparente até finalizar a hero section (100vh - 2rem do top banner)
+        const heroHeight = window.innerHeight - 32 // 32px = 2rem
+        setIsScrolled(window.scrollY > heroHeight)
+      } else {
+        // Em outras páginas: Header sempre visível (não transparente)
+        setIsScrolled(true)
+      }
     }
 
     // Executar imediatamente para definir o estado inicial
     handleScroll()
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    if (isHomePage) {
+      window.addEventListener('scroll', handleScroll)
+      return () => window.removeEventListener('scroll', handleScroll)
+    }
+  }, [isHomePage])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,7 +127,7 @@ export default function Header() {
         className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
         }`}
-        style={{ top: isScrolled ? '0' : '2rem' }}
+        style={{ top: (isScrolled || !isHomePage) ? '0' : '2rem' }}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">

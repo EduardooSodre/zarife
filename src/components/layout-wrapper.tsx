@@ -14,6 +14,7 @@ interface LayoutWrapperProps {
 export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith('/admin');
+  const isHomePage = pathname === '/';
 
   if (isAdminPage) {
     // Layout limpo para páginas admin
@@ -31,7 +32,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
       <div className="min-h-screen flex flex-col relative">
         <UserSync />
         <Header />
-        <main className="flex-1">
+        <main className={`flex-1 ${!isHomePage ? 'pt-24' : ''}`}>
           {children}
         </main>
         <Footer />

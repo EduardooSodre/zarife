@@ -63,10 +63,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
   });
 
   return (
-    <div className="min-h-screen bg-white pt-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-white" style={{ paddingTop: '100px' }}>
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
         {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
           <Link href="/" className="hover:text-black transition-colors">
             Início
           </Link>
@@ -79,14 +79,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </nav>
 
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-4">
           <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8">
           {/* Product Images */}
           <div className="space-y-4">
             <ProductImageGallery images={product.images} productName={product.name} />

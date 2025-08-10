@@ -53,10 +53,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white pt-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-white" style={{ paddingTop: '100px' }}>
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
         {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
           <Link href="/" className="hover:text-black transition-colors">
             Início
           </Link>
@@ -65,7 +65,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </nav>
 
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-4">
           <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
             Voltar
@@ -73,12 +73,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </div>
 
         {/* Category Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl lg:text-5xl font-light text-black mb-4 tracking-wider uppercase">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-light text-black mb-3 tracking-wider uppercase">
             {serializedCategory.name}
           </h1>
-          <div className="w-24 h-px bg-black mx-auto mb-6"></div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <div className="w-24 h-px bg-black mx-auto mb-4"></div>
+          <p className="text-gray-600">
             Descubra nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
           </p>
         </div>

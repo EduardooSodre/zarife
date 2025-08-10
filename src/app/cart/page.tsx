@@ -14,9 +14,9 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white pt-20">
+      <div className="min-h-screen bg-white" style={{ paddingTop: '100px' }}>
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-16">
+          <div className="text-center py-12">
             <h1 className="text-3xl font-light text-primary mb-4 tracking-wider uppercase">
               Carrinho Vazio
             </h1>
@@ -35,10 +35,10 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pt-20">
+    <div className="min-h-screen bg-white" style={{ paddingTop: '100px' }}>
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-8">
           <Link href="/" className="inline-flex items-center text-primary hover:text-primary/80 mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             <span className="text-sm uppercase tracking-widest">Continuar Compras</span>

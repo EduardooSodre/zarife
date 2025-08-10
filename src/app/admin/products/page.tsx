@@ -2,8 +2,9 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Eye, Search, Package, ArrowLeft } from "lucide-react";
+import { Plus, Edit, Eye, Search, Package, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import { DeleteProductButton } from "@/components/admin/delete-product-button";
 
 export default async function AdminProductsPage() {
 
@@ -202,18 +203,19 @@ export default async function AdminProductsPage() {
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
                                             <div className="flex space-x-1 sm:space-x-2">
                                                 <Link href={`/admin/products/${product.id}`}>
-                                                    <Button size="sm" variant="outline" className="bg-white text-xs sm:text-sm h-7 sm:h-8">
+                                                    <Button size="sm" variant="outline" className="bg-white text-xs sm:text-sm h-7 sm:h-8 cursor-pointer">
                                                         <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </Link>
                                                 <Link href={`/admin/products/${product.id}/edit`}>
-                                                    <Button size="sm" variant="outline" className="bg-white text-xs sm:text-sm h-7 sm:h-8">
+                                                    <Button size="sm" variant="outline" className="bg-white text-xs sm:text-sm h-7 sm:h-8 cursor-pointer">
                                                         <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </Link>
-                                                <Button size="sm" variant="outline" className="bg-white hover:bg-red-50 hover:text-red-600 text-xs sm:text-sm h-7 sm:h-8">
-                                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                </Button>
+                                                <DeleteProductButton
+                                                    productId={product.id}
+                                                    productName={product.name}
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -252,7 +254,7 @@ export default async function AdminProductsPage() {
 
                                             <div className="flex items-center space-x-1">
                                                 <Link href={`/admin/products/${product.id}/edit`}>
-                                                    <Button size="sm" variant="outline" className="h-7 sm:h-8 px-2">
+                                                    <Button size="sm" variant="outline" className="h-7 sm:h-8 px-2 cursor-pointer hover:bg-gray-100">
                                                         <Edit className="h-3 w-3" />
                                                     </Button>
                                                 </Link>

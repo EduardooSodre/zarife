@@ -4,33 +4,10 @@ import { prisma } from "@/lib/db";
 import { MotionWrapper, MotionContainer, MotionCard, MotionText } from "@/components/animations/motion-wrapper";
 import { AnimatedText, AnimatedLetters } from "@/components/animations/animated-text";
 import { ProductCard } from "@/components/product/product-card";
+import { ParallaxBanner } from "@/components/parallax-banner";
 
 // Cache por 1 hora (3600 segundos)
 export const revalidate = 3600;
-
-// Componente para efeito parallax
-function ParallaxBanner() {
-  return (
-    <div className="absolute inset-0">
-      <div
-        className="absolute inset-0 will-change-transform"
-        style={{
-          transform: 'translate3d(0, calc(var(--scroll) * 0.5), 0)',
-        }}
-      >
-        <Image
-          src="/banner.jpg"
-          alt="Zarife Fashion Banner"
-          fill
-          className="object-cover object-center scale-110"
-          priority
-          quality={100}
-          sizes="100vw"
-        />
-      </div>
-    </div>
-  );
-}
 
 export default async function Home() {
   // Fetch featured products with optimized query
@@ -70,31 +47,12 @@ export default async function Home() {
       { name: 'asc' }
     ],
   });
+
   return (
     <>
-      {/* Script para efeito parallax */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            document.addEventListener('DOMContentLoaded', function() {
-              function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const parallax = document.querySelector('.parallax-container');
-                if (parallax) {
-                  parallax.style.setProperty('--scroll', scrolled + 'px');
-                }
-              }
-              
-              window.addEventListener('scroll', updateParallax);
-              updateParallax();
-            });
-          `,
-        }}
-      />
-
       <main className="min-h-screen bg-white">
         {/* Hero Section with fashion imagery */}
-        <section className="relative h-[calc(100vh-1rem)] overflow-hidden parallax-container">
+        <section className="relative h-[calc(100vh-1rem)] overflow-hidden">
           {/* Background Image with Parallax */}
           <ParallaxBanner />
 
@@ -105,7 +63,7 @@ export default async function Home() {
           <div className="relative z-20 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full">
             <div className="flex items-center justify-center h-full">
               <div className="text-center max-w-4xl">
-                <AnimatedLetters 
+                <AnimatedLetters
                   text="COLEÇÃO EXCLUSIVA"
                   className="text-5xl md:text-7xl font-light text-white mb-6 tracking-wider drop-shadow-lg"
                   delay={0.3}
@@ -127,10 +85,10 @@ export default async function Home() {
         </section>
 
         {/* Categories Grid */}
-        <section className="py-24 bg-white">
+        <section className="py-18 bg-white">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <MotionWrapper direction="up" className="text-center mb-16">
-              <AnimatedText 
+              <AnimatedText
                 text="NOSSAS CATEGORIAS"
                 className="text-4xl font-light text-black mb-4 tracking-wider"
                 variant="slide"
@@ -157,19 +115,19 @@ export default async function Home() {
                         ) : (
                           <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                             <span className="text-gray-400 text-sm">Sem imagem</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <h3 className="text-xl font-medium">{category.name.toUpperCase()}</h3>
+                          <p className="text-sm">Veja nossa coleção</p>
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h3 className="text-xl font-medium">{category.name.toUpperCase()}</h3>
-                        <p className="text-sm">Veja nossa coleção</p>
                       </div>
-                    </div>
-                    <div className="text-center">
-                      <h3 className="text-lg font-medium text-black mb-2 tracking-wide">{category.name.toUpperCase()}</h3>
-                      <p className="text-gray-600 text-sm">Produtos selecionados para você</p>
-                    </div>
-                  </Link>
+                      <div className="text-center">
+                        <h3 className="text-lg font-medium text-black mb-2 tracking-wide">{category.name.toUpperCase()}</h3>
+                        <p className="text-gray-600 text-sm">Produtos selecionados para você</p>
+                      </div>
+                    </Link>
                   </MotionCard>
                 ))
               ) : (
@@ -195,10 +153,10 @@ export default async function Home() {
         </section>
 
         {/* Featured Products */}
-        <section className="py-24 bg-white">
+        <section className="py-18 bg-white">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <MotionWrapper direction="up" className="text-center mb-16">
-              <AnimatedText 
+              <AnimatedText
                 text="PRODUTOS EM DESTAQUE"
                 className="text-4xl font-light text-black mb-4 tracking-wider"
                 variant="slide"
@@ -211,7 +169,7 @@ export default async function Home() {
             <MotionContainer className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8" staggerChildren={0.1}>
               {featuredProducts.length > 0 ? (
                 featuredProducts.map((product, index) => (
-                  <ProductCard 
+                  <ProductCard
                     key={product.id}
                     product={product}
                     index={index}
@@ -246,7 +204,7 @@ export default async function Home() {
             </MotionContainer>
 
             {/* Ver Todos os Produtos Button */}
-            <MotionWrapper delay={0.8} direction="up" className="text-center mt-12">
+            <MotionWrapper delay={0.6} direction="up" className="text-center mt-12">
               <Link
                 href="/produtos"
                 className="inline-block bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium"

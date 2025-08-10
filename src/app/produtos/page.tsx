@@ -61,15 +61,15 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white pt-20">
       {/* Page Header */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-8 bg-white border-b border-gray-100">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-light text-black mb-4 tracking-wider">
               TODOS OS PRODUTOS
             </h1>
-            <div className="w-24 h-px bg-accent mx-auto mb-4"></div>
+            <div className="w-24 h-px bg-black mx-auto mb-4"></div>
             <p className="text-gray-600 text-lg">
               Descubra nossa coleção completa de produtos exclusivos
             </p>
@@ -165,7 +165,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
           )}
         </div>
       </section>
-      </main>
+      </div>
     </PageTransition>
   );
 }

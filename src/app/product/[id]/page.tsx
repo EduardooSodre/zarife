@@ -22,9 +22,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Get product
   const product = await prisma.product.findUnique({
-    where: { 
+    where: {
       id: resolvedParams.id,
-      isActive: true 
+      isActive: true
     },
     include: {
       category: true,
@@ -174,7 +174,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 price: Number(product.price),
                 images: product.images || []
               }}
-              variants={product.variants || []}
+              variants={
+                (product.variants || []).map(v => ({
+                  ...v,
+                  size: v.size === null ? undefined : v.size,
+                  color: v.color === null ? undefined : v.color,
+                }))
+              }
             />
           </div>
         </div>

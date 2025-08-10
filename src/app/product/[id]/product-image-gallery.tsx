@@ -54,7 +54,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
           sizes="(max-width: 768px) 100vw, 50vw"
           priority
         />
-        
+
         {/* Navigation Arrows - Only show if more than 1 image */}
         {images.length > 1 && (
           <>
@@ -92,11 +92,10 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <button
               key={image.id}
               onClick={() => goToImage(index)}
-              className={`relative w-20 h-20 bg-gray-100 overflow-hidden flex-shrink-0 border-2 transition-colors ${
-                index === currentImageIndex
-                  ? 'border-black'
-                  : 'border-transparent hover:border-gray-300'
-              }`}
+              className={`relative w-20 h-20 bg-gray-100 overflow-hidden flex-shrink-0 border-2 transition-colors ${index === currentImageIndex
+                ? 'border-black'
+                : 'border-transparent hover:border-gray-300'
+                }`}
             >
               <Image
                 src={image.url}

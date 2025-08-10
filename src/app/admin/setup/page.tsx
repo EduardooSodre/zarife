@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button";
 
 export default function AdminSetupPage() {
   const { user, isLoaded } = useUser();
-  const [users, setUsers] = useState<any[]>([]);
+  interface User {
+    id: string;
+    email: string;
+    name?: string;
+    clerkId: string;
+    role: string;
+  }
+
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
 
@@ -35,7 +43,7 @@ export default function AdminSetupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ targetUserId: clerkId, role: 'ADMIN' })
       });
-      
+
       if (response.ok) {
         setMessage('✅ Usuário promovido a ADMIN com sucesso!');
         loadUsers();
@@ -55,7 +63,7 @@ export default function AdminSetupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ targetUserId: clerkId, role: 'USER' })
       });
-      
+
       if (response.ok) {
         setMessage('✅ Usuário alterado para USER com sucesso!');
         loadUsers();
@@ -86,7 +94,7 @@ export default function AdminSetupPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             🔧 Configuração de Administradores
           </h1>
-          
+
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <h2 className="text-lg font-semibold text-yellow-800 mb-2">⚠️ Página Temporária</h2>
             <p className="text-yellow-700">
@@ -110,7 +118,7 @@ export default function AdminSetupPage() {
           </div>
 
           <h3 className="text-lg font-semibold mb-4">Todos os Usuários do Sistema:</h3>
-          
+
           <div className="space-y-3">
             {users.map((u) => (
               <div key={u.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
@@ -120,16 +128,15 @@ export default function AdminSetupPage() {
                   <p className="text-xs text-gray-500">ID: {u.clerkId}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    u.role === 'ADMIN' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${u.role === 'ADMIN'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {u.role}
                   </span>
                   <div className="flex gap-2">
                     {u.role !== 'ADMIN' && (
-                      <Button 
+                      <Button
                         onClick={() => makeAdmin(u.clerkId)}
                         size="sm"
                         className="bg-green-600 hover:bg-green-700"
@@ -138,7 +145,7 @@ export default function AdminSetupPage() {
                       </Button>
                     )}
                     {u.role === 'ADMIN' && (
-                      <Button 
+                      <Button
                         onClick={() => makeUser(u.clerkId)}
                         size="sm"
                         variant="outline"
@@ -155,7 +162,7 @@ export default function AdminSetupPage() {
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <h4 className="font-semibold mb-2">📝 Instruções:</h4>
             <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
-              <li>Clique em "Tornar Admin" no seu usuário para ter acesso ao painel</li>
+              <li>Clique em &quot;Tornar Admin&quot; no seu usuário para ter acesso ao painel</li>
               <li>Após se tornar admin, você pode acessar /admin</li>
               <li>Esta página pode ser removida após a configuração inicial</li>
             </ol>

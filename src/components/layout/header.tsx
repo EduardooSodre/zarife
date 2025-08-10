@@ -50,7 +50,7 @@ export default function Header() {
   const [categories, setCategories] = useState<HeaderCategory[]>([])
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
-  
+
   // Verificar se estamos na home page
   const isHomePage = pathname === '/'
   const { totalItems, setIsOpen } = useCart()
@@ -123,10 +123,9 @@ export default function Header() {
         </p>
       </div>
 
-      <header 
-        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
-        }`}
+      <header
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
+          }`}
         style={{ top: (isScrolled || !isHomePage) ? '0' : '2rem' }}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -134,7 +133,7 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <button className="md:hidden p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-md transition-colors">
+                <button className="md:hidden p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 transition-colors">
                   <Menu className="w-6 h-6" />
                   <span className="sr-only">Abrir menu</span>
                 </button>
@@ -154,8 +153,8 @@ export default function Header() {
                     Menu de navegação
                   </SheetDescription>
                 </SheetHeader>
-                
-                
+
+
                 {/* Fixed Menu Items */}
                 <nav className="border-b border-gray-200 pb-4 mb-4">
                   <div className="space-y-1">
@@ -163,8 +162,8 @@ export default function Header() {
                     {/* ROUPAS */}
                     {roupasCategory && (
                       <div>
-                        <Link 
-                          href={roupasCategory.href} 
+                        <Link
+                          href={roupasCategory.href}
                           className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
@@ -173,8 +172,8 @@ export default function Header() {
                         <div className="bg-gray-50">
                           {roupasCategory.children.map((item) => (
                             <div key={item.name}>
-                              <Link 
-                                href={item.href} 
+                              <Link
+                                href={item.href}
                                 className="flex items-center px-8 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 uppercase tracking-wide"
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
@@ -183,9 +182,9 @@ export default function Header() {
                               {item.children && item.children.length > 0 && (
                                 <div>
                                   {item.children.map((subcat) => (
-                                    <Link 
-                                      key={subcat.name} 
-                                      href={subcat.href} 
+                                    <Link
+                                      key={subcat.name}
+                                      href={subcat.href}
                                       className="flex items-center px-12 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
@@ -199,12 +198,12 @@ export default function Header() {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* VESTIDOS */}
                     {vestidosCategory && (
                       <div>
-                        <Link 
-                          href={vestidosCategory.href} 
+                        <Link
+                          href={vestidosCategory.href}
                           className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
@@ -212,9 +211,9 @@ export default function Header() {
                         </Link>
                         <div className="bg-gray-50">
                           {vestidosCategory.children.map((item) => (
-                            <Link 
-                              key={item.name} 
-                              href={item.href} 
+                            <Link
+                              key={item.name}
+                              href={item.href}
                               className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -228,8 +227,8 @@ export default function Header() {
                     {/* CONJUNTOS */}
                     {conjuntosCategory && (
                       <div>
-                        <Link 
-                          href={conjuntosCategory.href} 
+                        <Link
+                          href={conjuntosCategory.href}
                           className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
@@ -237,9 +236,9 @@ export default function Header() {
                         </Link>
                         <div className="bg-gray-50">
                           {conjuntosCategory.children.map((item) => (
-                            <Link 
-                              key={item.name} 
-                              href={item.href} 
+                            <Link
+                              key={item.name}
+                              href={item.href}
                               className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -253,8 +252,8 @@ export default function Header() {
                     {/* MODA PRAIA */}
                     {modaPraiaCategory && (
                       <div>
-                        <Link 
-                          href={modaPraiaCategory.href} 
+                        <Link
+                          href={modaPraiaCategory.href}
                           className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
@@ -262,9 +261,9 @@ export default function Header() {
                         </Link>
                         <div className="bg-gray-50">
                           {modaPraiaCategory.children.map((item) => (
-                            <Link 
-                              key={item.name} 
-                              href={item.href} 
+                            <Link
+                              key={item.name}
+                              href={item.href}
                               className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -278,8 +277,8 @@ export default function Header() {
                     {/* LOOK COMPLETO */}
                     {lookCompletoCategory && (
                       <div>
-                        <Link 
-                          href={lookCompletoCategory.href} 
+                        <Link
+                          href={lookCompletoCategory.href}
                           className="flex items-center px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 uppercase tracking-wide"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
@@ -287,9 +286,9 @@ export default function Header() {
                         </Link>
                         <div className="bg-gray-50">
                           {lookCompletoCategory.children.map((item) => (
-                            <Link 
-                              key={item.name} 
-                              href={item.href} 
+                            <Link
+                              key={item.name}
+                              href={item.href}
                               className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -326,7 +325,7 @@ export default function Header() {
                     <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                       {roupasCategory.name}
                     </MenubarTrigger>
-                    <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-3">
+                    <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
                       {roupasCategory.children.map((item, index) => (
                         <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
                           <MenubarItem asChild>
@@ -338,7 +337,7 @@ export default function Header() {
                             <div className="ml-2 mt-1 space-y-0.5">
                               {item.children.map((subcat) => (
                                 <MenubarItem key={subcat.name} asChild>
-                                  <Link href={subcat.href} className="block text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 rounded transition-all duration-150">
+                                  <Link href={subcat.href} className="block text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
                                     {subcat.name}
                                   </Link>
                                 </MenubarItem>
@@ -360,10 +359,10 @@ export default function Header() {
                     <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                       {vestidosCategory.name}
                     </MenubarTrigger>
-                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-2">
                       {vestidosCategory.children.map((item) => (
                         <MenubarItem key={item.name} asChild>
-                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 transition-all duration-150 uppercase tracking-wide">
                             {item.name}
                           </Link>
                         </MenubarItem>
@@ -378,7 +377,7 @@ export default function Header() {
                     <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                       {conjuntosCategory.name}
                     </MenubarTrigger>
-                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-2">
                       {conjuntosCategory.children.map((item) => (
                         <MenubarItem key={item.name} asChild>
                           <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
@@ -396,10 +395,10 @@ export default function Header() {
                     <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                       {modaPraiaCategory.name}
                     </MenubarTrigger>
-                    <MenubarContent className="min-w-[160px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                    <MenubarContent className="min-w-[160px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-2">
                       {modaPraiaCategory.children.map((item) => (
                         <MenubarItem key={item.name} asChild>
-                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 transition-all duration-150 uppercase tracking-wide">
                             {item.name}
                           </Link>
                         </MenubarItem>
@@ -414,10 +413,10 @@ export default function Header() {
                     <MenubarTrigger className="text-sm font-semibold uppercase tracking-[0.1em] text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
                       {lookCompletoCategory.name}
                     </MenubarTrigger>
-                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-sm mt-1 p-2">
+                    <MenubarContent className="min-w-[140px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-2">
                       {lookCompletoCategory.children.map((item) => (
                         <MenubarItem key={item.name} asChild>
-                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 rounded transition-all duration-150 uppercase tracking-wide">
+                          <Link href={item.href} className="block text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 px-2 py-1.5 transition-all duration-150 uppercase tracking-wide">
                             {item.name}
                           </Link>
                         </MenubarItem>
@@ -442,7 +441,7 @@ export default function Header() {
                       className="w-64 px-4 py-2 text-sm border border-gray-300 focus:outline-none focus:border-gray-500"
                       autoFocus
                     />
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setIsSearchOpen(false)}
                       className="ml-2 p-2 text-gray-900 hover:text-gray-600 transition-colors"
@@ -451,7 +450,7 @@ export default function Header() {
                     </button>
                   </form>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => setIsSearchOpen(true)}
                     className="p-2 text-gray-900 hover:text-gray-600 transition-colors"
                   >
@@ -468,9 +467,9 @@ export default function Header() {
                   </button>
                 </SignInButton>
               </SignedOut>
-              
+
               <SignedIn>
-                <UserButton 
+                <UserButton
                   appearance={{
                     elements: {
                       avatarBox: "w-6 h-6"
@@ -480,14 +479,14 @@ export default function Header() {
               </SignedIn>
 
               {/* Shopping Cart */}
-              <button 
+              <button
                 onClick={handleCartClick}
                 className="p-2 text-gray-900 hover:text-gray-600 transition-colors relative"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {/* Cart count badge */}
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}

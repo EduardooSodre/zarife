@@ -50,8 +50,8 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 font-inter">
-      <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200 h-full">
+    <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:z-40 font-inter">
+      <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200 h-full shadow-lg">
         {/* Logo */}
         <div className="flex items-center flex-shrink-0 px-4 mb-8">
           <Link href="/admin" className="flex items-center space-x-2">

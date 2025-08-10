@@ -11,7 +11,7 @@ export function AdminHeader() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 font-inter">
+      <header className="bg-white border-b border-gray-200 font-inter relative z-30">
         <div className="flex items-center justify-between h-16 px-6">
           {/* Mobile menu button */}
           <div className="md:hidden">

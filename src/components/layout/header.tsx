@@ -5,8 +5,9 @@ import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { UserButton, SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
-import { ShoppingCart, User, Search, Menu, X } from 'lucide-react'
+import { ShoppingCart, User, Search, Menu, X, Heart } from 'lucide-react'
 import { useCart } from '@/contexts/cart-context'
+import { useFavorites } from '@/contexts/favorites-context'
 import {
   Menubar,
   MenubarContent,
@@ -55,6 +56,7 @@ export default function Header() {
   // Verificar se estamos na home page
   const isHomePage = pathname === '/'
   const { totalItems, setIsOpen } = useCart()
+  const { favoritesCount } = useFavorites()
 
   // Carregar categorias do banco
   useEffect(() => {
@@ -604,6 +606,22 @@ export default function Header() {
                     }
                   }}
                 />
+              </SignedIn>
+
+              {/* Favorites - Only show when signed in */}
+              <SignedIn>
+                <Link
+                  href="/favoritos"
+                  className="p-2 text-gray-900 hover:text-gray-600 transition-colors relative"
+                >
+                  <Heart className="w-5 h-5" />
+                  {/* Favorites count badge */}
+                  {favoritesCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      {favoritesCount}
+                    </span>
+                  )}
+                </Link>
               </SignedIn>
 
               {/* Shopping Cart */}

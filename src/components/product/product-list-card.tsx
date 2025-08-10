@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { useState } from "react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { useFavorites } from "@/contexts/favorites-context";
 import { motion } from "framer-motion";
 
 interface ProductListCardProps {
@@ -29,7 +29,8 @@ interface ProductListCardProps {
 }
 
 export function ProductListCard({ product, className = "" }: ProductListCardProps) {
-    const [isWishlisted, setIsWishlisted] = useState(false);
+    const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+    const isWishlisted = isFavorite(product.id);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -41,6 +42,23 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
     const discountPercentage = product.oldPrice
         ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
         : null;
+
+    const handleToggleFavorite = () => {
+        if (isWishlisted) {
+            removeFromFavorites(product.id);
+        } else {
+            addToFavorites({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                oldPrice: product.oldPrice,
+                images: product.images,
+                stock: product.stock,
+                category: product.category,
+                addedAt: new Date().toISOString(),
+            });
+        }
+    };
 
     return (
         <motion.div
@@ -85,12 +103,15 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
 
                     {/* Wishlist Button */}
                     <button
-                        onClick={() => setIsWishlisted(!isWishlisted)}
-                        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-2 bg-white/90 hover:bg-white transition-all duration-200 z-10"
+                        onClick={handleToggleFavorite}
+                        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1 transition-all duration-200 z-10 cursor-pointer group"
                     >
                         <Heart
-                            className={`h-4 w-4 transition-colors duration-200 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
-                                }`}
+                            className={`h-5 w-5 transition-all duration-200 drop-shadow-sm ${
+                                isWishlisted 
+                                    ? 'fill-red-500 text-red-500 scale-110' 
+                                    : 'text-white hover:text-red-500 hover:fill-red-500 hover:scale-110 group-hover:drop-shadow-md'
+                            }`}
                         />
                     </button>
                 </div>

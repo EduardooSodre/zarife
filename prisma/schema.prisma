@@ -21,7 +21,8 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  orders Order[]
+  orders    Order[]
+  favorites Favorite[]
 
   @@map("users")
 }
@@ -70,6 +71,7 @@ model Product {
   images     ProductImage[]
   orderItems OrderItem[]
   variants   ProductVariant[]
+  favorites  Favorite[]
 
   @@map("products")
 }
@@ -141,6 +143,19 @@ model Coupon {
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
   @@map("coupons")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
 }
 
 enum UserRole {

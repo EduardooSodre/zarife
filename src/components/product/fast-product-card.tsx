@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Heart } from "lucide-react";
-import { useState } from "react";
 import { HomeAddToCartButton } from "@/components/cart/home-add-to-cart-button";
+import { useFavorites } from "@/contexts/favorites-context";
 import { Decimal } from "@prisma/client/runtime/library";
 
 interface FastProductCardProps {
@@ -23,7 +23,25 @@ export function FastProductCard({
   product, 
   className = "" 
 }: FastProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+  const isWishlisted = isFavorite(product.id);
+
+  const handleToggleFavorite = () => {
+    if (isWishlisted) {
+      removeFromFavorites(product.id);
+    } else {
+      addToFavorites({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+        images: product.images || [],
+        stock: 0, // We don't have stock info in this context
+        category: product.category || null,
+        addedAt: new Date().toISOString(),
+      });
+    }
+  };
 
   return (
     <div className={`bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300 relative ${className}`}>
@@ -47,12 +65,14 @@ export function FastProductCard({
 
       {/* Wishlist Button */}
       <button
-        onClick={() => setIsWishlisted(!isWishlisted)}
-        className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white transition-all duration-200 z-10"
+        onClick={handleToggleFavorite}
+        className="absolute top-2 right-2 p-1 transition-all duration-200 z-10 cursor-pointer group"
       >
         <Heart
-          className={`h-4 w-4 transition-colors duration-200 ${
-            isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
+          className={`h-5 w-5 transition-all duration-200 drop-shadow-sm ${
+            isWishlisted 
+              ? 'fill-red-500 text-red-500 scale-110' 
+              : 'text-white hover:text-red-500 hover:fill-red-500 hover:scale-110 group-hover:drop-shadow-md'
           }`}
         />
       </button>

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { FloatingButton } from "@/components/animations/hover-effects";
 import { PageTransition } from "@/components/animations/page-effects";
-import { FastProductCard, ProductFilters } from "@/components/product";
+import { FastProductCard, ProductFilters, ProductListCard } from "@/components/product";
 
 // Cache por 30 minutos
 export const revalidate = 1800;
@@ -22,6 +22,7 @@ interface ProdutosPageProps {
     inStock?: string;
     onSale?: string;
     sortBy?: string;
+    viewMode?: string;
   }>;
 }
 
@@ -43,6 +44,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
   const inStock = resolvedSearchParams.inStock === 'true';
   const onSale = resolvedSearchParams.onSale === 'true';
   const sortBy = resolvedSearchParams.sortBy || 'newest';
+  const viewMode = resolvedSearchParams.viewMode || 'grid';
 
   // Construir where clause
   const where: Prisma.ProductWhereInput = {
@@ -155,6 +157,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
     if (inStock) params.set('inStock', 'true');
     if (onSale) params.set('onSale', 'true');
     if (sortBy !== 'newest') params.set('sortBy', sortBy);
+    if (viewMode !== 'grid') params.set('viewMode', viewMode);
 
     // Add page number
     params.set('page', pageNum.toString());
@@ -199,16 +202,28 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
 
             {products.length > 0 ? (
               <>
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-                  {products.map((product) => (
-                    <FastProductCard
-                      key={product.id}
-                      product={product}
-                      className="transform transition-all duration-300 hover:scale-105"
-                    />
-                  ))}
-                </div>
+                {/* Products Display - Grid or List */}
+                {viewMode === 'list' ? (
+                  <div className="space-y-4 mb-12">
+                    {products.map((product) => (
+                      <ProductListCard
+                        key={product.id}
+                        product={product}
+                        className="transform transition-all duration-300 hover:shadow-lg"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+                    {products.map((product) => (
+                      <FastProductCard
+                        key={product.id}
+                        product={product}
+                        className="transform transition-all duration-300 hover:scale-105"
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {/* Pagination */}
                 {totalPages > 1 && (

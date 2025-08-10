@@ -27,12 +27,12 @@ export function AddToCartButton({ product, className = "", disabled = false }: A
   }
 
   return (
-    <Button 
+    <Button
       onClick={handleAddToCart}
       disabled={disabled}
       className={`bg-primary hover:bg-primary/90 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
-      <ShoppingCart className="w-4 h-4 mr-2" />
+      <ShoppingCart className="w-4 h-4 mr-2 cursor-pointer" />
       {disabled ? 'Indisponível' : 'Adicionar ao Carrinho'}
     </Button>
   )

@@ -64,7 +64,7 @@ export function Footer() {
               placeholder="Seu melhor e-mail"
               className="flex-1 px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-none bg-white text-gray-800 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
             />
-            <button className="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors rounded-none">
+            <button className="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors rounded-none cursor-pointer">
               Assinar
             </button>
           </div>
@@ -180,8 +180,8 @@ export function Footer() {
                 <ul className="space-y-2">
                   {categories.slice(0, 4).map((category) => (
                     <li key={category.id}>
-                      <Link 
-                        href={`/category/${category.slug}`} 
+                      <Link
+                        href={`/category/${category.slug}`}
                         className="text-gray-600 hover:text-gray-900 transition-colors text-xs"
                       >
                         {category.name}

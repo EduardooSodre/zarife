@@ -117,7 +117,7 @@ export function ProductFilters() {
     return (
         <div className="mb-6">
             {/* Controls Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-white border border-gray-200 rounded-sm shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-white border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
                     {/* Mobile Filter Button */}
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -126,7 +126,7 @@ export function ProductFilters() {
                                 <Filter className="h-4 w-4 mr-2" />
                                 Filtros
                                 {getActiveFiltersCount() > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs h-5 w-5 flex items-center justify-center">
+                                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs h-5 w-5 flex items-center justify-center rounded-lg">
                                         {getActiveFiltersCount()}
                                     </span>
                                 )}
@@ -234,7 +234,7 @@ export function ProductFilters() {
                                                 type="checkbox"
                                                 checked={filters.inStock}
                                                 onChange={(e) => handleFilterChange('inStock', e.target.checked)}
-                                                className="rounded-sm"
+                                                className="rounded"
                                             />
                                             <span className="text-sm">Apenas em estoque</span>
                                         </label>
@@ -243,7 +243,7 @@ export function ProductFilters() {
                                                 type="checkbox"
                                                 checked={filters.onSale}
                                                 onChange={(e) => handleFilterChange('onSale', e.target.checked)}
-                                                className="rounded-sm"
+                                                className="rounded"
                                             />
                                             <span className="text-sm">Em promoção</span>
                                         </label>

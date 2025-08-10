@@ -17,13 +17,13 @@ export function HomeAddToCartButton({ product }: HomeAddToCartButtonProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     addItem({
       ...product,
       size: "Único",
       color: "Padrão"
     });
-    
+
     setIsOpen(true);
   };
 
@@ -33,7 +33,7 @@ export function HomeAddToCartButton({ product }: HomeAddToCartButtonProps) {
       className="w-full bg-transparent border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-xs py-2 md:py-3 px-2 md:px-4 font-medium tracking-wider"
     >
       <span className="md:hidden">CARRINHO</span>
-      <span className="hidden md:inline">ADICIONAR AO CARRINHO</span>
+      <span className="hidden md:inline cursor-pointer">ADICIONAR AO CARRINHO</span>
     </button>
   );
 }

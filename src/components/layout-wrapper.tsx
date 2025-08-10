@@ -14,9 +14,20 @@ interface LayoutWrapperProps {
 export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith('/admin');
+  const isAuthPage = pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up');
 
   if (isAdminPage) {
     // Layout limpo para páginas admin
+    return (
+      <div className="min-h-screen">
+        <UserSync />
+        {children}
+      </div>
+    );
+  }
+
+  if (isAuthPage) {
+    // Layout limpo para páginas de autenticação
     return (
       <div className="min-h-screen">
         <UserSync />

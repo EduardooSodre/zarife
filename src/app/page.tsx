@@ -166,7 +166,7 @@ export default async function Home() {
               </MotionWrapper>
             </MotionWrapper>
 
-            <MotionContainer className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8" staggerChildren={0.1}>
+            <MotionContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8" staggerChildren={0.1}>
               {featuredProducts.length > 0 ? (
                 featuredProducts.map((product, index) => (
                   <ProductCard

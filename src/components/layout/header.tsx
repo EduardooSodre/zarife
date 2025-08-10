@@ -206,160 +206,160 @@ export default function Header() {
                 <div className="flex-1 overflow-y-auto">
                   <nav className="py-2">
                     <div className="space-y-1">
-                    {/* ROUPAS */}
-                    {roupasCategory && (
-                      <div className="mb-3">
-                        <Link
-                          href={roupasCategory.href}
-                          className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {roupasCategory.name}
-                        </Link>
-                        <div className="bg-gray-50/50">
-                          {roupasCategory.children.map((item) => (
-                            <div key={item.name} className="border-b border-gray-100 last:border-b-0">
+                      {/* ROUPAS */}
+                      {roupasCategory && (
+                        <div className="mb-3">
+                          <Link
+                            href={roupasCategory.href}
+                            className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {roupasCategory.name}
+                          </Link>
+                          <div className="bg-gray-50/50">
+                            {roupasCategory.children.map((item) => (
+                              <div key={item.name} className="border-b border-gray-100 last:border-b-0">
+                                <Link
+                                  href={item.href}
+                                  className="flex items-center px-6 py-2.5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors"
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                  {item.name}
+                                </Link>
+                                {item.children && item.children.length > 0 && (
+                                  <div className="bg-gray-100/50">
+                                    {item.children.map((subcat) => (
+                                      <Link
+                                        key={subcat.name}
+                                        href={subcat.href}
+                                        className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                      >
+                                        • {subcat.name}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* VESTIDOS */}
+                      {vestidosCategory && (
+                        <div className="mb-3">
+                          <Link
+                            href={vestidosCategory.href}
+                            className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {vestidosCategory.name}
+                          </Link>
+                          <div className="bg-gray-50/50">
+                            {vestidosCategory.children.map((item) => (
                               <Link
+                                key={item.name}
                                 href={item.href}
-                                className="flex items-center px-6 py-2.5 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors"
+                                className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {item.name}
                               </Link>
-                              {item.children && item.children.length > 0 && (
-                                <div className="bg-gray-100/50">
-                                  {item.children.map((subcat) => (
-                                    <Link
-                                      key={subcat.name}
-                                      href={subcat.href}
-                                      className="flex items-center px-8 py-2 text-sm text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors"
-                                      onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                      • {subcat.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* VESTIDOS */}
-                    {vestidosCategory && (
-                      <div className="mb-3">
-                        <Link
-                          href={vestidosCategory.href}
-                          className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {vestidosCategory.name}
-                        </Link>
-                        <div className="bg-gray-50/50">
-                          {vestidosCategory.children.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                      {/* CONJUNTOS */}
+                      {conjuntosCategory && (
+                        <div className="mb-3">
+                          <Link
+                            href={conjuntosCategory.href}
+                            className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {conjuntosCategory.name}
+                          </Link>
+                          <div className="bg-gray-50/50">
+                            {conjuntosCategory.children.map((item) => (
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* CONJUNTOS */}
-                    {conjuntosCategory && (
-                      <div className="mb-3">
-                        <Link
-                          href={conjuntosCategory.href}
-                          className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {conjuntosCategory.name}
-                        </Link>
-                        <div className="bg-gray-50/50">
-                          {conjuntosCategory.children.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                      {/* MODA PRAIA */}
+                      {modaPraiaCategory && (
+                        <div className="mb-3">
+                          <Link
+                            href={modaPraiaCategory.href}
+                            className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {modaPraiaCategory.name}
+                          </Link>
+                          <div className="bg-gray-50/50">
+                            {modaPraiaCategory.children.map((item) => (
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* MODA PRAIA */}
-                    {modaPraiaCategory && (
-                      <div className="mb-3">
-                        <Link
-                          href={modaPraiaCategory.href}
-                          className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {modaPraiaCategory.name}
-                        </Link>
-                        <div className="bg-gray-50/50">
-                          {modaPraiaCategory.children.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                      {/* LOOK COMPLETO */}
+                      {lookCompletoCategory && (
+                        <div className="mb-3">
+                          <Link
+                            href={lookCompletoCategory.href}
+                            className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {lookCompletoCategory.name}
+                          </Link>
+                          <div className="bg-gray-50/50">
+                            {lookCompletoCategory.children.map((item) => (
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                  </nav>
+                </div>
 
-                    {/* LOOK COMPLETO */}
-                    {lookCompletoCategory && (
-                      <div className="mb-3">
-                        <Link
-                          href={lookCompletoCategory.href}
-                          className="flex items-center px-4 py-3 text-base font-bold text-gray-900 hover:bg-gray-50 tracking-wide border-b border-gray-100"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {lookCompletoCategory.name}
-                        </Link>
-                        <div className="bg-gray-50/50">
-                          {lookCompletoCategory.children.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className="flex items-center px-6 py-2.5 text-base text-gray-700 hover:bg-gray-100 hover:text-gray-900 tracking-wide transition-colors border-b border-gray-100 last:border-b-0"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </nav>
-              </div>
-
-              {/* Footer do Mobile Menu */}
-              <div className="px-4 py-3 border-t border-gray-200 flex-shrink-0">
-                <Link
-                  href="/produtos"
-                  className="block w-full py-2 px-4 bg-black text-white text-center text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  VER TODOS OS PRODUTOS
-                </Link>
-              </div>
-            </SheetContent>
+                {/* Footer do Mobile Menu */}
+                <div className="px-4 py-3 border-t border-gray-200 flex-shrink-0">
+                  <Link
+                    href="/produtos"
+                    className="block w-full py-2 px-4 bg-black text-white text-center text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    VER TODOS OS PRODUTOS
+                  </Link>
+                </div>
+              </SheetContent>
             </Sheet>
 
             {/* Logo */}
@@ -614,7 +614,7 @@ export default function Header() {
                 <ShoppingCart className="w-5 h-5" />
                 {/* Cart count badge */}
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                     {totalItems}
                   </span>
                 )}

@@ -146,16 +146,18 @@ export function ProductFilters() {
     return (
         <div className="mb-6">
             {/* Controls Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-white border border-gray-200 rounded-sm shadow-sm">
-                <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-4 p-4 bg-white border border-gray-200 rounded-sm shadow-sm">
+                {/* Top Row - Filter Button and View Mode (Mobile First) */}
+                <div className="flex items-center justify-between gap-4">
                     {/* Mobile Filter Button */}
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                         <SheetTrigger asChild>
-                            <Button variant="outline" className="relative border-gray-300 hover:border-black hover:text-black transition-all duration-300">
+                            <Button variant="outline" className="relative border-gray-300 hover:border-black hover:text-black transition-all duration-300 flex-shrink-0">
                                 <Filter className="h-4 w-4 mr-2" />
-                                Filtros
+                                <span className="hidden sm:inline">Filtros</span>
+                                <span className="sm:hidden">Filtrar</span>
                                 {getActiveFiltersCount() > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs h-5 w-5 flex items-center justify-center rounded-full ">
+                                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs h-5 w-5 flex items-center justify-center rounded-full">
                                         {getActiveFiltersCount()}
                                     </span>
                                 )}
@@ -442,31 +444,53 @@ export function ProductFilters() {
                             Buscar
                         </Button>
                     </div>
+
+                    {/* View Mode Toggle */}
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant={viewMode === 'grid' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => handleViewModeChange('grid')}
+                            className={`${viewMode === 'grid' 
+                                ? "bg-black hover:bg-gray-800 border-black text-white" 
+                                : "border-gray-300 hover:border-black hover:text-black"
+                            } w-9 h-9 p-0 flex-shrink-0`}
+                        >
+                            <Grid className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant={viewMode === 'list' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => handleViewModeChange('list')}
+                            className={`${viewMode === 'list' 
+                                ? "bg-black hover:bg-gray-800 border-black text-white" 
+                                : "border-gray-300 hover:border-black hover:text-black"
+                            } w-9 h-9 p-0 flex-shrink-0`}
+                        >
+                            <List className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
 
-                {/* View Mode Toggle */}
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant={viewMode === 'grid' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleViewModeChange('grid')}
-                        className={viewMode === 'grid' 
-                            ? "bg-black hover:bg-gray-800 border-black text-white" 
-                            : "border-gray-300 hover:border-black hover:text-black"
-                        }
+                {/* Bottom Row - Search Bar (Mobile Only) */}
+                <div className="flex gap-2 md:hidden">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                            type="text"
+                            placeholder="Buscar produtos..."
+                            value={filters.search}
+                            onChange={(e) => handleFilterChange('search', e.target.value)}
+                            className="pl-10 border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200"
+                            onKeyPress={(e) => e.key === 'Enter' && applyFilters()}
+                        />
+                    </div>
+                    <Button 
+                        onClick={applyFilters} 
+                        size="sm" 
+                        className="bg-black hover:bg-gray-800 px-3 flex-shrink-0"
                     >
-                        <Grid className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant={viewMode === 'list' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleViewModeChange('list')}
-                        className={viewMode === 'list' 
-                            ? "bg-black hover:bg-gray-800 border-black text-white" 
-                            : "border-gray-300 hover:border-black hover:text-black"
-                        }
-                    >
-                        <List className="h-4 w-4" />
+                        <Search className="h-4 w-4" />
                     </Button>
                 </div>
             </div>

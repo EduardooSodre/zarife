@@ -46,20 +46,20 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`group bg-white border border-gray-200 hover:shadow-lg transition-all duration-300 ${className}`}
+            className={`group bg-white border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg ${className}`}
         >
-            <div className="flex flex-col sm:flex-row gap-4 p-4">
+            <div className="flex gap-6 p-6">
                 {/* Product Image */}
-                <div className="relative flex-shrink-0 w-full sm:w-32 md:w-40 lg:w-48">
+                <div className="relative flex-shrink-0 w-48 h-48">
                     <Link href={`/product/${product.id}`}>
-                        <div className="relative w-full aspect-square sm:aspect-[4/5] overflow-hidden bg-gray-50">
+                        <div className="relative w-full h-full overflow-hidden bg-gray-50 ">
                             {product.images && product.images.length > 0 ? (
                                 <Image
                                     src={product.images[0].url}
                                     alt={product.name}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
                             ) : (
                                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -69,14 +69,14 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
 
                             {/* Discount Badge */}
                             {discountPercentage && (
-                                <div className="absolute top-2 left-2 bg-black text-white text-xs font-medium px-2 py-1">
+                                <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
                                     -{discountPercentage}%
                                 </div>
                             )}
 
                             {/* Stock Badge */}
                             {product.stock === 0 && (
-                                <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs font-medium px-2 py-1">
+                                <div className="absolute top-3 right-3 bg-gray-800 text-white text-xs font-medium px-2 py-1 rounded">
                                     ESGOTADO
                                 </div>
                             )}
@@ -86,7 +86,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                     {/* Wishlist Button */}
                     <button
                         onClick={() => setIsWishlisted(!isWishlisted)}
-                        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-2 bg-white/90 hover:bg-white transition-all duration-200 z-10"
+                        className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 z-10"
                     >
                         <Heart
                             className={`h-4 w-4 transition-colors duration-200 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
@@ -96,35 +96,57 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                 </div>
 
                 {/* Product Info */}
-                <div className="flex-1 flex flex-col justify-between min-h-0">
-                    <div className="space-y-2">
-                        {/* Category */}
-                        {product.category && (
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">
-                                {product.category.name}
-                            </span>
-                        )}
-                        
-                        {/* Product Name */}
-                        <Link href={`/product/${product.id}`}>
-                            <h3 className="text-base md:text-lg font-medium text-gray-900 hover:text-black transition-colors duration-200 line-clamp-2">
-                                {product.name}
-                            </h3>
-                        </Link>
+                <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                        <div className="flex justify-between items-start mb-2">
+                            <div>
+                                {/* Category */}
+                                {product.category && (
+                                    <span className="text-xs text-gray-500 uppercase tracking-wide">
+                                        {product.category.name}
+                                    </span>
+                                )}
 
-                        {/* Description - Hidden on mobile */}
-                        {product.description && (
-                            <p className="hidden sm:block text-sm text-gray-600 line-clamp-2">
-                                {product.description}
-                            </p>
-                        )}
+                                {/* Product Name */}
+                                <Link href={`/product/${product.id}`}>
+                                    <h3 className="text-lg font-medium text-gray-900 hover:text-black transition-colors duration-200 mt-1">
+                                        {product.name}
+                                    </h3>
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-4">
+                            {product.brand && (
+                                <span className="flex items-center gap-1">
+                                    <strong>Marca:</strong> {product.brand}
+                                </span>
+                            )}
+                            {product.material && (
+                                <span className="flex items-center gap-1">
+                                    <strong>Material:</strong> {product.material}
+                                </span>
+                            )}
+                            {product.season && (
+                                <span className="flex items-center gap-1">
+                                    <strong>Estação:</strong> {product.season}
+                                </span>
+                            )}
+                            {product.gender && (
+                                <span className="flex items-center gap-1">
+                                    <strong>Gênero:</strong> {product.gender}
+                                </span>
+                            )}
+                        </div>
                     </div>
 
                     {/* Price and Actions */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+                    <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                                <span className="text-lg font-medium text-black">
+                                <span className={`text-lg font-semibold ${product.oldPrice ? 'text-red-600' : 'text-gray-900'
+                                    }`}>
                                     {formatPrice(product.price)}
                                 </span>
                                 {product.oldPrice && (
@@ -133,7 +155,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                     </span>
                                 )}
                             </div>
-                            
+
                             {/* Stock Info */}
                             <span className={`text-xs ${product.stock > 0 ? 'text-green-600' : 'text-red-600'
                                 }`}>
@@ -145,7 +167,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                         </div>
 
                         {/* Add to Cart */}
-                        <div className="flex-shrink-0">
+                        <div className="flex items-center gap-2">
                             <AddToCartButton
                                 product={{
                                     id: product.id,
@@ -154,7 +176,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                     image: product.images[0]?.url || '',
                                 }}
                                 disabled={product.stock === 0}
-                                className="w-full sm:w-auto min-w-[120px]"
+                                className="min-w-[120px] rounded-none"
                             />
                         </div>
                     </div>

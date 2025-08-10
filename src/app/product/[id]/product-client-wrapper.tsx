@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react'
 import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 import { ProductVariants } from "@/components/product/product-variants"
+import { useFavorites } from "@/contexts/favorites-context"
 import { Button } from "@/components/ui/button"
 import { Heart, Share2 } from "lucide-react"
 
@@ -18,7 +19,13 @@ interface ProductClientWrapperProps {
     id: string
     name: string
     price: number
+    oldPrice?: number | null
     images: { url: string }[]
+    stock: number
+    category: {
+      name: string
+      slug: string
+    } | null
   }
   variants: ProductVariant[]
 }
@@ -30,9 +37,29 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
     stock: number
   }>({ stock: variants.length > 0 ? variants[0].stock : 0 })
 
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites()
+  const isWishlisted = isFavorite(product.id)
+
   const handleVariantChange = useCallback((variant: { size?: string; color?: string; stock: number }) => {
     setSelectedVariant(variant)
   }, []) // Função estável que não muda entre renderizações
+
+  const handleToggleFavorite = () => {
+    if (isWishlisted) {
+      removeFromFavorites(product.id)
+    } else {
+      addToFavorites({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        oldPrice: product.oldPrice || null,
+        images: product.images,
+        stock: product.stock,
+        category: product.category,
+        addedAt: new Date().toISOString(),
+      })
+    }
+  }
 
   return (
     <div className="space-y-6 pt-6">
@@ -60,9 +87,15 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
         />
 
         <div className="flex space-x-4">
-          <Button variant="outline" className="flex-1 rounded-none">
-            <Heart className="w-4 h-4 mr-2" />
-            Favoritar
+          <Button 
+            variant="outline" 
+            className="flex-1 rounded-none"
+            onClick={handleToggleFavorite}
+          >
+            <Heart className={`w-4 h-4 mr-2 transition-colors duration-200 ${
+              isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
+            }`} />
+            {isWishlisted ? 'Remover' : 'Favoritar'}
           </Button>
           <Button variant="outline" className="flex-1 rounded-none">
             <Share2 className="w-4 h-4 mr-2" />

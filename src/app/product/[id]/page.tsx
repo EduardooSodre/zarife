@@ -172,7 +172,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 id: product.id,
                 name: product.name,
                 price: Number(product.price),
-                images: product.images || []
+                oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+                images: product.images || [],
+                stock: product.stock,
+                category: product.category
               }}
               variants={
                 (product.variants || []).map(v => ({

@@ -61,7 +61,6 @@ export function FloatingButton({
       transition={{
         duration: 0.6,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
       }}
       whileHover={{
         scale: 1.05,
@@ -122,7 +121,6 @@ export function RevealOnScroll({
       transition={{
         duration: 0.8,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
       }}
     >
       {children}

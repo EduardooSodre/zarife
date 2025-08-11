@@ -1,7 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ReactNode } from 'react'
+import { motion, type Variants } from 'framer-motion'
 
 interface AnimatedTextProps {
   text: string
@@ -30,7 +29,7 @@ export function AnimatedText({
     },
   }
 
-  const getWordVariants = () => {
+  const getWordVariants = (): Variants => {
     switch (variant) {
       case 'fade':
         return {
@@ -58,8 +57,7 @@ export function AnimatedText({
             y: 0, 
             rotateX: 0,
             transition: { 
-              duration: 0.6,
-              ease: [0.25, 0.46, 0.45, 0.94]
+              duration: 0.6
             } 
           },
         }
@@ -70,8 +68,7 @@ export function AnimatedText({
             opacity: 1, 
             y: 0, 
             transition: { 
-              duration: 0.6,
-              ease: [0.25, 0.46, 0.45, 0.94]
+              duration: 0.6
             } 
           },
         }
@@ -123,7 +120,7 @@ export function AnimatedLetters({
     },
   }
 
-  const letterVariants = {
+  const letterVariants: Variants = {
     hidden: { 
       opacity: 0, 
       y: 50,
@@ -136,8 +133,7 @@ export function AnimatedLetters({
       rotateX: 0,
       scale: 1,
       transition: { 
-        duration: 0.5,
-        ease: [0.25, 0.46, 0.45, 0.94]
+        duration: 0.5
       } 
     },
   }

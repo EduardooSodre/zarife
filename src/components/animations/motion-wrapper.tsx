@@ -33,7 +33,6 @@ export function MotionWrapper({
       transition: {
         duration,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
       },
     },
   }
@@ -120,7 +119,7 @@ export function MotionText({ children, className = '', delay = 0, size = 'normal
       transition={{
         duration: 0.8,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: "easeOut",
       }}
     >
       {children}

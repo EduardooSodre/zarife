@@ -1,9 +1,11 @@
+
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { FloatingButton } from "@/components/animations/hover-effects";
 import { PageTransition } from "@/components/animations/page-effects";
 import { FastProductCard, ProductFilters, ProductListCard } from "@/components/product";
+import { SortSelect } from "@/components/product/sort-select";
 
 // Cache por 30 minutos
 export const revalidate = 1800;
@@ -191,12 +193,15 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
             {/* Filtros e Controles */}
             <ProductFilters />
 
-            {/* Results Info */}
-            <div className="mb-6 p-4 bg-white border border-gray-200 shadow-sm rounded-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">
-                  {totalCount} {totalCount === 1 ? 'produto encontrado' : 'produtos encontrados'}
-                </span>
+            {/* Results Info e Sort */}
+            <div className=" mb-6 p-4 bg-white border border-gray-200 shadow-sm rounded-sm">
+              <div className="flex justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">
+                    {totalCount} {totalCount === 1 ? 'produto encontrado' : 'produtos encontrados'}
+                  </span>
+                </div>
+                <SortSelect currentSortBy={sortBy} />
               </div>
             </div>
 

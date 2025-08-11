@@ -390,67 +390,35 @@ export function ProductFilters() {
                         </SheetContent>
                     </Sheet>
 
-                    {/* Quick Search - Desktop */}
-                    <div className="hidden md:flex items-center gap-2">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input
-                                type="text"
-                                placeholder="Buscar produtos..."
-                                value={filters.search}
-                                onChange={(e) => handleFilterChange('search', e.target.value)}
-                                className="pl-10 w-64 border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 "
-                                onKeyPress={(e) => e.key === 'Enter' && applyFilters()}
-                            />
-                        </div>
-                        <Button onClick={applyFilters} size="sm" className="bg-black hover:bg-gray-800 ">
-                            Buscar
-                        </Button>
-                    </div>
 
                     {/* Sort & View Mode Toggle */}
                     <div className="flex items-center gap-4">
-                        {/* Sort */}
-                        <div className="flex items-center gap-2">
-                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Ordenar por</Label>
-                            <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
-                                <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-9 w-36">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-lg border-gray-200">
-                                    <SelectItem value="newest">Mais recentes</SelectItem>
-                                    <SelectItem value="price-asc">Menor preço</SelectItem>
-                                    <SelectItem value="price-desc">Maior preço</SelectItem>
-                                    <SelectItem value="name">Nome A-Z</SelectItem>
-                                    <SelectItem value="popular">Mais populares</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+
 
                         {/* View Mode Toggle */}
                         <div className="flex items-center gap-1">
-                        <Button
-                            variant={viewMode === 'grid' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => handleViewModeChange('grid')}
-                            className={`${viewMode === 'grid'
-                                ? "bg-black hover:bg-gray-800 border-black text-white"
-                                : "border-gray-300 hover:border-black hover:text-black"
-                                } w-9 h-9 p-0 flex-shrink-0`}
-                        >
-                            <Grid className="h-4 w-4" />
-                        </Button>
-                        <Button
-                            variant={viewMode === 'list' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => handleViewModeChange('list')}
-                            className={`${viewMode === 'list'
-                                ? "bg-black hover:bg-gray-800 border-black text-white"
-                                : "border-gray-300 hover:border-black hover:text-black"
-                                } w-9 h-9 p-0 flex-shrink-0`}
-                        >
-                            <List className="h-4 w-4" />
-                        </Button>
+                            <Button
+                                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => handleViewModeChange('grid')}
+                                className={`${viewMode === 'grid'
+                                    ? "bg-black hover:bg-gray-800 border-black text-white"
+                                    : "border-gray-300 hover:border-black hover:text-black"
+                                    } w-9 h-9 p-0 flex-shrink-0`}
+                            >
+                                <Grid className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant={viewMode === 'list' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => handleViewModeChange('list')}
+                                className={`${viewMode === 'list'
+                                    ? "bg-black hover:bg-gray-800 border-black text-white"
+                                    : "border-gray-300 hover:border-black hover:text-black"
+                                    } w-9 h-9 p-0 flex-shrink-0`}
+                            >
+                                <List className="h-4 w-4" />
+                            </Button>
                         </div>
                     </div>
                 </div>

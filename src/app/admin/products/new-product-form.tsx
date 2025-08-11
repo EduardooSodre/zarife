@@ -1,0 +1,664 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { ImageUploadGuide } from "@/components/ui/image-upload-guide";
+import { useRouter } from "next/navigation";
+
+interface ImageData {
+  id: string;
+  url: string;
+  file?: File;
+  order: number;
+}
+
+interface ProductVariant {
+  size?: string;
+  color?: string;
+  stock: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  parent?: { id: string; name: string; parent?: { id: string; name: string } };
+  children?: Category[];
+  _count: { products: number };
+}
+
+interface NewProductFormProps {
+  draft?: any;
+  onSuccess: () => void;
+}
+
+export default function NewProductForm({ draft, onSuccess }: NewProductFormProps) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesByLevel, setCategoriesByLevel] = useState<{
+    level1: Category[];
+    level2: Category[];
+    level3: Category[];
+  }>({
+    level1: [],
+    level2: [],
+    level3: []
+  });
+  const [selectedLevel1, setSelectedLevel1] = useState(draft?.selectedLevel1 || '');
+  const [selectedLevel2, setSelectedLevel2] = useState(draft?.selectedLevel2 || '');
+  const [selectedLevel3, setSelectedLevel3] = useState(draft?.selectedLevel3 || '');
+
+  const [formData, setFormData] = useState(() => draft || {
+    name: '',
+    description: '',
+    price: '',
+    oldPrice: '',
+    stock: '',
+    categoryId: '',
+    isFeatured: false,
+    isActive: true,
+    material: '',
+    brand: '',
+    season: '',
+    gender: '',
+  });
+  const [images, setImages] = useState<ImageData[]>(draft?.images || []);
+  const [variants, setVariants] = useState<ProductVariant[]>(draft?.variants || []);
+
+  // Opções predefinidas para loja de roupas
+  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '34', '36', '38', '40', '42', '44'];
+  const colorOptions = ['Preto', 'Branco', 'Azul', 'Vermelho', 'Verde', 'Rosa', 'Amarelo', 'Roxo', 'Cinza', 'Bege', 'Laranja'];
+  const seasonOptions = ['Primavera/Verão', 'Outono/Inverno', 'Todo o Ano'];
+  const genderOptions = ['Feminino', 'Masculino', 'Unissex'];
+
+  // Carregar categorias da API
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('/api/categories/for-products');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.all && Array.isArray(data.all)) {
+            setCategories(data.all);
+          }
+          if (data.byLevel && data.byLevel.level1 && Array.isArray(data.byLevel.level1)) {
+            setCategoriesByLevel(data.byLevel);
+          }
+        } else {
+          console.error('Erro ao carregar categorias:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // Salvar rascunho no localStorage a cada alteração
+  useEffect(() => {
+    const draftToSave = { ...formData, images, variants, selectedLevel1, selectedLevel2, selectedLevel3 };
+    localStorage.setItem("productFormDraft", JSON.stringify(draftToSave));
+  }, [formData, images, variants, selectedLevel1, selectedLevel2, selectedLevel3]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const imagesData = images.map((img, index) => ({
+        url: img.url,
+        order: index,
+      }));
+
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price),
+          oldPrice: formData.oldPrice ? parseFloat(formData.oldPrice) : null,
+          stock: parseInt(formData.stock),
+          images: imagesData,
+          variants: variants,
+        }),
+      });
+
+      if (response.ok) {
+        onSuccess();
+        router.refresh();
+      } else {
+        throw new Error('Erro ao criar produto');
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro ao criar produto. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData((prev: typeof formData) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
+
+  const addVariant = () => {
+    setVariants(prev => [...prev, { size: '', color: '', stock: 0 }]);
+  };
+
+  const updateVariant = (index: number, field: keyof ProductVariant, value: string | number) => {
+    setVariants(prev => prev.map((variant, i) =>
+      i === index ? { ...variant, [field]: value } : variant
+    ));
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Funções para hierarquia de categorias
+  const getLevel2Categories = () => {
+    if (!selectedLevel1) return [];
+    return (categoriesByLevel.level2 || []).filter(cat => cat.parent?.id === selectedLevel1);
+  };
+
+  const getLevel3Categories = () => {
+    if (!selectedLevel2) return [];
+    return (categoriesByLevel.level3 || []).filter(cat => cat.parent?.id === selectedLevel2);
+  };
+
+  const handleLevel1Change = (value: string) => {
+    setSelectedLevel1(value);
+    setSelectedLevel2('');
+    setSelectedLevel3('');
+    setFormData((prev: typeof formData) => ({ ...prev, categoryId: value }));
+  };
+
+  const handleLevel2Change = (value: string) => {
+    setSelectedLevel2(value);
+    setSelectedLevel3('');
+    setFormData((prev: typeof formData) => ({ ...prev, categoryId: value }));
+  };
+
+  const handleLevel3Change = (value: string) => {
+    setSelectedLevel3(value);
+    setFormData((prev: typeof formData) => ({ ...prev, categoryId: value }));
+  };
+
+  // Função para obter o nome completo da categoria (hierárquico)
+  const getCategoryFullName = (category: Category): string => {
+    if (category.parent?.parent) {
+      return `${category.parent.parent.name} > ${category.parent.name} > ${category.name}`;
+    } else if (category.parent) {
+      return `${category.parent.name} > ${category.name}`;
+    }
+    return category.name;
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border p-6 lg:p-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12">
+        {/* Informações Básicas */}
+        <div className="space-y-8">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Informações Básicas</h3>
+
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome do Produto *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                  placeholder="Ex: Bikini Tropical"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Descrição
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                  rows={4}
+                  placeholder="Descrição detalhada do produto..."
+                />
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    Categoria do Produto *
+                  </label>
+
+                  {/* Nível 1 - Categoria Principal */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        1. Categoria Principal
+                      </label>
+                      <Select
+                        value={selectedLevel1}
+                        onValueChange={handleLevel1Change}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione a categoria principal" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(categoriesByLevel.level1 || []).map(category => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name} ({category._count.products} produtos)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Nível 2 - Subcategoria */}
+                    {selectedLevel1 && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          2. Subcategoria (opcional)
+                        </label>
+                        <Select
+                          value={selectedLevel2}
+                          onValueChange={handleLevel2Change}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione uma subcategoria (opcional)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(getLevel2Categories() || []).map(category => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name} ({category._count.products} produtos)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {/* Nível 3 - Sub-subcategoria */}
+                    {selectedLevel2 && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          3. Categoria Específica (opcional)
+                        </label>
+                        <Select
+                          value={selectedLevel3}
+                          onValueChange={handleLevel3Change}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione a categoria específica (opcional)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(getLevel3Categories() || []).map(category => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name} ({category._count.products} produtos)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {/* Categoria Selecionada */}
+                    {formData.categoryId && (
+                      <div className="mt-3 p-3 bg-gray-50 rounded-lg border">
+                        <p className="text-sm text-gray-600 mb-1">Categoria selecionada:</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {(() => {
+                            const selectedCategory = categories.find(c => c.id === formData.categoryId);
+                            return selectedCategory ? getCategoryFullName(selectedCategory) : '';
+                          })()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
+                    Marca
+                  </label>
+                  <input
+                    type="text"
+                    id="brand"
+                    name="brand"
+                    value={formData.brand}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    placeholder="Ex: Zarife Fashion"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="material" className="block text-sm font-medium text-gray-700 mb-2">
+                    Material
+                  </label>
+                  <input
+                    type="text"
+                    id="material"
+                    name="material"
+                    value={formData.material}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    placeholder="Ex: Poliéster, Algodão"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="season" className="block text-sm font-medium text-gray-700 mb-2">
+                    Temporada
+                  </label>
+                  <Select
+                    value={formData.season}
+                    onValueChange={(value) => setFormData((prev: typeof formData) => ({ ...prev, season: value }))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione uma temporada" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {seasonOptions.map(season => (
+                        <SelectItem key={season} value={season}>
+                          {season}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                    Público
+                  </label>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) => setFormData((prev: typeof formData) => ({ ...prev, gender: value }))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o público" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {genderOptions.map(gender => (
+                        <SelectItem key={gender} value={gender}>
+                          {gender}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Preços e Stock */}
+        <div className="space-y-8">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Preços e Stock</h3>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                    Preço Atual (€) *
+                  </label>
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="oldPrice" className="block text-sm font-medium text-gray-700 mb-2">
+                    Preço Antigo (€)
+                  </label>
+                  <input
+                    type="number"
+                    id="oldPrice"
+                    name="oldPrice"
+                    value={formData.oldPrice}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
+                  Stock Base *
+                  <span className="text-xs text-gray-500 ml-1">(usado se não há variações)</span>
+                </label>
+                <input
+                  type="number"
+                  id="stock"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                  placeholder="0"
+                  min="0"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Variações de Produto */}
+      <div className="mt-12 space-y-8">
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-gray-900">Variações de Produto</h3>
+            <button
+              type="button"
+              onClick={addVariant}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors gap-2"
+            >
+              +
+              Adicionar Variação
+            </button>
+          </div>
+
+          {variants.length === 0 ? (
+            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="flex flex-col items-center text-gray-500">
+                <div className="flex space-x-2 mb-2">
+                  {/* Ícones Lucide opcional */}
+                </div>
+                <p className="text-sm">Nenhuma variação adicionada</p>
+                <p className="text-xs">Adicione tamanhos e cores para diferentes variações do produto</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {variants.map((variant, index) => (
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-gray-50 rounded-lg border">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Tamanho
+                    </label>
+                    <Select
+                      value={variant.size || ''}
+                      onValueChange={(value) => updateVariant(index, 'size', value)}
+                    >
+                      <SelectTrigger className="w-full h-8">
+                        <SelectValue placeholder="Selecionar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sizeOptions.map(size => (
+                          <SelectItem key={size} value={size}>
+                            {size}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Cor
+                    </label>
+                    <Select
+                      value={variant.color || ''}
+                      onValueChange={(value) => updateVariant(index, 'color', value)}
+                    >
+                      <SelectTrigger className="w-full h-8">
+                        <SelectValue placeholder="Selecionar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {colorOptions.map(color => (
+                          <SelectItem key={color} value={color}>
+                            {color}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Stock
+                    </label>
+                    <input
+                      type="number"
+                      value={variant.stock}
+                      onChange={(e) => updateVariant(index, 'stock', parseInt(e.target.value) || 0)}
+                      className="w-full px-2 py-1.5 h-8 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-black focus:border-transparent"
+                      min="0"
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Ação
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="w-full h-8 px-3 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50 transition-colors"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Imagens do Produto */}
+      <div className="mt-12 space-y-8">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">Imagens do Produto</h3>
+          <ImageUploadGuide />
+          <ImageUpload
+            images={images}
+            onImagesChange={setImages}
+            maxImages={6}
+          />
+        </div>
+      </div>
+
+      {/* Configurações */}
+      <div className="mt-12 space-y-8">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">Configurações</h3>
+
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="isFeatured"
+                checked={formData.isFeatured}
+                onCheckedChange={(checked) =>
+                  setFormData((prev: typeof formData) => ({ ...prev, isFeatured: !!checked }))
+                }
+              />
+              <label
+                htmlFor="isFeatured"
+                className="text-sm font-medium text-gray-700 cursor-pointer"
+              >
+                Produto em Destaque
+              </label>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) =>
+                  setFormData((prev: typeof formData) => ({ ...prev, isActive: !!checked }))
+                }
+              />
+              <label
+                htmlFor="isActive"
+                className="text-sm font-medium text-gray-700 cursor-pointer"
+              >
+                Produto Ativo
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Botões de Ação */}
+      <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-4 justify-end">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            onClick={onSuccess}
+            disabled={isLoading}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
+          >
+            {isLoading ? 'A Criar...' : 'Criar Produto'}
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+}

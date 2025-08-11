@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { ProductFormDialog } from "./product-form-dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Eye, Search, Package, ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -65,12 +66,7 @@ export default async function AdminProductsPage() {
                             Gerir o catálogo de produtos da Zarife
                         </p>
                     </div>
-                    <Link href="/admin/products/new" className="inline-block">
-                        <Button className="bg-primary hover:bg-primary/90 text-white w-auto cursor-pointer uppercase tracking-widest text-sm py-3 px-6">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Novo Produto
-                        </Button>
-                    </Link>
+                    <ProductFormDialog />
                 </div>
 
                 {/* Stats */}

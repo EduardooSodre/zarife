@@ -212,7 +212,7 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className=" bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         {/* Botão de retorno */}
         <div className="mb-6">
@@ -280,7 +280,7 @@ export default function NewProductPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-4">
                         Categoria do Produto *
                       </label>
-                      
+
                       {/* Nível 1 - Categoria Principal */}
                       <div className="space-y-3">
                         <div>

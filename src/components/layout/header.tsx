@@ -617,7 +617,7 @@ export default function Header() {
                   <Heart className="w-5 h-5" />
                   {/* Favorites count badge */}
                   {favoritesCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none font-medium">
                       {favoritesCount}
                     </span>
                   )}
@@ -632,7 +632,7 @@ export default function Header() {
                 <ShoppingCart className="w-5 h-5" />
                 {/* Cart count badge */}
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none font-medium">
                     {totalItems}
                   </span>
                 )}

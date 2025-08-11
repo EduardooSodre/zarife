@@ -22,6 +22,7 @@ interface FilterData {
     materials: string[];
     seasons: string[];
     genders: string[];
+    colors: string[];
     priceRange: { min: number; max: number };
 }
 
@@ -157,7 +158,7 @@ export function ProductFilters() {
                                 <span className="hidden sm:inline">Filtros</span>
                                 <span className="sm:hidden">Filtrar</span>
                                 {getActiveFiltersCount() > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs h-5 w-5 flex items-center justify-center rounded-full">
+                                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs h-5 w-5 flex items-center justify-center rounded-full leading-none font-medium">
                                         {getActiveFiltersCount()}
                                     </span>
                                 )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useFavorites } from '@/contexts/favorites-context';
-import { FavoriteProductCard } from '@/components/favorites/favorite-product-card';
+import { FavoriteGridCard } from '@/components/favorites/favorite-grid-card';
 import { Heart, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ export function FavoritesContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 pt-20 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -25,7 +25,7 @@ export function FavoritesContent() {
 
   if (favorites.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 pt-20 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">
@@ -63,7 +63,7 @@ export function FavoritesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 pt-20 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">
@@ -74,9 +74,9 @@ export function FavoritesContent() {
           </p>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {favorites.map((product) => (
-            <FavoriteProductCard key={product.id} product={product} />
+            <FavoriteGridCard key={product.id} product={product} />
           ))}
         </div>
       </div>

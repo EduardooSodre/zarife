@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Sheet,
     SheetContent,
@@ -31,7 +32,7 @@ export function ProductFilters() {
     const searchParams = useSearchParams();
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [filterData, setFilterData] = useState<FilterData | null>(null);
-    
+
     // Get viewMode from URL or default to grid
     const currentViewMode = (searchParams.get('viewMode') as 'grid' | 'list') || 'grid';
     const [viewMode, setViewMode] = useState<'grid' | 'list'>(currentViewMode);
@@ -39,11 +40,12 @@ export function ProductFilters() {
     // Filter states
     const [filters, setFilters] = useState({
         search: searchParams.get('search') || '',
-        category: searchParams.get('category') || '',
+        category: searchParams.get('category')?.split(',').filter(Boolean) || [],
         brand: searchParams.get('brand') || '',
         material: searchParams.get('material') || '',
         season: searchParams.get('season') || '',
         gender: searchParams.get('gender') || '',
+        color: searchParams.get('color') || '',
         minPrice: searchParams.get('minPrice') || '',
         maxPrice: searchParams.get('maxPrice') || '',
         inStock: searchParams.get('inStock') === 'true',
@@ -68,9 +70,11 @@ export function ProductFilters() {
     // Apply filters
     const applyFilters = () => {
         const params = new URLSearchParams();
-        
+
         Object.entries(filters).forEach(([key, value]) => {
-            if (value && value !== '' && !(typeof value === 'boolean' && !value)) {
+            if (key === 'category' && Array.isArray(value) && value.length > 0) {
+                params.set(key, value.join(','));
+            } else if (value && value !== '' && !(typeof value === 'boolean' && !value)) {
                 params.set(key, value.toString());
             }
         });
@@ -89,10 +93,12 @@ export function ProductFilters() {
     const handleViewModeChange = (newViewMode: 'grid' | 'list') => {
         setViewMode(newViewMode);
         const params = new URLSearchParams(searchParams.toString());
-        
+
         // Update all current filters
         Object.entries(filters).forEach(([key, value]) => {
-            if (value && value !== '' && !(typeof value === 'boolean' && !value)) {
+            if (key === 'category' && Array.isArray(value) && value.length > 0) {
+                params.set(key, value.join(','));
+            } else if (value && value !== '' && !(typeof value === 'boolean' && !value)) {
                 params.set(key, value.toString());
             }
         });
@@ -110,11 +116,12 @@ export function ProductFilters() {
     const clearFilters = () => {
         setFilters({
             search: '',
-            category: '',
+            category: [],
             brand: '',
             material: '',
             season: '',
             gender: '',
+            color: '',
             minPrice: '',
             maxPrice: '',
             inStock: false,
@@ -129,14 +136,30 @@ export function ProductFilters() {
         setFilters(prev => ({ ...prev, [key]: value }));
     };
 
+    const handleCategoryToggle = (categorySlug: string) => {
+        setFilters(prev => {
+            const currentCategories = Array.isArray(prev.category) ? prev.category : [];
+            const isSelected = currentCategories.includes(categorySlug);
+
+            if (isSelected) {
+                // Remove category
+                return { ...prev, category: currentCategories.filter(cat => cat !== categorySlug) };
+            } else {
+                // Add category
+                return { ...prev, category: [...currentCategories, categorySlug] };
+            }
+        });
+    };
+
     const getActiveFiltersCount = () => {
         let count = 0;
         if (filters.search) count++;
-        if (filters.category) count++;
+        if (Array.isArray(filters.category) && filters.category.length > 0) count++;
         if (filters.brand) count++;
         if (filters.material) count++;
         if (filters.season) count++;
         if (filters.gender) count++;
+        if (filters.color) count++;
         if (filters.minPrice) count++;
         if (filters.maxPrice) count++;
         if (filters.inStock) count++;
@@ -200,29 +223,6 @@ export function ProductFilters() {
                                         </div>
                                     </div>
 
-                                    {/* Category */}
-                                    {filterData && filterData.categories.length > 0 && (
-                                        <div className="space-y-3 pb-4 border-b border-gray-100">
-                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Categoria</Label>
-                                            <Select value={filters.category || 'all'} onValueChange={(value) => handleFilterChange('category', value === 'all' ? '' : value)}>
-                                                <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                    <SelectValue placeholder="Selecione uma categoria" />
-                                                </SelectTrigger>
-                                                <SelectContent className="rounded-lg border-gray-200">
-                                                    <SelectItem value="all" className="font-medium text-gray-900">Todas as categorias</SelectItem>
-                                                    {filterData.categories.map((cat) => (
-                                                        <SelectItem key={cat.id} value={cat.slug}>
-                                                            <div className="flex items-center justify-between w-full">
-                                                                <span>{cat.name}</span>
-                                                                <span className="text-xs text-gray-400 ml-2">({cat.count})</span>
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    )}
-
                                     {/* Price Range */}
                                     <div className="space-y-3 pb-4 border-b border-gray-100">
                                         <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Faixa de Preço</Label>
@@ -250,56 +250,106 @@ export function ProductFilters() {
                                         </div>
                                     </div>
 
-                                    {/* Filters Grid */}
+                                    {/* Category */}
+                                    {filterData && filterData.categories.length > 0 && (
+                                        <div className="space-y-3 pb-4 border-b border-gray-100">
+                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Categoria</Label>
+                                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                                                {filterData.categories.map((cat) => (
+                                                    <div key={cat.id} className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id={`category-${cat.id}`}
+                                                            checked={filters.category.includes(cat.slug)}
+                                                            onCheckedChange={() => handleCategoryToggle(cat.slug)}
+                                                            className="border-gray-300 text-black focus:ring-black"
+                                                        />
+                                                        <Label
+                                                            htmlFor={`category-${cat.id}`}
+                                                            className="text-sm text-gray-700 cursor-pointer flex-1 leading-none"
+                                                        >
+                                                            {cat.name} ({cat.count})
+                                                        </Label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+
+
+                                    {/* Marca and Material */}
                                     <div className="space-y-4">
                                         {/* Brand */}
                                         {filterData && filterData.brands.length > 0 && (
-                                            <div className="space-y-3">
-                                                <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Marca</Label>
-                                                <Select value={filters.brand || 'all'} onValueChange={(value) => handleFilterChange('brand', value === 'all' ? '' : value)}>
-                                                    <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                        <SelectValue placeholder="Selecione uma marca" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="rounded-lg border-gray-200">
-                                                        <SelectItem value="all" className="font-medium text-gray-900">Todas as marcas</SelectItem>
-                                                        {filterData.brands.map((brand) => (
-                                                            <SelectItem key={brand} value={brand}>
-                                                                {brand}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className='space-y-3'>
+                                                    <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Marca</Label>
+                                                    <Select value={filters.brand || 'all'} onValueChange={(value) => handleFilterChange('brand', value === 'all' ? '' : value)}>
+                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                            <SelectValue placeholder="Todas as marcas" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="rounded-lg border-gray-200">
+                                                            <SelectItem value="all" className="font-medium text-gray-900">Todas as marcas</SelectItem>
+                                                            {filterData.brands.map((brand) => (
+                                                                <SelectItem key={brand} value={brand}>
+                                                                    {brand}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    {filterData && filterData.materials.length > 0 && (
+                                                        <div className="space-y-3">
+                                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Material</Label>
+                                                            <Select value={filters.material || 'all'} onValueChange={(value) => handleFilterChange('material', value === 'all' ? '' : value)}>
+                                                                <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                                    <SelectValue placeholder="Todos os materiais" />
+                                                                </SelectTrigger>
+                                                                <SelectContent className="rounded-lg border-gray-200">
+                                                                    <SelectItem value="all" className="font-medium text-gray-900">Todos os materiais</SelectItem>
+                                                                    {filterData.materials.map((material) => (
+                                                                        <SelectItem key={material} value={material}>
+                                                                            {material}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         )}
 
-                                        {/* Material */}
-                                        {filterData && filterData.materials.length > 0 && (
-                                            <div className="space-y-3">
-                                                <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Material</Label>
-                                                <Select value={filters.material || 'all'} onValueChange={(value) => handleFilterChange('material', value === 'all' ? '' : value)}>
-                                                    <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                        <SelectValue placeholder="Selecione um material" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="rounded-lg border-gray-200">
-                                                        <SelectItem value="all" className="font-medium text-gray-900">Todos os materiais</SelectItem>
-                                                        {filterData.materials.map((material) => (
-                                                            <SelectItem key={material} value={material}>
-                                                                {material}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        )}
 
-                                        {/* Season & Gender Grid */}
+                                        {/* Colors & Season Grid */}
                                         <div className="grid grid-cols-2 gap-3">
+                                            {/* Colors */}
+                                            {filterData && filterData.colors && filterData.colors.length > 0 && (
+                                                <div className="space-y-3">
+                                                    <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Cor</Label>
+                                                    <Select value={filters.color || 'all'} onValueChange={(value) => handleFilterChange('color', value === 'all' ? '' : value)}>
+                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                            <SelectValue placeholder="Todas as cores" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="rounded-lg border-gray-200">
+                                                            <SelectItem value="all" className="font-medium text-gray-900">Todas as cores</SelectItem>
+                                                            {filterData.colors.map((color) => (
+                                                                <SelectItem key={color} value={color}>
+                                                                    {color}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            )}
+
                                             {/* Season */}
                                             {filterData && filterData.seasons.length > 0 && (
-                                                <div className="space-y-2">
+                                                <div className="space-y-3">
                                                     <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Estação</Label>
                                                     <Select value={filters.season || 'all'} onValueChange={(value) => handleFilterChange('season', value === 'all' ? '' : value)}>
-                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-10 text-sm">
+                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
                                                             <SelectValue placeholder="Todas" />
                                                         </SelectTrigger>
                                                         <SelectContent className="rounded-lg border-gray-200">
@@ -313,95 +363,7 @@ export function ProductFilters() {
                                                     </Select>
                                                 </div>
                                             )}
-
-                                            {/* Gender */}
-                                            {filterData && filterData.genders.length > 0 && (
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Gênero</Label>
-                                                    <Select value={filters.gender || 'all'} onValueChange={(value) => handleFilterChange('gender', value === 'all' ? '' : value)}>
-                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-10 text-sm">
-                                                            <SelectValue placeholder="Todos" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="rounded-lg border-gray-200">
-                                                            <SelectItem value="all" className="font-medium text-gray-900">Todos</SelectItem>
-                                                            {filterData.genders.map((gender) => (
-                                                                <SelectItem key={gender} value={gender}>
-                                                                    {gender}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                </Select>
-                                            </div>
-                                        )}
-                                    </div>
-                                    </div>
-
-                                    {/* Quick Filters */}
-                                    <div className="space-y-3 pb-4 border-b border-gray-100">
-                                        <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Filtros Rápidos</Label>
-                                        <div className="space-y-2">
-                                            <label className="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors border border-transparent hover:border-gray-200">
-                                                <div className="relative flex items-center justify-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={filters.inStock}
-                                                        onChange={(e) => handleFilterChange('inStock', e.target.checked)}
-                                                        className="sr-only"
-                                                    />
-                                                    <div className={`w-5 h-5 border-2 rounded-md flex items-center justify-center transition-all duration-200 ${
-                                                        filters.inStock
-                                                            ? 'bg-black border-black'
-                                                            : 'border-gray-300 group-hover:border-gray-400'
-                                                    }`}>
-                                                        {filters.inStock && (
-                                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <span className="text-sm text-gray-700 group-hover:text-black transition-colors font-medium">Apenas em estoque</span>
-                                            </label>
-                                            <label className="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors border border-transparent hover:border-gray-200">
-                                                <div className="relative flex items-center justify-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={filters.onSale}
-                                                        onChange={(e) => handleFilterChange('onSale', e.target.checked)}
-                                                        className="sr-only"
-                                                    />
-                                                    <div className={`w-5 h-5 border-2 rounded-md flex items-center justify-center transition-all duration-200 ${
-                                                        filters.onSale
-                                                            ? 'bg-black border-black'
-                                                            : 'border-gray-300 group-hover:border-gray-400'
-                                                    }`}>
-                                                        {filters.onSale && (
-                                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <span className="text-sm text-gray-700 group-hover:text-black transition-colors font-medium">Em promoção</span>
-                                            </label>
                                         </div>
-                                    </div>
-
-                                    {/* Sort */}
-                                    <div className="space-y-3">
-                                        <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Ordenar por</Label>
-                                        <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
-                                            <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-lg border-gray-200">
-                                                <SelectItem value="newest">Mais recentes</SelectItem>
-                                                <SelectItem value="price-asc">Menor preço</SelectItem>
-                                                <SelectItem value="price-desc">Maior preço</SelectItem>
-                                                <SelectItem value="name">Nome A-Z</SelectItem>
-                                                <SelectItem value="popular">Mais populares</SelectItem>
-                                            </SelectContent>
-                                        </Select>
                                     </div>
                                 </div>
 
@@ -446,16 +408,35 @@ export function ProductFilters() {
                         </Button>
                     </div>
 
-                    {/* View Mode Toggle */}
-                    <div className="flex items-center gap-1">
+                    {/* Sort & View Mode Toggle */}
+                    <div className="flex items-center gap-4">
+                        {/* Sort */}
+                        <div className="flex items-center gap-2">
+                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Ordenar por</Label>
+                            <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
+                                <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-9 w-36">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-lg border-gray-200">
+                                    <SelectItem value="newest">Mais recentes</SelectItem>
+                                    <SelectItem value="price-asc">Menor preço</SelectItem>
+                                    <SelectItem value="price-desc">Maior preço</SelectItem>
+                                    <SelectItem value="name">Nome A-Z</SelectItem>
+                                    <SelectItem value="popular">Mais populares</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* View Mode Toggle */}
+                        <div className="flex items-center gap-1">
                         <Button
                             variant={viewMode === 'grid' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => handleViewModeChange('grid')}
-                            className={`${viewMode === 'grid' 
-                                ? "bg-black hover:bg-gray-800 border-black text-white" 
+                            className={`${viewMode === 'grid'
+                                ? "bg-black hover:bg-gray-800 border-black text-white"
                                 : "border-gray-300 hover:border-black hover:text-black"
-                            } w-9 h-9 p-0 flex-shrink-0`}
+                                } w-9 h-9 p-0 flex-shrink-0`}
                         >
                             <Grid className="h-4 w-4" />
                         </Button>
@@ -463,13 +444,14 @@ export function ProductFilters() {
                             variant={viewMode === 'list' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => handleViewModeChange('list')}
-                            className={`${viewMode === 'list' 
-                                ? "bg-black hover:bg-gray-800 border-black text-white" 
+                            className={`${viewMode === 'list'
+                                ? "bg-black hover:bg-gray-800 border-black text-white"
                                 : "border-gray-300 hover:border-black hover:text-black"
-                            } w-9 h-9 p-0 flex-shrink-0`}
+                                } w-9 h-9 p-0 flex-shrink-0`}
                         >
                             <List className="h-4 w-4" />
                         </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -486,9 +468,9 @@ export function ProductFilters() {
                             onKeyPress={(e) => e.key === 'Enter' && applyFilters()}
                         />
                     </div>
-                    <Button 
-                        onClick={applyFilters} 
-                        size="sm" 
+                    <Button
+                        onClick={applyFilters}
+                        size="sm"
                         className="bg-black hover:bg-gray-800 px-3 flex-shrink-0"
                     >
                         <Search className="h-4 w-4" />

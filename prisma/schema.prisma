@@ -103,16 +103,41 @@ model ProductVariant {
 model Order {
   id              String      @id @default(cuid())
   userId          String      @map("user_id")
-  status          OrderStatus @default(NEW)
+  status          OrderStatus @default(PENDING)
+  
+  // Dados do cliente
+  customerFirstName String @map("customer_first_name")
+  customerLastName  String @map("customer_last_name")
+  customerEmail     String @map("customer_email")
+  customerPhone     String @map("customer_phone")
+  
+  // Endereço de entrega
+  shippingAddress    String  @map("shipping_address")
+  shippingCity       String  @map("shipping_city")
+  shippingPostalCode String  @map("shipping_postal_code")
+  shippingState      String  @map("shipping_state")
+  shippingCountry    String  @map("shipping_country")
+  shippingComplement String? @map("shipping_complement")
+  
+  // Valores
+  subtotal        Decimal
+  shipping        Decimal
   total           Decimal
-  stripePaymentId String?     @map("stripe_payment_id")
-  couponCode      String?     @map("coupon_code")
-  discount        Decimal?    @default(0)
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
+  discount        Decimal? @default(0)
+  
+  // Pagamento
+  paymentMethod   String @map("payment_method")
+  stripePaymentId String? @map("stripe_payment_id")
+  couponCode      String? @map("coupon_code")
+  
+  // Observações
+  notes       String?
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   user       User        @relation(fields: [userId], references: [id])
-  orderItems OrderItem[]
+  items      OrderItem[]
 
   @@map("orders")
 }
@@ -164,7 +189,7 @@ enum UserRole {
 }
 
 enum OrderStatus {
-  NEW
+  PENDING
   PAID
   SHIPPED
   DELIVERED

@@ -147,9 +147,11 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 uppercase tracking-widest">
-                Finalizar Compra
-              </Button>
+              <Link href="/checkout">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 uppercase tracking-widest">
+                  Finalizar Compra
+                </Button>
+              </Link>
 
               <div className="mt-6 text-center">
                 <Link href="/" className="text-sm text-gray-600 hover:text-primary uppercase tracking-wide">

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { ProductFormDialog } from "./product-form-dialog";
+import { EditProductDialog } from "./edit-product-dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Eye, Search, Package, ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -203,11 +204,7 @@ export default async function AdminProductsPage() {
                                                         <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </Link>
-                                                <Link href={`/admin/products/${product.id}/edit`}>
-                                                    <Button size="sm" variant="outline" className="bg-white text-xs sm:text-sm h-7 sm:h-8 cursor-pointer">
-                                                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                    </Button>
-                                                </Link>
+                                                <EditProductDialog product={product} />
                                                 <DeleteProductButton
                                                     productId={product.id}
                                                     productName={product.name}
@@ -249,11 +246,7 @@ export default async function AdminProductsPage() {
                                             </div>
 
                                             <div className="flex items-center space-x-1">
-                                                <Link href={`/admin/products/${product.id}/edit`}>
-                                                    <Button size="sm" variant="outline" className="h-7 sm:h-8 px-2 cursor-pointer hover:bg-gray-100">
-                                                        <Edit className="h-3 w-3" />
-                                                    </Button>
-                                                </Link>
+                                                <EditProductDialog product={product} />
                                             </div>
                                         </div>
                                     </div>

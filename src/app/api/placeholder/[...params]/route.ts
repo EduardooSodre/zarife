@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ params: string[] }> }
 ) {
   // Gerar uma imagem placeholder simples
-  const resolvedParams = await params
-  const [width = '400', height = '600'] = resolvedParams.params
-  
+  const resolvedParams = await params;
+  const [width = "400", height = "600"] = resolvedParams.params;
+
   // Retornar uma imagem SVG placeholder
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
@@ -16,12 +16,12 @@ export async function GET(
         ${width} × ${height}
       </text>
     </svg>
-  `
-  
+  `;
+
   return new NextResponse(svg, {
     headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
-    }
-  })
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+    },
+  });
 }

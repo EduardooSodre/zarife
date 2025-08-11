@@ -10,7 +10,7 @@ export default async function AdminOrdersPage() {
     const orders = await prisma.order.findMany({
         include: {
             user: true,
-            orderItems: {
+            items: {
                 include: {
                     product: true,
                 },
@@ -156,7 +156,7 @@ export default async function AdminOrdersPage() {
                                                             #{order.id.slice(-8)}
                                                         </div>
                                                         <div className="text-sm text-gray-500">
-                                                            {order.orderItems.length} item(s)
+                                                            {order.items.length} item(s)
                                                         </div>
                                                     </div>
                                                 </td>

@@ -21,7 +21,7 @@ interface CheckoutForm {
   lastName: string
   email: string
   phone: string
-  
+
   // Endereço de entrega
   address: string
   city: string
@@ -29,10 +29,10 @@ interface CheckoutForm {
   state: string
   country: string
   complement?: string
-  
+
   // Método de pagamento
   paymentMethod: 'credit' | 'debit' | 'mbway' | 'multibanco' | 'transfer'
-  
+
   // Observações
   notes?: string
 }
@@ -79,7 +79,7 @@ export default function CheckoutPage() {
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CheckoutForm> = {}
-    
+
     if (!form.firstName.trim()) newErrors.firstName = 'Nome é obrigatório'
     if (!form.lastName.trim()) newErrors.lastName = 'Sobrenome é obrigatório'
     if (!form.email.trim()) newErrors.email = 'Email é obrigatório'
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
     if (!form.city.trim()) newErrors.city = 'Cidade é obrigatória'
     if (!form.postalCode.trim()) newErrors.postalCode = 'Código postal é obrigatório'
     if (!form.state.trim()) newErrors.state = 'Distrito é obrigatório'
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -103,13 +103,13 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
-    
+
     setIsSubmitting(true)
-    
+
     try {
       // Preparar dados do pedido
       const orderData = {
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
         },
         notes: form.notes
       }
-      
+
       // Enviar pedido para API
       const response = await fetch('/api/orders', {
         method: 'POST',
@@ -157,13 +157,13 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify(orderData)
       })
-      
+
       if (!response.ok) {
         throw new Error('Erro ao processar pedido')
       }
-      
+
       const order = await response.json()
-      
+
       // Criar sessão Stripe
       const stripeRes = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
       } else {
         throw new Error('Erro ao criar sessão de pagamento')
       }
-      
+
     } catch (error) {
       console.error('Erro no checkout:', error)
       alert('Erro ao processar pedido. Tente novamente.')
@@ -460,7 +460,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                   className="w-full bg-primary hover:bg-primary/90 text-white py-3 uppercase tracking-widest"

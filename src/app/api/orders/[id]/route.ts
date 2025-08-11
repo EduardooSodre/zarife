@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   const { id } = context.params;
   try {
     const order = await prisma.order.findUnique({
@@ -12,10 +15,10 @@ export async function GET(request: NextRequest, context: { params: { id: string 
             product: {
               include: {
                 images: {
-                  orderBy: { order: 'asc' },
-                  take: 1
-                }
-              }
+                  orderBy: { order: "asc" },
+                  take: 1,
+                },
+              },
             },
           },
         },

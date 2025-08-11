@@ -210,7 +210,7 @@ function CheckoutSuccessContent() {
               Continuar Comprando
             </Button>
           </Link>
-          
+
           <div>
             <Link href="/meus-pedidos" className="text-sm text-primary hover:underline">
               Ver os Meus Pedidos

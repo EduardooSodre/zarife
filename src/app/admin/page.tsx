@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { 
-  ShoppingBag, 
-  Users, 
-  Package, 
+import {
+  ShoppingBag,
+  Users,
+  Package,
   Euro,
   Plus,
   Eye
@@ -191,17 +191,16 @@ export default async function AdminDashboard() {
                         <p className="font-semibold text-gray-900">
                           €{Number(order.total).toFixed(2)}
                         </p>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          order.status === "PAID"
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${order.status === "PAID"
                             ? "bg-green-100 text-green-800"
                             : order.status === "SHIPPED"
-                            ? "bg-blue-100 text-blue-800"
-                            : order.status === "DELIVERED"
-                            ? "bg-purple-100 text-purple-800"
-                            : order.status === "CANCELLED"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}>
+                              ? "bg-blue-100 text-blue-800"
+                              : order.status === "DELIVERED"
+                                ? "bg-purple-100 text-purple-800"
+                                : order.status === "CANCELLED"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                          }`}>
                           {order.status}
                         </span>
                       </div>

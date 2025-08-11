@@ -231,7 +231,7 @@ export function ProductFilters() {
                                                 <Label className="text-xs text-gray-500 font-medium">Valor Mínimo</Label>
                                                 <Input
                                                     type="number"
-                                                    placeholder="R$ 0"
+                                                    placeholder="€ 0"
                                                     value={filters.minPrice}
                                                     onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                                                     className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11"
@@ -241,7 +241,7 @@ export function ProductFilters() {
                                                 <Label className="text-xs text-gray-500 font-medium">Valor Máximo</Label>
                                                 <Input
                                                     type="number"
-                                                    placeholder="R$ 999"
+                                                    placeholder="€ 999"
                                                     value={filters.maxPrice}
                                                     onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                                                     className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11"
@@ -345,24 +345,26 @@ export function ProductFilters() {
                                             )}
 
                                             {/* Season */}
-                                            {filterData && filterData.seasons.length > 0 && (
-                                                <div className="space-y-3">
-                                                    <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Estação</Label>
-                                                    <Select value={filters.season || 'all'} onValueChange={(value) => handleFilterChange('season', value === 'all' ? '' : value)}>
-                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                            <SelectValue placeholder="Todas" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="rounded-lg border-gray-200">
-                                                            <SelectItem value="all" className="font-medium text-gray-900">Todas</SelectItem>
-                                                            {filterData.seasons.map((season) => (
-                                                                <SelectItem key={season} value={season}>
-                                                                    {season}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            )}
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {filterData && filterData.seasons.length > 0 && (
+                                                    <div className="space-y-3">
+                                                        <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Estação</Label>
+                                                        <Select value={filters.season || 'all'} onValueChange={(value) => handleFilterChange('season', value === 'all' ? '' : value)}>
+                                                            <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                                <SelectValue placeholder="Todas" />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="rounded-lg border-gray-200">
+                                                                <SelectItem value="all" className="font-medium text-gray-900">Todas as estações</SelectItem>
+                                                                {filterData.seasons.map((season) => (
+                                                                    <SelectItem key={season} value={season}>
+                                                                        {season}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

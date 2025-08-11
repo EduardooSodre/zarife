@@ -164,11 +164,29 @@ export default function CheckoutPage() {
       
       const order = await response.json()
       
-  // Limpar carrinho
-  clearCart()
-  setOrderFinished(true)
-  // Redirecionar para página de sucesso
-  router.push(`/checkout/success?orderId=${order.id}`)
+      // Criar sessão Stripe
+      const stripeRes = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          items: items.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          customerEmail: form.email
+        })
+      })
+      const stripeData = await stripeRes.json()
+      if (stripeData.url) {
+        clearCart()
+        setOrderFinished(true)
+        window.location.href = stripeData.url
+        return
+      } else {
+        throw new Error('Erro ao criar sessão de pagamento')
+      }
       
     } catch (error) {
       console.error('Erro no checkout:', error)

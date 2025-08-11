@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se todos os produtos existem e têm estoque suficiente
-    const productIds = items.map((item: OrderItem) => item.productId)
+  const productIds = [...new Set(items.map((item: OrderItem) => item.productId))]
     console.log('Product IDs:', productIds)
     
     const products = await prisma.product.findMany({

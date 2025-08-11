@@ -41,7 +41,7 @@ export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart()
   const { user } = useUser()
   const router = useRouter()
-  
+
   const [form, setForm] = useState<CheckoutForm>({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -56,8 +56,9 @@ export default function CheckoutPage() {
     paymentMethod: 'credit',
     notes: ''
   })
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [orderFinished, setOrderFinished] = useState(false)
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
 
   // Cálculos
@@ -66,10 +67,10 @@ export default function CheckoutPage() {
 
   // Redirecionar se carrinho vazio - usar useEffect para evitar SSR issues
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !orderFinished) {
       router.push('/cart')
     }
-  }, [items.length, router])
+  }, [items.length, router, orderFinished])
 
   // Se carrinho vazio, mostrar loading
   if (items.length === 0) {
@@ -163,11 +164,11 @@ export default function CheckoutPage() {
       
       const order = await response.json()
       
-      // Limpar carrinho
-      clearCart()
-      
-      // Redirecionar para página de sucesso
-      router.push(`/checkout/success?orderId=${order.id}`)
+  // Limpar carrinho
+  clearCart()
+  setOrderFinished(true)
+  // Redirecionar para página de sucesso
+  router.push(`/checkout/success?orderId=${order.id}`)
       
     } catch (error) {
       console.error('Erro no checkout:', error)

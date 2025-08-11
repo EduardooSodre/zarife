@@ -13,23 +13,33 @@ interface Order {
   total: number
 }
 
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
-  const [order, setOrder] = useState<Order | null>(null)
+  const [order, setOrder] = useState<any | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
-    if (orderId) {
-      // Aqui você pode buscar os detalhes do pedido se necessário
-      // Por enquanto vamos simular
-      setOrder({
-        id: orderId,
-        status: 'PENDING',
-        total: 99.99
+    if (!orderId) return;
+    setIsLoading(true)
+    fetch(`/api/orders/${orderId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && !data.error) {
+          setOrder(data)
+        } else {
+          setOrder(null)
+        }
+        setIsLoading(false)
       })
-      setIsLoading(false)
-    }
+      .catch(() => {
+        setOrder(null)
+        setIsLoading(false)
+      })
   }, [orderId])
 
   if (isLoading) {
@@ -38,6 +48,18 @@ function CheckoutSuccessContent() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '100px' }}>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Pedido não encontrado</h2>
+          <p className="mb-4">Verifique se o link está correto ou entre em contato com o suporte.</p>
+          <Button onClick={() => router.push('/produtos')}>Voltar para loja</Button>
         </div>
       </div>
     )
@@ -56,32 +78,88 @@ function CheckoutSuccessContent() {
           </p>
         </div>
 
-        {order && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-xl">Detalhes do Pedido</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <Package className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="font-medium">Número do Pedido</p>
-                  <p className="text-sm text-gray-600">#{order.id.slice(-8).toUpperCase()}</p>
-                </div>
-                <div className="text-center">
-                  <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                  <p className="font-medium">Status</p>
-                  <p className="text-sm text-gray-600">Aguardando Pagamento</p>
-                </div>
-                <div className="text-center">
-                  <Truck className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                  <p className="font-medium">Total</p>
-                  <p className="text-sm text-gray-600">€{order.total}</p>
-                </div>
+        {/* Detalhes reais do pedido */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-xl">Detalhes do Pedido</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="text-center">
+                <Package className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="font-medium">Número do Pedido</p>
+                <p className="text-sm text-gray-600">#{order.id.slice(-8).toUpperCase()}</p>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div className="text-center">
+                <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="font-medium">Status</p>
+                <p className="text-sm text-gray-600">{order.status}</p>
+              </div>
+              <div className="text-center">
+                <Truck className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                <p className="font-medium">Total</p>
+                <p className="text-sm text-gray-600">€{Number(order.total).toFixed(2)}</p>
+              </div>
+            </div>
+
+            {/* Produtos do pedido */}
+            <div className="mb-6">
+              <h3 className="font-medium mb-2">Produtos</h3>
+              <div className="space-y-2">
+                {order.items.map((item: any) => (
+                  <div key={item.id} className="flex items-center space-x-3">
+                    <div className="relative w-12 h-12 bg-gray-100 rounded">
+                      {item.product?.images?.[0]?.url && (
+                        <Image src={item.product.images[0].url} alt={item.product.name} fill className="object-cover rounded" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{item.product?.name}</p>
+                      {(item.size || item.color) && (
+                        <p className="text-xs text-gray-500">
+                          {item.size && `Tam: ${item.size}`}
+                          {item.size && item.color && ' | '}
+                          {item.color && `Cor: ${item.color}`}
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-500">Qtd: {item.quantity}</p>
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">
+                      €{Number(item.price).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Endereço de entrega */}
+            <div className="mb-2">
+              <h3 className="font-medium mb-1">Entrega</h3>
+              <p className="text-sm text-gray-700">
+                {order.shippingAddress}, {order.shippingCity}, {order.shippingState}, {order.shippingPostalCode}, {order.shippingCountry}
+                {order.shippingComplement && <span> - {order.shippingComplement}</span>}
+              </p>
+            </div>
+            <div className="mb-2">
+              <h3 className="font-medium mb-1">Cliente</h3>
+              <p className="text-sm text-gray-700">
+                {order.customerFirstName} {order.customerLastName} | {order.customerEmail} | {order.customerPhone}
+              </p>
+            </div>
+            <div className="mb-2">
+              <h3 className="font-medium mb-1">Pagamento</h3>
+              <p className="text-sm text-gray-700">
+                {order.paymentMethod}
+              </p>
+            </div>
+            {order.notes && (
+              <div className="mb-2">
+                <h3 className="font-medium mb-1">Observações</h3>
+                <p className="text-sm text-gray-700">{order.notes}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Card className="mb-8">
           <CardHeader>

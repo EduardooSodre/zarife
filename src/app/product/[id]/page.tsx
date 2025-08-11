@@ -2,12 +2,9 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Heart, Share2 } from "lucide-react";
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
-import { ProductVariants } from "@/components/product/product-variants";
+import { ArrowLeft } from "lucide-react";
 import ProductImageGallery from "./product-image-gallery";
 import ProductClientWrapper from "./product-client-wrapper";
 

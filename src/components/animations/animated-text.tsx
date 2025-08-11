@@ -6,7 +6,6 @@ interface AnimatedTextProps {
   text: string
   className?: string
   delay?: number
-  size?: 'small' | 'normal' | 'large' | 'xl'
   variant?: 'slide' | 'fade' | 'typewriter' | 'wave'
 }
 
@@ -14,7 +13,6 @@ export function AnimatedText({
   text,
   className = '',
   delay = 0,
-  size = 'normal',
   variant = 'slide'
 }: AnimatedTextProps) {
   const words = text.split(' ')

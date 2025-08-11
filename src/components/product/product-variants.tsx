@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -43,24 +43,8 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
     [variants]
   )
 
-  // Get available colors for selected size
-  const availableColors = useMemo(() => 
-    selectedSize 
-      ? [...new Set(variants.filter(v => v.size === selectedSize).map(v => v.color).filter(Boolean))] as string[]
-      : colors,
-    [selectedSize, variants, colors]
-  )
-
-  // Get available sizes for selected color
-  const availableSizes = useMemo(() => 
-    selectedColor 
-      ? [...new Set(variants.filter(v => v.color === selectedColor).map(v => v.size).filter(Boolean))] as string[]
-      : sizes,
-    [selectedColor, variants, sizes]
-  )
-
   // Get current variant stock
-  const getCurrentVariant = () => {
+  const getCurrentVariant = useCallback(() => {
     if (selectedSize && selectedColor) {
       return variants.find(v => v.size === selectedSize && v.color === selectedColor)
     } else if (selectedSize) {
@@ -69,7 +53,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
       return variants.find(v => v.color === selectedColor && !v.size)
     }
     return variants[0] || null
-  }
+  }, [selectedSize, selectedColor, variants])
 
   // Update parent component when selection changes
   useEffect(() => {
@@ -81,7 +65,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
         stock: currentVariant.stock
       })
     }
-  }, [selectedSize, selectedColor]) // Remover onVariantChange e variants das dependências
+  }, [selectedSize, selectedColor, getCurrentVariant, onVariantChange])
 
   const isVariantAvailable = (type: 'size' | 'color', value: string) => {
     if (type === 'size') {

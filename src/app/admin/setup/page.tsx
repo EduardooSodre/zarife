@@ -51,7 +51,7 @@ export default function AdminSetupPage() {
         const data = await response.json();
         setMessage(`❌ Erro: ${data.error}`);
       }
-    } catch (error) {
+    } catch {
       setMessage('❌ Erro ao promover usuário');
     }
   };
@@ -71,7 +71,7 @@ export default function AdminSetupPage() {
         const data = await response.json();
         setMessage(`❌ Erro: ${data.error}`);
       }
-    } catch (error) {
+    } catch {
       setMessage('❌ Erro ao alterar usuário');
     }
   };

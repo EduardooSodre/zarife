@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Edit, Trash2, Package, Tag } from 'lucide-react';
+import { ArrowLeft, Trash2, Package, Tag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -125,20 +125,16 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Link href={`/admin/categories/${resolvedParams.id}/edit`}>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <Edit className="w-4 h-4 mr-2" />
-                Editar
-              </Button>
-            </Link>
-            <Button 
-              variant="outline" 
-              className="w-full sm:w-auto text-red-600 border-red-300 hover:bg-red-50"
+            {/* Dialog de edição removido pois dependia de arquivo deletado */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-auto h-8 px-2 text-red-600 border-red-300 hover:bg-red-50 flex items-center justify-center"
               onClick={handleDelete}
               disabled={isDeleting}
+              title="Excluir categoria"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {isDeleting ? 'Excluindo...' : 'Excluir'}
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>

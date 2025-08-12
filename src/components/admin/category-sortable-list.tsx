@@ -20,12 +20,13 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit, Eye } from 'lucide-react';
+import { GripVertical, Eye } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DeleteCategoryButton } from '@/components/admin/delete-category-button';
+import { EditCategoryDialog } from '@/app/admin/categories/edit-category-dialog';
 
 interface Category {
   id: string;
@@ -43,13 +44,14 @@ interface Category {
 interface CategorySortableListProps {
   categories: Category[];
   onReorder: (newOrder: Category[]) => void;
+  onDeleted?: () => void;
 }
 
 interface SortableCategoryItemProps {
   category: Category;
 }
 
-function SortableCategoryItem({ category }: SortableCategoryItemProps) {
+function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps & { onDeleted?: () => void }) {
   const {
     attributes,
     listeners,
@@ -123,20 +125,17 @@ function SortableCategoryItem({ category }: SortableCategoryItemProps) {
 
         {/* Ações */}
         <div className="flex items-center gap-2">
-          <Link href={`/category/${category.slug}`}>
+          <Link href={`/admin/categories/${category.id}`}>
             <Button variant="outline" size="sm" className="w-auto cursor-pointer">
               <Eye className="w-4 h-4" />
             </Button>
           </Link>
-          <Link href={`/admin/categories/${category.id}/edit`}>
-            <Button variant="outline" size="sm" className="w-auto cursor-pointer">
-              <Edit className="w-4 h-4" />
-            </Button>
-          </Link>
+          <EditCategoryDialog category={category} onUpdated={onDeleted} />
           <DeleteCategoryButton 
             categoryId={category.id} 
             categoryName={category.name}
             hasProducts={category._count.products > 0}
+            onDeleted={onDeleted}
           />
         </div>
       </div>
@@ -144,7 +143,7 @@ function SortableCategoryItem({ category }: SortableCategoryItemProps) {
   );
 }
 
-export function CategorySortableList({ categories, onReorder }: CategorySortableListProps) {
+export function CategorySortableList({ categories, onReorder, onDeleted }: CategorySortableListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -173,7 +172,7 @@ export function CategorySortableList({ categories, onReorder }: CategorySortable
       <SortableContext items={categories.map(cat => cat.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-3">
           {categories.map((category) => (
-            <SortableCategoryItem key={category.id} category={category} />
+            <SortableCategoryItem key={category.id} category={category} onDeleted={onDeleted} />
           ))}
         </div>
       </SortableContext>

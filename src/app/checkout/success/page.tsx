@@ -7,21 +7,49 @@ import { CheckCircle, Package, Truck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-interface Order {
-  id: string
-  status: string
-  total: number
-}
+
 
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
+
 function CheckoutSuccessContent() {
-  const searchParams = useSearchParams()
-  const orderId = searchParams.get('orderId')
-  const [order, setOrder] = useState<any | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  type OrderItem = {
+    id: string;
+    product: {
+      name: string;
+      images?: { url: string }[];
+    };
+    size?: string;
+    color?: string;
+    quantity: number;
+    price: number;
+  };
+
+  type OrderType = {
+    id: string;
+    status: string;
+    total: number;
+    items: OrderItem[];
+    shippingAddress: string;
+    shippingCity: string;
+    shippingState: string;
+    shippingPostalCode: string;
+    shippingCountry: string;
+    shippingComplement?: string;
+    customerFirstName: string;
+    customerLastName: string;
+    customerEmail: string;
+    customerPhone: string;
+    paymentMethod: string;
+    notes?: string;
+  };
+
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
+  const [order, setOrder] = useState<OrderType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (!orderId) return;
@@ -106,7 +134,7 @@ function CheckoutSuccessContent() {
             <div className="mb-6">
               <h3 className="font-medium mb-2">Produtos</h3>
               <div className="space-y-2">
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <div key={item.id} className="flex items-center space-x-3">
                     <div className="relative w-12 h-12 bg-gray-100 rounded">
                       {item.product?.images?.[0]?.url && (
@@ -230,7 +258,7 @@ function CheckoutSuccessContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function CheckoutSuccessPage() {
@@ -238,5 +266,5 @@ export default function CheckoutSuccessPage() {
     <Suspense fallback={<div>A carregar...</div>}>
       <CheckoutSuccessContent />
     </Suspense>
-  )
+  );
 }

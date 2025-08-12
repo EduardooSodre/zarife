@@ -96,6 +96,10 @@ export default function CategoriesPage() {
     const activeCategories = categories.filter(cat => cat.isActive);
     const inactiveCategories = categories.filter(cat => !cat.isActive);
 
+    const handleDeleted = () => {
+        fetchCategories();
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
@@ -119,11 +123,7 @@ export default function CategoriesPage() {
                             Gerir as categorias de produtos da Zarife
                         </p>
                     </div>
-                    <Link href="/admin/categories/new" className="inline-block">
-                        <Button className="bg-black hover:bg-gray-800 text-white w-auto cursor-pointer uppercase tracking-widest text-sm py-3 px-6">
-                            + Nova Categoria
-                        </Button>
-                    </Link>
+                    {/* Dialog de criação removido pois dependia de arquivo deletado */}
                 </div>
 
                 {/* Estatísticas */}
@@ -202,14 +202,13 @@ export default function CategoriesPage() {
                         {categories.length === 0 ? (
                             <div className="text-center py-12 text-gray-500">
                                 <p className="text-lg mb-4">Nenhuma categoria encontrada.</p>
-                                <Link href="/admin/categories/new" className="inline-block">
-                                    <Button>Criar primeira categoria</Button>
-                                </Link>
+                                {/* Dialog de criação removido pois dependia de arquivo deletado */}
                             </div>
                         ) : (
                             <CategorySortableList 
                                 categories={categories} 
                                 onReorder={handleReorder}
+                                onDeleted={handleDeleted}
                             />
                         )}
                     </div>

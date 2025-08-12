@@ -15,13 +15,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
+
 interface DeleteCategoryButtonProps {
   categoryId: string;
   categoryName: string;
   hasProducts: boolean;
+  onDeleted?: () => void;
 }
 
-export function DeleteCategoryButton({ categoryId, categoryName, hasProducts }: DeleteCategoryButtonProps) {
+export function DeleteCategoryButton({ categoryId, categoryName, hasProducts, onDeleted }: DeleteCategoryButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
@@ -38,7 +40,11 @@ export function DeleteCategoryButton({ categoryId, categoryName, hasProducts }: 
       });
 
       if (response.ok) {
-        router.refresh();
+        if (onDeleted) {
+          onDeleted();
+        } else {
+          router.refresh();
+        }
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erro ao deletar categoria');

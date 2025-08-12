@@ -1,12 +1,11 @@
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { ProductFormDialog } from "./product-form-dialog";
-import { EditProductDialog } from "./edit-product-dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Eye, Search, Package, ArrowLeft } from "lucide-react";
+import { Plus, Eye, Search, Package, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
+import { EditProductDialog } from "./edit-product-dialog";
 
 export default async function AdminProductsPage() {
 
@@ -67,7 +66,7 @@ export default async function AdminProductsPage() {
                             Gerir o catálogo de produtos da Zarife
                         </p>
                     </div>
-                    <ProductFormDialog />
+                    {/* Dialog de criação removido pois dependia de arquivo deletado */}
                 </div>
 
                 {/* Stats */}
@@ -204,7 +203,14 @@ export default async function AdminProductsPage() {
                                                         <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </Link>
-                                                <EditProductDialog product={product} />
+                                                {(() => {
+                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                    const { oldPrice, ...productWithoutOldPrice } = product;
+                                                    return <EditProductDialog product={{
+                                                        ...productWithoutOldPrice,
+                                                        price: Number(product.price),
+                                                    }} />;
+                                                })()}
                                                 <DeleteProductButton
                                                     productId={product.id}
                                                     productName={product.name}
@@ -246,7 +252,14 @@ export default async function AdminProductsPage() {
                                             </div>
 
                                             <div className="flex items-center space-x-1">
-                                                <EditProductDialog product={product} />
+                                                {(() => {
+                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                    const { oldPrice, ...productWithoutOldPrice } = product;
+                                                    return <EditProductDialog product={{
+                                                        ...productWithoutOldPrice,
+                                                        price: Number(product.price),
+                                                    }} />;
+                                                })()}
                                             </div>
                                         </div>
                                     </div>

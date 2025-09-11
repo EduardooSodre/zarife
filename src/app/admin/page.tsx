@@ -1,4 +1,6 @@
-import { prisma } from "@/lib/db";
+'use client';
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import {
@@ -11,33 +13,92 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function AdminDashboard() {
-  // Get dashboard stats
-  const [
-    totalProducts,
-    totalOrders,
-    totalUsers,
-    recentOrders
-  ] = await Promise.all([
-    prisma.product.count(),
-    prisma.order.count(),
-    prisma.user.count(),
-    prisma.order.findMany({
-      include: {
-        user: true,
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-  ]);
+interface DashboardData {
+  totalProducts: number;
+  totalOrders: number;
+  totalUsers: number;
+  revenue: number;
+  recentOrders: Array<{
+    id: string;
+    total: number;
+    status: string;
+    createdAt: string;
+    user: {
+      name: string | null;
+      email: string;
+    };
+    items: Array<{
+      quantity: number;
+      product: {
+        name: string;
+      };
+    }>;
+  }>;
+}
 
-  // Calculate revenue
-  const revenue = recentOrders.reduce((sum, order) => sum + Number(order.total), 0);
+export default function AdminDashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const response = await fetch('/api/admin/dashboard');
+        if (!response.ok) {
+          throw new Error('Falha ao carregar dados do dashboard');
+        }
+        const dashboardData = await response.json();
+        setData(dashboardData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+              <p>Carregando dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="text-center py-16">
+              <div className="text-red-600 mb-4">
+                <Package className="h-12 w-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Erro ao carregar dashboard
+              </h3>
+              <p className="text-gray-600 mb-4">{error || 'Erro desconhecido'}</p>
+              <Button onClick={() => window.location.reload()}>
+                Tentar Novamente
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const { totalProducts, totalOrders, totalUsers, revenue, recentOrders } = data;
 
   return (
     <div className="min-h-screen bg-gray-50">

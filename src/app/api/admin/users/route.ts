@@ -10,15 +10,15 @@ export async function GET() {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    // Listar todos os usuários com seus papéis
+    // Listar todos os usuários com seus papéis e pedidos
     const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        clerkId: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
+      include: {
+        orders: {
+          select: {
+            id: true,
+            total: true,
+          }
+        }
       },
       orderBy: { createdAt: 'desc' }
     });

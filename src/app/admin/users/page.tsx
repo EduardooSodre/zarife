@@ -1,18 +1,48 @@
-import { prisma } from "@/lib/db";
+'use client';
+
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Users, Search, Filter, UserCheck, Crown, ArrowLeft } from "lucide-react";
 
-export default async function AdminUsersPage() {
+interface User {
+    id: string;
+    clerkId: string;
+    email: string;
+    name: string | null;
+    role: string;
+    address: string | null;
+    createdAt: string;
+    orders: Array<{
+        id: string;
+        total: number;
+    }>;
+}
 
-    // Get all users with order statistics
-    const users = await prisma.user.findMany({
-        include: {
-            orders: true,
-        },
-        orderBy: { createdAt: "desc" },
-    });
+export default function AdminUsersPage() {
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                if (!response.ok) {
+                    throw new Error('Falha ao carregar usuários');
+                }
+                const data = await response.json();
+                setUsers(data.users || []);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Erro desconhecido');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchUsers();
+    }, []);
 
     const formatRole = (role: string) => {
         const roleMap: { [key: string]: string } = {
@@ -30,6 +60,60 @@ export default async function AdminUsersPage() {
                 return "bg-gray-100 text-gray-800";
         }
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    <div className="mb-6">
+                        <Link href="/admin" className="inline-block">
+                            <Button variant="outline" className="flex items-center gap-2 cursor-pointer w-auto">
+                                <ArrowLeft className="w-4 h-4" />
+                                Voltar ao Painel
+                            </Button>
+                        </Link>
+                    </div>
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                            <p>Carregando usuários...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    <div className="mb-6">
+                        <Link href="/admin" className="inline-block">
+                            <Button variant="outline" className="flex items-center gap-2 cursor-pointer w-auto">
+                                <ArrowLeft className="w-4 h-4" />
+                                Voltar ao Painel
+                            </Button>
+                        </Link>
+                    </div>
+                    <Card className="border-0 shadow-sm">
+                        <CardContent className="text-center py-16">
+                            <div className="text-red-600 mb-4">
+                                <Users className="h-12 w-12 mx-auto" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                Erro ao carregar usuários
+                            </h3>
+                            <p className="text-gray-600 mb-4">{error}</p>
+                            <Button onClick={() => window.location.reload()}>
+                                Tentar Novamente
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, Plus } from 'lucide-react';
 import { CategorySortableList } from '@/components/admin/category-sortable-list';
 
 interface Category {
@@ -123,7 +123,14 @@ export default function CategoriesPage() {
                             Gerir as categorias de produtos da Zarife
                         </p>
                     </div>
-                    {/* Dialog de criação removido pois dependia de arquivo deletado */}
+                    <div className="flex gap-2">
+                        <Link href="/admin/categories/new">
+                            <Button className="flex items-center gap-2 bg-black hover:bg-black/90 text-white">
+                                <Plus className="w-4 h-4" />
+                                Nova Categoria
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Estatísticas */}
@@ -178,7 +185,7 @@ export default function CategoriesPage() {
                                 Ordem das Categorias na Página Inicial
                             </h3>
                             <p className="text-sm text-blue-800">
-                                As primeiras 4 categorias <strong>ativas</strong> na ordem abaixo aparecem na página inicial. 
+                                As primeiras 4 categorias <strong>ativas</strong> na ordem abaixo aparecem na página inicial.
                                 Arraste e solte para reordenar. Categorias inativas não aparecem na página inicial.
                             </p>
                         </div>
@@ -205,8 +212,8 @@ export default function CategoriesPage() {
                                 {/* Dialog de criação removido pois dependia de arquivo deletado */}
                             </div>
                         ) : (
-                            <CategorySortableList 
-                                categories={categories} 
+                            <CategorySortableList
+                                categories={categories}
                                 onReorder={handleReorder}
                                 onDeleted={handleDeleted}
                             />

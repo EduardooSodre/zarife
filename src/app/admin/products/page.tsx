@@ -1,4 +1,6 @@
-import { prisma } from "@/lib/db";
+'use client';
+
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -6,42 +8,104 @@ import { Plus, Eye, Search, Package, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { EditProductDialog } from "./edit-product-dialog";
+import { NewProductDialog } from "./new-product-dialog";
 
-export default async function AdminProductsPage() {
+interface Product {
+    id: string;
+    name: string;
+    description?: string | null;
+    price: number;
+    oldPrice?: number | null;
+    stock: number;
+    isActive: boolean;
+    category: {
+        name: string;
+        slug: string;
+    };
+    images: Array<{
+        url: string;
+    }>;
+    _count: {
+        images: number;
+    };
+}
 
-    // Get products with optimized queries
-    const products = await prisma.product.findMany({
-        include: {
-            category: {
-                select: {
-                    name: true,
-                    slug: true,
-                },
-            },
-            images: {
-                take: 1, // Apenas a primeira imagem
-                orderBy: {
-                    order: 'asc',
-                },
-            },
-            _count: {
-                select: {
-                    images: true,
-                },
-            },
-        },
-        orderBy: { createdAt: "desc" },
-        take: 50, // Limitar a 50 produtos por vez
-    });
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+}
 
-    const categories = await prisma.category.findMany({
-        select: {
-            id: true,
-            name: true,
-            slug: true,
-        },
-        take: 20, // Limitar categorias
-    });
+export default function AdminProductsPage() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const [productsResponse, categoriesResponse] = await Promise.all([
+                    fetch('/api/admin/products'),
+                    fetch('/api/categories/for-products')
+                ]);
+
+                if (!productsResponse.ok || !categoriesResponse.ok) {
+                    throw new Error('Falha ao carregar dados');
+                }
+
+                const productsData = await productsResponse.json();
+                const categoriesData = await categoriesResponse.json();
+
+                setProducts(productsData.products || []);
+                setCategories(categoriesData.data || []);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Erro desconhecido');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                            <p>Carregando produtos...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                    <Card className="border-0 shadow-sm">
+                        <CardContent className="text-center py-16">
+                            <div className="text-red-600 mb-4">
+                                <Package className="h-12 w-12 mx-auto" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                Erro ao carregar produtos
+                            </h3>
+                            <p className="text-gray-600 mb-4">{error}</p>
+                            <Button onClick={() => window.location.reload()}>
+                                Tentar Novamente
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -66,7 +130,9 @@ export default async function AdminProductsPage() {
                             Gerir o catálogo de produtos da Zarife
                         </p>
                     </div>
-                    {/* Dialog de criação removido pois dependia de arquivo deletado */}
+                    <div className="flex gap-2">
+                        <NewProductDialog onCreated={() => window.location.reload()} />
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -154,12 +220,11 @@ export default async function AdminProductsPage() {
                             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                                 Comece a adicionar produtos ao seu catálogo
                             </p>
-                            <Link href="/admin/products/new">
-                                <Button className="bg-black hover:bg-gray-800">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Criar Primeiro Produto
-                                </Button>
-                            </Link>
+                            <NewProductDialog 
+                                onCreated={() => window.location.reload()} 
+                                buttonText="Criar Primeiro Produto"
+                                buttonClassName="bg-black hover:bg-gray-800"
+                            />
                         </CardContent>
                     </Card>
                 ) : (

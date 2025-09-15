@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
@@ -17,10 +17,10 @@ export async function GET() {
           select: {
             id: true,
             total: true,
-          }
-        }
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ users, currentUserId: userId });
@@ -33,7 +33,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     });
 
     const adminCount = await prisma.user.count({
-      where: { role: "ADMIN" }
+      where: { role: "ADMIN" },
     });
 
     // Se não há admins, qualquer usuário pode criar o primeiro admin

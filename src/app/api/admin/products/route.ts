@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
@@ -21,28 +21,29 @@ export async function GET() {
 
     // Get products with optimized queries
     const products = await prisma.product.findMany({
-        include: {
-            category: {
-                select: {
-                    name: true,
-                    slug: true,
-                },
-            },
-            images: {
-                take: 1, // Apenas a primeira imagem
-                orderBy: {
-                    order: 'asc',
-                },
-            },
-            _count: {
-                select: {
-                    images: true,
-                },
-            },
+      include: {
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
         },
-        orderBy: {
-            createdAt: 'desc',
+        images: {
+          take: 1, // Apenas a primeira imagem
+          orderBy: {
+            order: "asc",
+          },
         },
+        _count: {
+          select: {
+            images: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 50, // Limitar a 50 produtos por vez
     });
 
     return NextResponse.json({ products });

@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
@@ -20,38 +20,37 @@ export async function GET() {
     }
 
     // Get dashboard stats
-    const [
-      totalProducts,
-      totalOrders,
-      totalUsers,
-      recentOrders
-    ] = await Promise.all([
-      prisma.product.count(),
-      prisma.order.count(),
-      prisma.user.count(),
-      prisma.order.findMany({
-        include: {
-          user: true,
-          items: {
-            include: {
-              product: true,
+    const [totalProducts, totalOrders, totalUsers, recentOrders] =
+      await Promise.all([
+        prisma.product.count(),
+        prisma.order.count(),
+        prisma.user.count(),
+        prisma.order.findMany({
+          include: {
+            user: true,
+            items: {
+              include: {
+                product: true,
+              },
             },
           },
-        },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-    ]);
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        }),
+      ]);
 
     // Calculate revenue
-    const revenue = recentOrders.reduce((sum, order) => sum + Number(order.total), 0);
+    const revenue = recentOrders.reduce(
+      (sum, order) => sum + Number(order.total),
+      0
+    );
 
     return NextResponse.json({
       totalProducts,
       totalOrders,
       totalUsers,
       recentOrders,
-      revenue
+      revenue,
     });
   } catch (error) {
     console.error("Erro ao buscar dados do dashboard:", error);

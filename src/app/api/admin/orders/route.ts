@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
@@ -21,15 +21,15 @@ export async function GET() {
 
     // Get all orders
     const orders = await prisma.order.findMany({
-        include: {
-            user: true,
-            items: {
-                include: {
-                    product: true,
-                },
-            },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: true,
+          },
         },
-        orderBy: { createdAt: "desc" },
+      },
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ orders });

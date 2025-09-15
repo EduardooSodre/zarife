@@ -47,7 +47,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                 console.error('Erro ao carregar categorias:', error);
             }
         }
-        
+
         if (open) {
             fetchCategories();
         }
@@ -205,11 +205,11 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <input 
-                            type="checkbox" 
-                            name="isActive" 
-                            checked={formData.isActive} 
-                            onChange={handleChange} 
+                        <input
+                            type="checkbox"
+                            name="isActive"
+                            checked={formData.isActive}
+                            onChange={handleChange}
                             id="isActive"
                         />
                         <Label htmlFor="isActive" className="text-sm">Produto Ativo</Label>

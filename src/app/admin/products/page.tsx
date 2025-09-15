@@ -220,8 +220,8 @@ export default function AdminProductsPage() {
                             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
                                 Comece a adicionar produtos ao seu catálogo
                             </p>
-                            <NewProductDialog 
-                                onCreated={() => window.location.reload()} 
+                            <NewProductDialog
+                                onCreated={() => window.location.reload()}
                                 buttonText="Criar Primeiro Produto"
                                 buttonClassName="bg-black hover:bg-gray-800"
                             />

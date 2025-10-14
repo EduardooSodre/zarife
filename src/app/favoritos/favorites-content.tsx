@@ -47,7 +47,7 @@ export function FavoritesContent() {
                   Explore os nossos produtos e adicione os seus favoritos clicando no ícone de coração
                 </p>
               </div>
-              
+
               <Link
                 href="/produtos"
                 className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 hover:bg-gray-800 transition-colors duration-200"

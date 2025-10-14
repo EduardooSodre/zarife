@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
         { success: false, error: "Forbidden - Admin access required" },
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     // Validar porcentagem de desconto
     let salePercentageNum = null;
     let salePriceNum = null;
-    
+
     if (isOnSale) {
       if (!salePercentage || salePercentage < 1 || salePercentage > 99) {
         return NextResponse.json(
@@ -149,17 +149,21 @@ export async function POST(request: NextRequest) {
         season,
         gender,
         images: {
-          create: images?.map((image: { url: string; order: number }) => ({
-            url: image.url,
-            order: image.order,
-          })) || [],
+          create:
+            images?.map((image: { url: string; order: number }) => ({
+              url: image.url,
+              order: image.order,
+            })) || [],
         },
         variants: {
-          create: variants?.map((variant: { size?: string; color?: string; stock: number }) => ({
-            size: variant.size,
-            color: variant.color,
-            stock: variant.stock,
-          })) || [],
+          create:
+            variants?.map(
+              (variant: { size?: string; color?: string; stock: number }) => ({
+                size: variant.size,
+                color: variant.color,
+                stock: variant.stock,
+              })
+            ) || [],
         },
       },
       include: {

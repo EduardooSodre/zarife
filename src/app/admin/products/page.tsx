@@ -43,15 +43,15 @@ export default function AdminProductsPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     // Estados para filtros
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedStockStatus, setSelectedStockStatus] = useState('');
-    
+
     // Produtos filtrados
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-    
+
     // Paginação
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(12);
@@ -263,7 +263,7 @@ export default function AdminProductsPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            
+
                             {/* Mostrar filtros ativos */}
                             {(searchTerm || selectedCategory || selectedStockStatus) && (
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -333,8 +333,8 @@ export default function AdminProductsPage() {
                                 {products.length === 0 ? 'Nenhum produto encontrado' : 'Nenhum produto corresponde aos filtros'}
                             </h3>
                             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                                {products.length === 0 
-                                    ? 'Comece a adicionar produtos ao seu catálogo' 
+                                {products.length === 0
+                                    ? 'Comece a adicionar produtos ao seu catálogo'
                                     : 'Tente ajustar os filtros de busca'}
                             </p>
                             {products.length === 0 && (

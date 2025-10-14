@@ -231,8 +231,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                             <Switch
                                 id="isOnSale"
                                 checked={formData.isOnSale}
-                                onCheckedChange={(checked) => setFormData({ 
-                                    ...formData, 
+                                onCheckedChange={(checked) => setFormData({
+                                    ...formData,
                                     isOnSale: checked,
                                     salePercentage: checked ? formData.salePercentage : ''
                                 })}

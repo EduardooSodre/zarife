@@ -11,10 +11,10 @@ export default function SignInPage() {
           {/* Logo e Header - Sempre visível */}
           <div className="text-center space-y-4">
             <div>
-              <Image 
-                src="/ZARIFE_LOGO.png" 
-                alt="Zarife" 
-                width={100} 
+              <Image
+                src="/ZARIFE_LOGO.png"
+                alt="Zarife"
+                width={100}
                 height={50}
                 className="mx-auto"
                 priority
@@ -32,7 +32,7 @@ export default function SignInPage() {
 
           {/* Componente de Sign In */}
           <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-            <SignIn 
+            <SignIn
               appearance={{
                 elements: {
                   formButtonPrimary: "bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 px-4 rounded-md transition-colors duration-200",

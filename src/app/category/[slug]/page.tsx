@@ -16,7 +16,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   // Get category
   const category = await prisma.category.findUnique({
-    where: { 
+    where: {
       slug: resolvedParams.slug,
     },
     include: {
@@ -54,68 +54,68 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <PageTransition>
       <div className="min-h-screen bg-white" style={{ paddingTop: '100px' }}>
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-        {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-          <Link href="/" className="hover:text-black transition-colors">
-            Início
-          </Link>
-          <span>/</span>
-          <span className="text-black">{serializedCategory.name}</span>
-        </nav>
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+          {/* Breadcrumb */}
+          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <Link href="/" className="hover:text-black transition-colors">
+              Início
+            </Link>
+            <span>/</span>
+            <span className="text-black">{serializedCategory.name}</span>
+          </nav>
 
-        {/* Back Button */}
-        <div className="mb-4">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors group">
-            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            Voltar
-          </Link>
-        </div>
-
-        {/* Category Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-light text-black mb-3 tracking-wider uppercase">
-            {serializedCategory.name}
-          </h1>
-          <div className="w-24 h-px bg-black mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            Descubra a nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
-          </p>
-        </div>
-
-        {/* Products Grid */}
-        {serializedCategory.products.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🛍️</div>
-            <h3 className="text-2xl font-light text-gray-900 mb-4">Nenhum produto encontrado</h3>
-            <p className="text-gray-600 mb-8">
-              Esta categoria ainda não possui produtos disponíveis.
-            </p>
-            <Link href="/" className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest hover:bg-gray-800 transition-colors">
-              Ver Todas as Categorias
+          {/* Back Button */}
+          <div className="mb-4">
+            <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors group">
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
+              Voltar
             </Link>
           </div>
-        ) : (
-          <>
-            {/* Products Count */}
-            <div className="mb-8">
-              <p className="text-gray-600">
-                {serializedCategory.products.length} {serializedCategory.products.length === 1 ? 'produto encontrado' : 'produtos encontrados'}
-              </p>
-            </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-              {serializedCategory.products.map((product) => (
-                <FastProductCard 
-                  key={product.id}
-                  product={product}
-                />
-              ))}
+          {/* Category Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-light text-black mb-3 tracking-wider uppercase">
+              {serializedCategory.name}
+            </h1>
+            <div className="w-24 h-px bg-black mx-auto mb-4"></div>
+            <p className="text-gray-600">
+              Descubra a nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
+            </p>
+          </div>
+
+          {/* Products Grid */}
+          {serializedCategory.products.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🛍️</div>
+              <h3 className="text-2xl font-light text-gray-900 mb-4">Nenhum produto encontrado</h3>
+              <p className="text-gray-600 mb-8">
+                Esta categoria ainda não possui produtos disponíveis.
+              </p>
+              <Link href="/" className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                Ver Todas as Categorias
+              </Link>
             </div>
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              {/* Products Count */}
+              <div className="mb-8">
+                <p className="text-gray-600">
+                  {serializedCategory.products.length} {serializedCategory.products.length === 1 ? 'produto encontrado' : 'produtos encontrados'}
+                </p>
+              </div>
+
+              {/* Products Grid */}
+              <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                {serializedCategory.products.map((product) => (
+                  <FastProductCard
+                    key={product.id}
+                    product={product}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </PageTransition>
   );

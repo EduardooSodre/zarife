@@ -79,7 +79,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </h1>
           <div className="w-24 h-px bg-black mx-auto mb-4"></div>
           <p className="text-gray-600">
-            Descubra nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
+            Descubra a nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
           </p>
         </div>
 

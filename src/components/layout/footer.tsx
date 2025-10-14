@@ -56,7 +56,7 @@ export function Footer() {
             Fique por dentro das novidades
           </h3>
           <p className="text-gray-600 mb-6 md:mb-8 max-w-md mx-auto text-sm md:text-base px-4 md:px-0">
-            Receba em primeira mão nossos lançamentos e ofertas exclusivas
+            Receba em primeira mão os nossos lançamentos e ofertas exclusivas
           </p>
           <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3 px-4 md:px-0">
             <input
@@ -135,7 +135,7 @@ export function Footer() {
                 Criamos peças únicas para mulheres modernas e autênticas.
               </p>
               <div className="space-y-1 md:space-y-2">
-                <p className="text-xs text-gray-500 font-medium">Visite nossa loja:</p>
+                <p className="text-xs text-gray-500 font-medium">Visite a nossa loja:</p>
                 <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
                   Rua dos Jacintos, Nº 48<br />
                   Herdade da Aroeira<br />

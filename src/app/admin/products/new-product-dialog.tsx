@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Loader2, Tag } from "lucide-react";
 
 interface Category {
     id: string;
@@ -33,6 +34,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         stock: '',
         categoryId: '',
         isActive: true,
+        isOnSale: false,
+        salePercentage: '',
     });
 
     useEffect(() => {
@@ -53,6 +56,21 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         }
     }, [open]);
 
+    // Calcular preço com desconto
+    const calculateSalePrice = () => {
+        if (!formData.isOnSale || !formData.price || !formData.salePercentage) {
+            return null;
+        }
+        const price = parseFloat(formData.price);
+        const percentage = parseInt(formData.salePercentage);
+        if (isNaN(price) || isNaN(percentage) || percentage < 0 || percentage > 100) {
+            return null;
+        }
+        return (price * (1 - percentage / 100)).toFixed(2);
+    };
+
+    const salePrice = calculateSalePrice();
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         setFormData((prev) => ({
@@ -69,6 +87,11 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
             return;
         }
 
+        if (formData.isOnSale && (!formData.salePercentage || parseInt(formData.salePercentage) < 1 || parseInt(formData.salePercentage) > 99)) {
+            alert('Porcentagem de desconto deve estar entre 1 e 99');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -82,6 +105,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                     price: Number(formData.price),
                     oldPrice: formData.oldPrice ? Number(formData.oldPrice) : null,
                     stock: Number(formData.stock) || 0,
+                    isOnSale: formData.isOnSale,
+                    salePercentage: formData.isOnSale && formData.salePercentage ? parseInt(formData.salePercentage) : null,
                 }),
             });
 
@@ -98,6 +123,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                 stock: '',
                 categoryId: '',
                 isActive: true,
+                isOnSale: false,
+                salePercentage: '',
             });
 
             setOpen(false);
@@ -192,6 +219,62 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         </div>
                     </div>
 
+                    {/* Seção de Saldo */}
+                    <div className="border rounded-lg p-4 space-y-4 bg-amber-50">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Tag className="w-4 h-4 text-amber-600" />
+                                <Label htmlFor="isOnSale" className="text-amber-900 cursor-pointer">
+                                    Produto em Saldo
+                                </Label>
+                            </div>
+                            <Switch
+                                id="isOnSale"
+                                checked={formData.isOnSale}
+                                onCheckedChange={(checked) => setFormData({ 
+                                    ...formData, 
+                                    isOnSale: checked,
+                                    salePercentage: checked ? formData.salePercentage : ''
+                                })}
+                            />
+                        </div>
+
+                        {formData.isOnSale && (
+                            <div className="space-y-2">
+                                <Label htmlFor="salePercentage">Desconto (%)</Label>
+                                <Input
+                                    id="salePercentage"
+                                    name="salePercentage"
+                                    type="number"
+                                    min="1"
+                                    max="99"
+                                    value={formData.salePercentage}
+                                    onChange={handleChange}
+                                    placeholder="Ex: 20 para 20% de desconto"
+                                    required={formData.isOnSale}
+                                />
+                                {salePrice && formData.price && (
+                                    <div className="text-sm text-amber-700 bg-amber-100 p-3 rounded">
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-semibold">Preço promocional:</span>
+                                            <div>
+                                                <span className="line-through text-gray-600 mr-2">
+                                                    R$ {parseFloat(formData.price).toFixed(2)}
+                                                </span>
+                                                <span className="text-lg font-bold text-green-700">
+                                                    R$ {salePrice}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="text-xs mt-1 text-amber-600">
+                                            ({formData.salePercentage}% OFF)
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="description">Descrição</Label>
                         <Textarea
@@ -204,15 +287,13 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         />
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            name="isActive"
-                            checked={formData.isActive}
-                            onChange={handleChange}
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="isActive">Produto Ativo</Label>
+                        <Switch
                             id="isActive"
+                            checked={formData.isActive}
+                            onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
                         />
-                        <Label htmlFor="isActive" className="text-sm">Produto Ativo</Label>
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">

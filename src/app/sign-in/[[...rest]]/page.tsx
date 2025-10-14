@@ -59,7 +59,7 @@ export default function SignInPage() {
             <p className="text-sm text-muted-foreground">
               Não tem uma conta?{" "}
               <Link href="/sign-up" className="text-primary hover:text-primary/80 font-medium">
-                Cadastre-se aqui
+                Registe-se aqui
               </Link>
             </p>
           </div>

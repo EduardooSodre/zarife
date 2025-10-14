@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
       categoryId,
       isFeatured,
       isActive,
+      isOnSale,
+      salePercentage,
       material,
       brand,
       season,
@@ -96,16 +98,52 @@ export async function POST(request: NextRequest) {
       variants,
     } = body;
 
+    // Validações de segurança
+    if (!name || !price || !categoryId) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const priceNum = parseFloat(price);
+    if (priceNum <= 0) {
+      return NextResponse.json(
+        { success: false, error: "Price must be greater than zero" },
+        { status: 400 }
+      );
+    }
+
+    // Validar porcentagem de desconto
+    let salePercentageNum = null;
+    let salePriceNum = null;
+    
+    if (isOnSale) {
+      if (!salePercentage || salePercentage < 1 || salePercentage > 99) {
+        return NextResponse.json(
+          { success: false, error: "Sale percentage must be between 1 and 99" },
+          { status: 400 }
+        );
+      }
+      salePercentageNum = parseInt(salePercentage);
+      // Calcular preço com desconto no backend (SEGURANÇA)
+      salePriceNum = priceNum * (1 - salePercentageNum / 100);
+      salePriceNum = Math.round(salePriceNum * 100) / 100; // Arredondar para 2 casas
+    }
+
     const product = await prisma.product.create({
       data: {
         name,
         description,
-        price: parseFloat(price),
+        price: priceNum,
         oldPrice: oldPrice ? parseFloat(oldPrice) : null,
-        stock: parseInt(stock),
+        stock: parseInt(stock) || 0,
         categoryId,
         isFeatured: Boolean(isFeatured),
         isActive: Boolean(isActive),
+        isOnSale: Boolean(isOnSale),
+        salePercentage: salePercentageNum,
+        salePrice: salePriceNum,
         material,
         brand,
         season,

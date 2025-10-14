@@ -150,7 +150,7 @@ export default function Header() {
       {/* Top Banner */}
       <div className="bg-black text-white text-center py-1">
         <p className="text-xs uppercase tracking-widest">
-          COMPRE ONLINE E EM NOSSA LOJA
+          COMPRE ONLINE E NA NOSSA LOJA
         </p>
       </div>
 

@@ -51,21 +51,27 @@ model Category {
 }
 
 model Product {
-  id          String         @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal
-  oldPrice    Decimal?       @map("old_price")
-  stock       Int            @default(0)
-  categoryId  String         @map("category_id")
-  isFeatured  Boolean        @default(false) @map("is_featured")
-  isActive    Boolean        @default(true) @map("is_active")
-  material    String?
-  brand       String?
-  season      String?
-  gender      String?
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
+  id             String         @id @default(cuid())
+  name           String
+  description    String?
+  price          Decimal
+  oldPrice       Decimal?       @map("old_price")
+  stock          Int            @default(0)
+  categoryId     String         @map("category_id")
+  isFeatured     Boolean        @default(false) @map("is_featured")
+  isActive       Boolean        @default(true) @map("is_active")
+  
+  // Campos de saldo/desconto
+  isOnSale       Boolean        @default(false) @map("is_on_sale")
+  salePercentage Int?           @map("sale_percentage")
+  salePrice      Decimal?       @map("sale_price")
+  
+  material       String?
+  brand          String?
+  season         String?
+  gender         String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
 
   category   Category       @relation(fields: [categoryId], references: [id])
   images     ProductImage[]
@@ -73,6 +79,7 @@ model Product {
   variants   ProductVariant[]
   favorites  Favorite[]
 
+  @@index([isOnSale])
   @@map("products")
 }
 

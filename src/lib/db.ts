@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
+// Prisma Client atualizado com campos de saldo
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };

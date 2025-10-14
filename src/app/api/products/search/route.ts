@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       where.stock = { gt: 0 };
     }
 
-    // Filtro por promoção
+    // Filtro por saldo
     if (onSale) {
       where.oldPrice = { not: null };
     }

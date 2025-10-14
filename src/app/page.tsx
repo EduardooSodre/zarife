@@ -89,7 +89,7 @@ export default async function Home() {
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <MotionWrapper direction="up" className="text-center mb-16">
               <AnimatedText
-                text="NOSSAS CATEGORIAS"
+                text="AS NOSSAS CATEGORIAS"
                 className="text-4xl font-light text-black mb-4 tracking-wider"
                 variant="slide"
               />
@@ -120,12 +120,12 @@ export default async function Home() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className="absolute bottom-6 left-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <h3 className="text-xl font-medium">{category.name.toUpperCase()}</h3>
-                          <p className="text-sm">Veja nossa coleção</p>
+                          <p className="text-sm">Veja a nossa coleção</p>
                         </div>
                       </div>
                       <div className="text-center">
                         <h3 className="text-lg font-medium text-black mb-2 tracking-wide">{category.name.toUpperCase()}</h3>
-                        <p className="text-gray-600 text-sm">Produtos selecionados para você</p>
+                        <p className="text-gray-600 text-sm">Produtos selecionados para si</p>
                       </div>
                     </Link>
                   </MotionCard>
@@ -143,7 +143,7 @@ export default async function Home() {
                     </div>
                     <div className="text-center">
                       <h3 className="text-lg font-medium text-black mb-2 tracking-wide">PRODUTOS</h3>
-                      <p className="text-gray-600 text-sm">Toda nossa coleção disponível</p>
+                      <p className="text-gray-600 text-sm">Toda a nossa coleção disponível</p>
                     </div>
                   </Link>
                 </>

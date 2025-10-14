@@ -76,7 +76,7 @@ async function SearchResults({ query }: { query: string }) {
             Nenhum produto encontrado
           </h3>
           <p className="text-gray-600 mb-8">
-            Tente pesquisar com outras palavras-chave ou visite nossa coleção completa.
+            Tente pesquisar com outras palavras-chave ou visite a nossa coleção completa.
           </p>
           <Link href="/produtos" className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest hover:bg-gray-800 transition-colors">
             Ver Todos os Produtos

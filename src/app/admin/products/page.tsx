@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye, Search, Package, ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Eye, Search, Package, ArrowLeft, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { EditProductDialog } from "./edit-product-dialog";
@@ -41,6 +43,22 @@ export default function AdminProductsPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    
+    // Estados para filtros
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedStockStatus, setSelectedStockStatus] = useState('');
+    
+    // Produtos filtrados
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    
+    // Paginação
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(12);
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentProducts = filteredProducts.slice(startIndex, endIndex);
 
     useEffect(() => {
         async function fetchData() {
@@ -68,6 +86,36 @@ export default function AdminProductsPage() {
 
         fetchData();
     }, []);
+
+    // Filtrar produtos sempre que mudar os filtros ou a lista de produtos
+    useEffect(() => {
+        let filtered = [...products];
+
+        // Filtro de busca
+        if (searchTerm) {
+            filtered = filtered.filter(product =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Filtro de categoria
+        if (selectedCategory) {
+            filtered = filtered.filter(product => product.category.slug === selectedCategory);
+        }
+
+        // Filtro de stock
+        if (selectedStockStatus === 'in-stock') {
+            filtered = filtered.filter(product => product.stock > 0);
+        } else if (selectedStockStatus === 'out-of-stock') {
+            filtered = filtered.filter(product => product.stock === 0);
+        } else if (selectedStockStatus === 'low-stock') {
+            filtered = filtered.filter(product => product.stock > 0 && product.stock <= 5);
+        }
+
+        setFilteredProducts(filtered);
+        setCurrentPage(1); // Reset para primeira página quando filtrar
+    }, [products, searchTerm, selectedCategory, selectedStockStatus]);
 
     if (loading) {
         return (
@@ -142,7 +190,7 @@ export default function AdminProductsPage() {
                             <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary mr-2 sm:mr-3" />
                             <div>
                                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total</p>
-                                <p className="text-lg sm:text-2xl font-light text-primary">{products.length}</p>
+                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.length}</p>
                             </div>
                         </div>
                     </div>
@@ -151,7 +199,7 @@ export default function AdminProductsPage() {
                             <div className="h-2 w-2 bg-green-500 rounded-full mr-2 sm:mr-3"></div>
                             <div>
                                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Em Stock</p>
-                                <p className="text-lg sm:text-2xl font-light text-primary">{products.filter(p => p.stock > 0).length}</p>
+                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => p.stock > 0).length}</p>
                             </div>
                         </div>
                     </div>
@@ -160,7 +208,7 @@ export default function AdminProductsPage() {
                             <div className="h-2 w-2 bg-red-500 rounded-full mr-2 sm:mr-3"></div>
                             <div>
                                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Sem Stock</p>
-                                <p className="text-lg sm:text-2xl font-light text-primary">{products.filter(p => p.stock === 0).length}</p>
+                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => p.stock === 0).length}</p>
                             </div>
                         </div>
                     </div>
@@ -178,35 +226,102 @@ export default function AdminProductsPage() {
                 {/* Search and Filters */}
                 <Card className="mb-6 sm:mb-8 border border-gray-200 shadow-sm">
                     <CardContent className="p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Procurar produtos..."
-                                    className="pl-10 pr-4 py-2 w-full border border-gray-300 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
-                                />
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Procurar produtos..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="pl-10"
+                                    />
+                                </div>
+                                <Select value={selectedCategory || "all"} onValueChange={(value) => setSelectedCategory(value === "all" ? "" : value)}>
+                                    <SelectTrigger className="w-full sm:w-[200px] bg-white">
+                                        <SelectValue placeholder="Todas as categorias" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todas as categorias</SelectItem>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.slug}>
+                                                {category.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Select value={selectedStockStatus || "all"} onValueChange={(value) => setSelectedStockStatus(value === "all" ? "" : value)}>
+                                    <SelectTrigger className="w-full sm:w-[180px] bg-white">
+                                        <SelectValue placeholder="Todos os estados" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todos os estados</SelectItem>
+                                        <SelectItem value="in-stock">Em Stock</SelectItem>
+                                        <SelectItem value="out-of-stock">Sem Stock</SelectItem>
+                                        <SelectItem value="low-stock">Stock Baixo</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                            <select className="px-3 sm:px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm">
-                                <option value="">Todas as categorias</option>
-                                {(categories || []).map((category) => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <select className="px-3 sm:px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm">
-                                <option value="">Todos os estados</option>
-                                <option value="in-stock">Em Stock</option>
-                                <option value="out-of-stock">Sem Stock</option>
-                                <option value="low-stock">Stock Baixo</option>
-                            </select>
+                            
+                            {/* Mostrar filtros ativos */}
+                            {(searchTerm || selectedCategory || selectedStockStatus) && (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm text-gray-600">Filtros ativos:</span>
+                                    {searchTerm && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
+                                            Busca: &ldquo;{searchTerm}&rdquo;
+                                            <button
+                                                onClick={() => setSearchTerm('')}
+                                                className="hover:bg-primary/20 rounded-full p-0.5"
+                                                aria-label="Remover filtro de busca"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    )}
+                                    {selectedCategory && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
+                                            Categoria: {categories.find(c => c.slug === selectedCategory)?.name}
+                                            <button
+                                                onClick={() => setSelectedCategory('')}
+                                                className="hover:bg-primary/20 rounded-full p-0.5"
+                                                aria-label="Remover filtro de categoria"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    )}
+                                    {selectedStockStatus && (
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
+                                            Stock: {selectedStockStatus === 'in-stock' ? 'Em Stock' : selectedStockStatus === 'out-of-stock' ? 'Sem Stock' : 'Stock Baixo'}
+                                            <button
+                                                onClick={() => setSelectedStockStatus('')}
+                                                className="hover:bg-primary/20 rounded-full p-0.5"
+                                                aria-label="Remover filtro de stock"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                            setSelectedCategory('');
+                                            setSelectedStockStatus('');
+                                        }}
+                                        className="text-xs text-gray-600 hover:text-gray-900 underline"
+                                    >
+                                        Limpar todos
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Products Grid */}
-                {products.length === 0 ? (
+                {filteredProducts.length === 0 ? (
                     <Card className="border-0 shadow-sm">
                         <CardContent className="text-center py-12 sm:py-16 px-4">
                             <div className="mb-4">
@@ -215,21 +330,25 @@ export default function AdminProductsPage() {
                                 </div>
                             </div>
                             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                                Nenhum produto encontrado
+                                {products.length === 0 ? 'Nenhum produto encontrado' : 'Nenhum produto corresponde aos filtros'}
                             </h3>
                             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                                Comece a adicionar produtos ao seu catálogo
+                                {products.length === 0 
+                                    ? 'Comece a adicionar produtos ao seu catálogo' 
+                                    : 'Tente ajustar os filtros de busca'}
                             </p>
-                            <NewProductDialog
-                                onCreated={() => window.location.reload()}
-                                buttonText="Criar Primeiro Produto"
-                                buttonClassName="bg-black hover:bg-gray-800"
-                            />
+                            {products.length === 0 && (
+                                <NewProductDialog
+                                    onCreated={() => window.location.reload()}
+                                    buttonText="Criar Primeiro Produto"
+                                    buttonClassName="bg-black hover:bg-gray-800"
+                                />
+                            )}
                         </CardContent>
                     </Card>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                        {products.map((product) => (
+                        {currentProducts.map((product) => (
                             <Card key={product.id} className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 group">
                                 <CardContent className="p-0">
                                     {/* Product Image */}
@@ -335,17 +454,38 @@ export default function AdminProductsPage() {
                 )}
 
                 {/* Pagination */}
-                {products.length > 0 && (
-                    <div className="mt-6 sm:mt-8 flex justify-center">
-                        <div className="flex items-center space-x-2">
-                            <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm">
-                                Anterior
+                {totalPages > 1 && (
+                    <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-6">
+                        <div className="text-sm text-gray-600">
+                            Mostrando <span className="font-semibold">{startIndex + 1}</span> a{' '}
+                            <span className="font-semibold">{Math.min(endIndex, filteredProducts.length)}</span> de{' '}
+                            <span className="font-semibold">{filteredProducts.length}</span> produto
+                            {filteredProducts.length !== 1 ? 's' : ''}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="gap-2"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                <span className="hidden sm:inline">Anterior</span>
                             </Button>
-                            <span className="px-2 sm:px-3 py-1 text-xs sm:text-sm text-gray-600">
-                                Página 1 de 1
+                            <span className="px-3 py-1 text-sm text-gray-600">
+                                Página <span className="font-semibold">{currentPage}</span> de{' '}
+                                <span className="font-semibold">{totalPages}</span>
                             </span>
-                            <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm">
-                                Próximo
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="gap-2"
+                            >
+                                <span className="hidden sm:inline">Próximo</span>
+                                <ChevronRight className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>

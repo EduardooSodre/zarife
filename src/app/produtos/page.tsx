@@ -87,7 +87,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
     where.stock = { gt: 0 };
   }
 
-  // Filtro por promoção
+  // Filtro por saldo
   if (onSale) {
     where.oldPrice = { not: null };
   }
@@ -180,7 +180,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
               </h1>
               <div className="w-24 h-px bg-black mx-auto mb-4"></div>
               <p className="text-gray-600">
-                Descubra nossa coleção completa com filtros avançados
+                Descubra a nossa coleção completa com filtros avançados
               </p>
             </div>
           </div>

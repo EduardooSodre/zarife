@@ -26,7 +26,7 @@ export default function SignUpPage() {
               Junte-se à Zarife
             </h1>
             <p className="text-muted-foreground">
-              Cadastre-se e tenha acesso a ofertas exclusivas
+              Registe-se e tenha acesso a ofertas exclusivas
             </p>
           </div>
 
@@ -83,7 +83,7 @@ export default function SignUpPage() {
                 Bem-vinda à Zarife
               </h3>
               <p className="text-lg lg:text-xl text-white/90 max-w-md">
-                Cadastre-se e seja a primeira a saber sobre lançamentos, promoções e tendências exclusivas.
+                Registe-se e seja a primeira a saber sobre lançamentos, saldos e tendências exclusivas.
               </p>
             </div>
           </div>

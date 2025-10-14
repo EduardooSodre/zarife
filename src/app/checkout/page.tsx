@@ -469,7 +469,7 @@ export default function CheckoutPage() {
                 </Button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  Ao finalizar, você concorda com nossos termos e condições.
+                  Ao finalizar, concorda com os nossos termos e condições.
                 </p>
               </CardContent>
             </Card>

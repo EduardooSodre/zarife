@@ -79,9 +79,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Revalidar páginas para atualizar o stock imediatamente
-        revalidatePath('/');
-        revalidatePath('/produtos');
-        revalidatePath('/product/[id]', 'page');
+        revalidatePath("/");
+        revalidatePath("/produtos");
+        revalidatePath("/product/[id]", "page");
       }
     }
   }

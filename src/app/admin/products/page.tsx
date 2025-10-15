@@ -60,6 +60,19 @@ export default function AdminProductsPage() {
     const endIndex = startIndex + itemsPerPage;
     const currentProducts = filteredProducts.slice(startIndex, endIndex);
 
+    // Função para recarregar produtos
+    const refreshProducts = async () => {
+        try {
+            const response = await fetch('/api/admin/products');
+            if (response.ok) {
+                const data = await response.json();
+                setProducts(data.products || []);
+            }
+        } catch (err) {
+            console.error('Erro ao recarregar produtos:', err);
+        }
+    };
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -179,7 +192,7 @@ export default function AdminProductsPage() {
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <NewProductDialog onCreated={() => window.location.reload()} />
+                        <NewProductDialog onCreated={refreshProducts} />
                     </div>
                 </div>
 
@@ -339,7 +352,7 @@ export default function AdminProductsPage() {
                             </p>
                             {products.length === 0 && (
                                 <NewProductDialog
-                                    onCreated={() => window.location.reload()}
+                                    onCreated={refreshProducts}
                                     buttonText="Criar Primeiro Produto"
                                     buttonClassName="bg-black hover:bg-gray-800"
                                 />
@@ -390,10 +403,13 @@ export default function AdminProductsPage() {
                                                 {(() => {
                                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                     const { oldPrice, ...productWithoutOldPrice } = product;
-                                                    return <EditProductDialog product={{
-                                                        ...productWithoutOldPrice,
-                                                        price: Number(product.price),
-                                                    }} />;
+                                                    return <EditProductDialog 
+                                                        product={{
+                                                            ...productWithoutOldPrice,
+                                                            price: Number(product.price),
+                                                        }} 
+                                                        onUpdated={refreshProducts}
+                                                    />;
                                                 })()}
                                                 <DeleteProductButton
                                                     productId={product.id}
@@ -439,10 +455,13 @@ export default function AdminProductsPage() {
                                                 {(() => {
                                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                     const { oldPrice, ...productWithoutOldPrice } = product;
-                                                    return <EditProductDialog product={{
-                                                        ...productWithoutOldPrice,
-                                                        price: Number(product.price),
-                                                    }} />;
+                                                    return <EditProductDialog 
+                                                        product={{
+                                                            ...productWithoutOldPrice,
+                                                            price: Number(product.price),
+                                                        }} 
+                                                        onUpdated={refreshProducts}
+                                                    />;
                                                 })()}
                                             </div>
                                         </div>

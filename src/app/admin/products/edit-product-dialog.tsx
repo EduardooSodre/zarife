@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface Product {
   id: string;
@@ -53,11 +54,25 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
         }),
       });
       if (res.ok) {
+        toast({
+          title: "Produto atualizado",
+          description: "As alterações foram salvas com sucesso.",
+        });
         setOpen(false);
         onUpdated?.();
       } else {
-        alert("Erro ao atualizar produto");
+        toast({
+          variant: "destructive",
+          title: "Erro ao atualizar",
+          description: "Não foi possível salvar as alterações.",
+        });
       }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao atualizar",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+      });
     } finally {
       setLoading(false);
     }
@@ -76,21 +91,21 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Nome</label>
-            <input name="name" value={form.name} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+            <label htmlFor="edit-name" className="block text-sm font-medium mb-1">Nome</label>
+            <input id="edit-name" name="name" value={form.name} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Descrição</label>
-            <textarea name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} />
+            <label htmlFor="edit-description" className="block text-sm font-medium mb-1">Descrição</label>
+            <textarea id="edit-description" name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} />
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">Preço</label>
-              <input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+              <label htmlFor="edit-price" className="block text-sm font-medium mb-1">Preço</label>
+              <input id="edit-price" name="price" type="number" step="0.01" value={form.price} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">Estoque</label>
-              <input name="stock" type="number" value={form.stock} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+              <label htmlFor="edit-stock" className="block text-sm font-medium mb-1">Estoque</label>
+              <input id="edit-stock" name="stock" type="number" value={form.stock} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
             </div>
           </div>
           <div className="flex items-center gap-2">

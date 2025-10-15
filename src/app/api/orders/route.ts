@@ -178,31 +178,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    for (const item of items) {
-      if (item.variant.size || item.variant.color) {
-        await prisma.productVariant.updateMany({
-          where: {
-            productId: item.productId,
-            size: item.variant.size,
-            color: item.variant.color,
-          },
-          data: {
-            stock: {
-              decrement: item.quantity,
-            },
-          },
-        });
-      } else {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity,
-            },
-          },
-        });
-      }
-    }
+    // Nota: O estoque será decrementado apenas quando o pagamento for confirmado via webhook
 
     return NextResponse.json({ id: order.id }, { status: 200 });
   } catch {

@@ -106,7 +106,7 @@ export function AnimatedLetters({
   className = '',
   delay = 0
 }: AnimatedLettersProps) {
-  const letters = Array.from(text)
+  const words = text.split(' ')
 
   const containerVariants = {
     hidden: {},
@@ -138,21 +138,25 @@ export function AnimatedLetters({
 
   return (
     <motion.div
-      className={className}
+      className={`${className} flex flex-wrap justify-center items-center`}
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
     >
-      {letters.map((letter, index) => (
-        <motion.span
-          key={index}
-          variants={letterVariants}
-          className="inline-block"
-          style={{ transformOrigin: 'center bottom' }}
-        >
-          {letter === ' ' ? '\u00A0' : letter}
-        </motion.span>
+      {words.map((word, wordIndex) => (
+        <span key={wordIndex} className="inline-flex mr-2 sm:mr-3 md:mr-4">
+          {Array.from(word).map((letter, letterIndex) => (
+            <motion.span
+              key={`${wordIndex}-${letterIndex}`}
+              variants={letterVariants}
+              className="inline-block"
+              style={{ transformOrigin: 'center bottom' }}
+            >
+              {letter}
+            </motion.span>
+          ))}
+        </span>
       ))}
     </motion.div>
   )

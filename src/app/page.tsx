@@ -52,7 +52,7 @@ export default async function Home() {
     <>
       <main className="min-h-screen bg-white">
         {/* Hero Section with fashion imagery */}
-        <section className="relative h-[calc(100vh-1rem)] overflow-hidden">
+        <section className="relative h-[calc(100vh-1rem)] min-h-[500px] sm:min-h-[600px] overflow-hidden">
           {/* Background Image with Parallax */}
           <ParallaxBanner />
 
@@ -65,17 +65,17 @@ export default async function Home() {
               <div className="text-center max-w-4xl">
                 <AnimatedLetters
                   text="COLEÇÃO EXCLUSIVA"
-                  className="text-5xl md:text-7xl font-light text-white mb-6 tracking-wider drop-shadow-lg"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light text-white mb-4 sm:mb-6 tracking-wider drop-shadow-lg"
                   delay={0.3}
                 />
-                <MotionText delay={1.2} className="text-xl md:text-2xl text-white mb-8 font-light drop-shadow-md">
+                <MotionText delay={1.2} className="text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-6 sm:mb-8 font-light drop-shadow-md px-4">
                   <p>Elegância e sofisticação para a mulher moderna</p>
                 </MotionText>
-                <MotionWrapper delay={1.8} direction="up" className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <Link href="/produtos" className="bg-white text-black px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-100 transition-all duration-300 font-medium">
+                <MotionWrapper delay={1.8} direction="up" className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4">
+                  <Link href="/produtos" className="bg-white text-black px-8 sm:px-10 md:px-12 py-3 sm:py-4 text-xs sm:text-sm uppercase tracking-widest hover:bg-gray-100 transition-all duration-300 font-medium">
                     DESCOBRIR COLEÇÃO
                   </Link>
-                  <Link href="/produtos" className="border border-white text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 font-medium">
+                  <Link href="/produtos" className="border border-white text-white px-8 sm:px-10 md:px-12 py-3 sm:py-4 text-xs sm:text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 font-medium">
                     VER PRODUTOS
                   </Link>
                 </MotionWrapper>
@@ -90,7 +90,7 @@ export default async function Home() {
             <MotionWrapper direction="up" className="text-center mb-16">
               <AnimatedText
                 text="AS NOSSAS CATEGORIAS"
-                className="text-4xl font-light text-black mb-4 tracking-wider"
+                className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider px-4"
                 variant="slide"
               />
               <MotionWrapper delay={0.3} direction="scale">
@@ -158,7 +158,7 @@ export default async function Home() {
             <MotionWrapper direction="up" className="text-center mb-16">
               <AnimatedText
                 text="PRODUTOS EM DESTAQUE"
-                className="text-4xl font-light text-black mb-4 tracking-wider"
+                className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider px-4"
                 variant="slide"
               />
               <MotionWrapper delay={0.3} direction="scale">

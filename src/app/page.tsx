@@ -6,8 +6,8 @@ import { AnimatedText, AnimatedLetters } from "@/components/animations/animated-
 import { ProductCard } from "@/components/product/product-card";
 import { ParallaxBanner } from "@/components/parallax-banner";
 
-// Cache por 1 hora (3600 segundos)
-export const revalidate = 3600;
+// Cache por 60 segundos para atualizar stock mais frequentemente
+export const revalidate = 60;
 
 export default async function Home() {
   // Fetch featured products with optimized query

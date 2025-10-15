@@ -7,8 +7,8 @@ import { PageTransition } from "@/components/animations/page-effects";
 import { FastProductCard, ProductFilters, ProductListCard } from "@/components/product";
 import { SortSelect } from "@/components/product/sort-select";
 
-// Cache por 30 minutos
-export const revalidate = 1800;
+// Cache por 60 segundos para atualizar stock mais frequentemente
+export const revalidate = 60;
 
 interface ProdutosPageProps {
   searchParams: Promise<{

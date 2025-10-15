@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 
@@ -76,6 +77,11 @@ export async function POST(request: NextRequest) {
             });
           }
         }
+
+        // Revalidar páginas para atualizar o stock imediatamente
+        revalidatePath('/');
+        revalidatePath('/produtos');
+        revalidatePath('/product/[id]', 'page');
       }
     }
   }

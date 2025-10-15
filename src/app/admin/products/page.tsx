@@ -403,11 +403,11 @@ export default function AdminProductsPage() {
                                                 {(() => {
                                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                     const { oldPrice, ...productWithoutOldPrice } = product;
-                                                    return <EditProductDialog 
+                                                    return <EditProductDialog
                                                         product={{
                                                             ...productWithoutOldPrice,
                                                             price: Number(product.price),
-                                                        }} 
+                                                        }}
                                                         onUpdated={refreshProducts}
                                                     />;
                                                 })()}
@@ -455,11 +455,11 @@ export default function AdminProductsPage() {
                                                 {(() => {
                                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                     const { oldPrice, ...productWithoutOldPrice } = product;
-                                                    return <EditProductDialog 
+                                                    return <EditProductDialog
                                                         product={{
                                                             ...productWithoutOldPrice,
                                                             price: Number(product.price),
-                                                        }} 
+                                                        }}
                                                         onUpdated={refreshProducts}
                                                     />;
                                                 })()}

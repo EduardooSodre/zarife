@@ -153,7 +153,7 @@ function CheckoutSuccessContent() {
                       <p className="text-sm text-gray-500">Qtd: {item.quantity}</p>
                     </div>
                     <p className="text-sm font-medium text-gray-900">
-                      €{Number(item.price).toFixed(2)}
+                      €{(Number(item.price) * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}

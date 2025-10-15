@@ -247,7 +247,7 @@ export default function OrderDetailsPage() {
                                                         Quantidade: {item.quantity}
                                                     </span>
                                                     <span className="font-semibold">
-                                                        €{Number(item.price).toFixed(2)}
+                                                        €{(Number(item.price) * item.quantity).toFixed(2)}
                                                     </span>
                                                 </div>
                                             </div>

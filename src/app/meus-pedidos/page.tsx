@@ -132,7 +132,7 @@ export default function MeusPedidosPage() {
                                                         )}
                                                         <div className="text-xs text-gray-600">
                                                             <span className="font-medium">Qtd: {item.quantity}</span>
-                                                            <span className="ml-2 text-gray-500">€{Number(item.price).toFixed(2)}</span>
+                                                            <span className="ml-2 text-gray-500">€{(Number(item.price) * item.quantity).toFixed(2)}</span>
                                                         </div>
                                                     </div>
                                                 </div>

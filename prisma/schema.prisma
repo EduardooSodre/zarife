@@ -137,6 +137,9 @@ model Order {
   stripePaymentId String? @map("stripe_payment_id")
   couponCode      String? @map("coupon_code")
   
+  // Rastreamento
+  trackingCode    String? @map("tracking_code")
+  
   // Observações
   notes       String?
   
@@ -198,6 +201,7 @@ enum UserRole {
 enum OrderStatus {
   PENDING
   PAID
+  PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED

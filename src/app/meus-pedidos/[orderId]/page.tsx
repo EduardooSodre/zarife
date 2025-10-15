@@ -170,7 +170,7 @@ export default function OrderDetailsPage() {
                                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium ${statusInfo.color}`}>
                                     {statusInfo.label}
                                 </div>
-                                
+
                                 {/* Rastreamento */}
                                 {order.trackingCode && (
                                     <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -179,7 +179,7 @@ export default function OrderDetailsPage() {
                                             <div className="flex-1">
                                                 <p className="font-semibold text-blue-900 mb-1">Código de Rastreamento</p>
                                                 <p className="text-blue-700 font-mono text-sm mb-2">{order.trackingCode}</p>
-                                                <a 
+                                                <a
                                                     href={`https://www.ctt.pt/feapl_2/app/open/objectSearch/objectSearch.jspx?objects=${order.trackingCode}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"

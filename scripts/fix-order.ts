@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function fixOrder() {
-  console.log('🔧 Corrigindo pedido sem items...\n');
+  console.log("🔧 Corrigindo pedido sem items...\n");
 
-  const orderId = 'cmgscioas0001kvro7g7jwsfc';
+  const orderId = "cmgscioas0001kvro7g7jwsfc";
 
   // Buscar o pedido
   const order = await prisma.order.findUnique({
@@ -14,7 +14,7 @@ async function fixOrder() {
   });
 
   if (!order) {
-    console.log('❌ Pedido não encontrado');
+    console.log("❌ Pedido não encontrado");
     await prisma.$disconnect();
     return;
   }
@@ -23,7 +23,7 @@ async function fixOrder() {
   console.log(`   Items atuais: ${order.items.length}`);
 
   if (order.items.length > 0) {
-    console.log('✅ Pedido já tem items!');
+    console.log("✅ Pedido já tem items!");
     await prisma.$disconnect();
     return;
   }
@@ -34,7 +34,7 @@ async function fixOrder() {
   });
 
   if (!product) {
-    console.log('❌ Nenhum produto ativo encontrado');
+    console.log("❌ Nenhum produto ativo encontrado");
     await prisma.$disconnect();
     return;
   }
@@ -53,7 +53,7 @@ async function fixOrder() {
     },
   });
 
-  console.log('✅ Item adicionado ao pedido!');
+  console.log("✅ Item adicionado ao pedido!");
 
   // Verificar pedido atualizado
   const updatedOrder = await prisma.order.findUnique({

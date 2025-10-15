@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/db";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-07-30.basil",
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session.metadata?.orderId;
-    
+
     if (orderId) {
       // Buscar o pedido com seus items
       const order = await prisma.order.findUnique({
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         // Atualizar status do pedido para PAID
         await prisma.order.update({
           where: { id: orderId },
-          data: { 
+          data: {
             status: "PAID",
             stripePaymentId: session.payment_intent as string,
           },

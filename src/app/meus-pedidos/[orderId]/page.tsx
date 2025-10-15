@@ -314,7 +314,7 @@ export default function OrderDetailsPage() {
                                 <CardContent className="space-y-3">
                                     <div>
                                         <p className="text-sm text-blue-700 mb-2">Código de Rastreamento:</p>
-                                        <p className="font-mono font-bold text-lg text-blue-900 bg-white px-4 py-3 rounded-lg border border-blue-300">
+                                        <p className="tracking-widest font-bold text-lg text-blue-900 bg-white px-4 py-3 rounded-lg border border-blue-300" style={{ fontFamily: 'Fira Mono, JetBrains Mono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' }}>
                                             {order.trackingCode}
                                         </p>
                                     </div>

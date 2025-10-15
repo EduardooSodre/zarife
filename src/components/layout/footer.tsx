@@ -260,12 +260,12 @@ export function Footer() {
               <h4 className="text-lg font-medium mb-6 text-gray-900">Suporte</h4>
               <div className="space-y-3">
                 <Link
-                  href="https://wa.me/351916996090?text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20da%20Zarife."
+                  href="https://wa.me/351966106212?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20da%20Zarife."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block text-gray-600 hover:text-gray-900 transition-colors text-sm"
                 >
-                  WhatsApp: +351 916 996 090
+                  WhatsApp: +351 966 106 212
                 </Link>
                 <Link href="mailto:contato@zarife.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
                   contato@zarife.com

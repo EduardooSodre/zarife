@@ -302,6 +302,38 @@ export default function OrderDetailsPage() {
                             </CardContent>
                         </Card>
 
+                        {/* Rastreamento */}
+                        {order.trackingCode && (
+                            <Card className="bg-blue-50 border-blue-200">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-blue-900">
+                                        <Truck className="w-5 h-5" />
+                                        Rastreamento do Pedido
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div>
+                                        <p className="text-sm text-blue-700 mb-2">Código de Rastreamento:</p>
+                                        <p className="font-mono font-bold text-lg text-blue-900 bg-white px-4 py-3 rounded-lg border border-blue-300">
+                                            {order.trackingCode}
+                                        </p>
+                                    </div>
+                                    <a
+                                        href={`https://www.ctt.pt/feapl_2/app/open/cttexpresso/objectSearch/objectSearch.jspx?objects=${order.trackingCode}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-900 font-medium transition-colors"
+                                    >
+                                        <Truck className="w-4 h-4" />
+                                        Rastrear no site dos CTT →
+                                    </a>
+                                    <p className="text-xs text-blue-600 mt-2">
+                                        Clique no link acima para acompanhar a entrega do seu pedido em tempo real.
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
+
                         {/* Endereço de Entrega */}
                         <Card>
                             <CardHeader>

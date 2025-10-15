@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Package, MapPin, User, CreditCard, Truck, Calendar, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { OrderUpdateSection } from "./order-update-section";
 
 interface OrderDetailPageProps {
     params: Promise<{ orderId: string }>;
@@ -270,6 +271,13 @@ export default async function AdminOrderDetailPage({ params }: OrderDetailPagePr
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* Atualizar Status e Rastreamento */}
+                        <OrderUpdateSection
+                            orderId={order.id}
+                            currentStatus={order.status}
+                            currentTrackingCode={trackingCode}
+                        />
 
                         {/* Informações de Rastreamento */}
                         {trackingCode && (

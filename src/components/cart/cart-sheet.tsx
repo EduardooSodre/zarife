@@ -12,8 +12,10 @@ import {
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export function CartSheet() {
+  const router = useRouter()
   const {
     items,
     isOpen,
@@ -34,8 +36,7 @@ export function CartSheet() {
 
   const handleCheckout = () => {
     setIsOpen(false)
-    // Implement checkout logic
-    console.log('Redirecting to checkout...')
+    router.push('/checkout')
   }
 
   const handleContinueShopping = () => {
@@ -121,6 +122,7 @@ export function CartSheet() {
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
                             className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 text-gray-600"
+                            aria-label="Diminuir quantidade"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -132,6 +134,7 @@ export function CartSheet() {
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
                             className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 text-gray-600"
+                            aria-label="Aumentar quantidade"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -143,6 +146,7 @@ export function CartSheet() {
                     <button
                       onClick={() => removeItem(item.id, item.size, item.color)}
                       className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                      aria-label="Remover produto"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

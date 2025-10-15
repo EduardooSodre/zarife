@@ -72,7 +72,7 @@ function CheckoutSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '100px' }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-28">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Carregando...</p>
@@ -83,7 +83,7 @@ function CheckoutSuccessContent() {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '100px' }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-28">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Pedido não encontrado</h2>
           <p className="mb-4">Verifique se o link está correto ou entre em contato com o suporte.</p>
@@ -94,7 +94,7 @@ function CheckoutSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ paddingTop: '100px' }}>
+    <div className="min-h-screen bg-gray-50 pt-custom-padding">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />

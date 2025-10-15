@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (existingItemIndex !== -1) {
       const existingItem = items[existingItemIndex]
       const newQuantity = existingItem.quantity + 1
-      
+
       // Verificar se há estoque suficiente
       if (existingItem.maxStock && newQuantity > existingItem.maxStock) {
         toast({
@@ -70,7 +70,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         })
         return
       }
-      
+
       setItems(currentItems =>
         currentItems.map((item, index) =>
           index === existingItemIndex
@@ -144,7 +144,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           // Atualizar item específico com variações
           const itemKey = `${id}-${size || 'no-size'}-${color || 'no-color'}`
           const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
-          
+
           if (existingKey === itemKey) {
             return { ...item, quantity }
           }

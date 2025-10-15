@@ -19,19 +19,19 @@ interface ProductCardProps {
   className?: string;
 }
 
-export function ProductCard({ 
-  product, 
-  index = 0, 
-  delay, 
-  className = "" 
+export function ProductCard({
+  product,
+  index = 0,
+  delay,
+  className = ""
 }: ProductCardProps) {
   // Delay muito menor para aparecer mais rápido
   const cardDelay = delay !== undefined ? delay : Math.min(index * 0.02, 0.3);
 
   return (
-    <MotionCard 
-      key={product.id} 
-      delay={cardDelay} 
+    <MotionCard
+      key={product.id}
+      delay={cardDelay}
       className={`bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300 ${className}`}
     >
       <Link href={`/product/${product.id}`}>

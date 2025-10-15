@@ -6,9 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const playfair = Playfair_Display({ 
-  subsets: ["latin"], 
-  variable: "--font-playfair" 
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair"
 });
 
 export const metadata: Metadata = {

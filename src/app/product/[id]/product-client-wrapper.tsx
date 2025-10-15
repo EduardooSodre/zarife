@@ -93,14 +93,13 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
         />
 
         <div className="flex space-x-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex-1 rounded-none"
             onClick={handleToggleFavorite}
           >
-            <Heart className={`w-4 h-4 mr-2 transition-colors duration-200 ${
-              isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
-            }`} />
+            <Heart className={`w-4 h-4 mr-2 transition-colors duration-200 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
+              }`} />
             {isWishlisted ? 'Remover' : 'Favoritar'}
           </Button>
           <Button variant="outline" className="flex-1 rounded-none">

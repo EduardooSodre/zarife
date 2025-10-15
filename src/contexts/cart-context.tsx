@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { toast } from '@/hooks/use-toast'
 
 export interface CartItem {
   id: string
@@ -10,6 +11,7 @@ export interface CartItem {
   image: string
   size?: string
   color?: string
+  maxStock?: number // Adicionar informação de estoque máximo
 }
 
 interface CartContextType {
@@ -48,24 +50,48 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items])
 
   const addItem = (newItem: Omit<CartItem, 'quantity'>) => {
-    setItems(currentItems => {
-      // Criar um ID único para o item incluindo variações
-      const itemKey = `${newItem.id}-${newItem.size || 'no-size'}-${newItem.color || 'no-color'}`
-      const existingItemIndex = currentItems.findIndex(item => {
-        const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
-        return existingKey === itemKey
-      })
+    // Criar um ID único para o item incluindo variações
+    const itemKey = `${newItem.id}-${newItem.size || 'no-size'}-${newItem.color || 'no-color'}`
+    const existingItemIndex = items.findIndex(item => {
+      const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
+      return existingKey === itemKey
+    })
 
-      if (existingItemIndex !== -1) {
-        return currentItems.map((item, index) =>
+    if (existingItemIndex !== -1) {
+      const existingItem = items[existingItemIndex]
+      const newQuantity = existingItem.quantity + 1
+      
+      // Verificar se há estoque suficiente
+      if (existingItem.maxStock && newQuantity > existingItem.maxStock) {
+        toast({
+          variant: "destructive",
+          title: "Estoque insuficiente",
+          description: `Desculpe, temos apenas ${existingItem.maxStock} unidade(s) disponível(eis) para ${existingItem.name}${existingItem.size ? ` (Tamanho: ${existingItem.size})` : ''}${existingItem.color ? ` (Cor: ${existingItem.color})` : ''}`,
+        })
+        return
+      }
+      
+      setItems(currentItems =>
+        currentItems.map((item, index) =>
           index === existingItemIndex
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: newQuantity }
             : item
         )
-      }
+      )
+      return
+    }
 
-      return [...currentItems, { ...newItem, quantity: 1 }]
-    })
+    // Verificar estoque ao adicionar novo item
+    if (newItem.maxStock && newItem.maxStock < 1) {
+      toast({
+        variant: "destructive",
+        title: "Produto esgotado",
+        description: "Desculpe, este produto está fora de estoque.",
+      })
+      return
+    }
+
+    setItems(currentItems => [...currentItems, { ...newItem, quantity: 1 }])
   }
 
   const removeItem = (id: string, size?: string, color?: string) => {
@@ -90,16 +116,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
+    // Encontrar o item atual para validar estoque
+    const itemKey = `${id}-${size || 'no-size'}-${color || 'no-color'}`
+    const currentItem = items.find(item => {
+      if (size !== undefined || color !== undefined) {
+        const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
+        return existingKey === itemKey
+      }
+      return item.id === id
+    })
+
+    if (currentItem) {
+      // Verificar se a nova quantidade excede o estoque
+      if (currentItem.maxStock && quantity > currentItem.maxStock) {
+        toast({
+          variant: "destructive",
+          title: "Estoque insuficiente",
+          description: `Desculpe, temos apenas ${currentItem.maxStock} unidade(s) disponível(eis) para ${currentItem.name}${currentItem.size ? ` (Tamanho: ${currentItem.size})` : ''}${currentItem.color ? ` (Cor: ${currentItem.color})` : ''}`,
+        })
+        return
+      }
+    }
+
     setItems(currentItems =>
       currentItems.map(item => {
         if (size !== undefined || color !== undefined) {
           // Atualizar item específico com variações
           const itemKey = `${id}-${size || 'no-size'}-${color || 'no-color'}`
           const existingKey = `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`
-          return existingKey === itemKey ? { ...item, quantity } : item
+          
+          if (existingKey === itemKey) {
+            return { ...item, quantity }
+          }
+          return item
         } else {
           // Atualizar por ID apenas (compatibilidade)
-          return item.id === id ? { ...item, quantity } : item
+          if (item.id === id) {
+            return { ...item, quantity }
+          }
+          return item
         }
       })
     )

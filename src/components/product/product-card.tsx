@@ -12,6 +12,7 @@ interface ProductCardProps {
     oldPrice?: number | Decimal | null;
     images?: { url: string }[] | null;
     category?: { name: string; slug: string } | null;
+    stock: number;
   };
   index?: number;
   delay?: number;
@@ -73,6 +74,7 @@ export function ProductCard({
             name: product.name,
             price: Number(product.price),
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
+            stock: product.stock,
           }}
         />
       </div>

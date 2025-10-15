@@ -15,6 +15,7 @@ interface FastProductCardProps {
     oldPrice?: number | Decimal | null;
     images?: { url: string }[] | null;
     category?: { name: string; slug: string } | null;
+    stock: number;
   };
   className?: string;
 }
@@ -36,7 +37,7 @@ export function FastProductCard({
         price: Number(product.price),
         oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
         images: product.images || [],
-        stock: 0, // We don't have stock info in this context
+        stock: product.stock,
         category: product.category || null,
         addedAt: new Date().toISOString(),
       });
@@ -66,6 +67,7 @@ export function FastProductCard({
       {/* Wishlist Button */}
       <button
         onClick={handleToggleFavorite}
+        aria-label={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         className="absolute top-2 right-2 p-1 transition-all duration-200 z-10 cursor-pointer group"
       >
         <Heart
@@ -99,6 +101,7 @@ export function FastProductCard({
             name: product.name,
             price: Number(product.price),
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
+            stock: product.stock,
           }}
         />
       </div>

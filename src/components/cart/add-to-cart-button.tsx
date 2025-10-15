@@ -12,6 +12,7 @@ interface AddToCartButtonProps {
     image: string
     size?: string
     color?: string
+    maxStock?: number
   }
   className?: string
   disabled?: boolean

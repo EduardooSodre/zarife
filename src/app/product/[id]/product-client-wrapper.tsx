@@ -35,7 +35,7 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
     size?: string
     color?: string
     stock: number
-  }>({ stock: variants.length > 0 ? variants[0].stock : 0 })
+  }>({ stock: variants.length > 0 ? variants[0].stock : product.stock })
 
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites()
   const isWishlisted = isFavorite(product.id)
@@ -73,6 +73,11 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
 
       {/* Actions */}
       <div className="space-y-4">
+        {selectedVariant.stock <= 0 && (
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded text-sm text-center">
+            Este produto está esgotado no momento.
+          </div>
+        )}
         <AddToCartButton
           product={{
             id: product.id,
@@ -80,7 +85,8 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
             price: product.price,
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
             size: selectedVariant.size || undefined,
-            color: selectedVariant.color || undefined
+            color: selectedVariant.color || undefined,
+            maxStock: selectedVariant.stock || product.stock
           }}
           disabled={selectedVariant.stock === 0}
           className="w-full bg-black text-white py-4 text-lg uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-none"

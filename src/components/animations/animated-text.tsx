@@ -37,37 +37,37 @@ export function AnimatedText({
       case 'typewriter':
         return {
           hidden: { opacity: 0, scale: 0 },
-          visible: { 
-            opacity: 1, 
-            scale: 1, 
-            transition: { 
+          visible: {
+            opacity: 1,
+            scale: 1,
+            transition: {
               duration: 0.3,
               type: "spring",
               stiffness: 100
-            } 
+            }
           },
         }
       case 'wave':
         return {
           hidden: { opacity: 0, y: 20, rotateX: -90 },
-          visible: { 
-            opacity: 1, 
-            y: 0, 
+          visible: {
+            opacity: 1,
+            y: 0,
             rotateX: 0,
-            transition: { 
+            transition: {
               duration: 0.6
-            } 
+            }
           },
         }
       default: // slide
         return {
           hidden: { opacity: 0, y: 30 },
-          visible: { 
-            opacity: 1, 
-            y: 0, 
-            transition: { 
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
               duration: 0.6
-            } 
+            }
           },
         }
     }
@@ -119,20 +119,20 @@ export function AnimatedLetters({
   }
 
   const letterVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 50,
       rotateX: -90,
       scale: 0.8
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       rotateX: 0,
       scale: 1,
-      transition: { 
+      transition: {
         duration: 0.5
-      } 
+      }
     },
   }
 

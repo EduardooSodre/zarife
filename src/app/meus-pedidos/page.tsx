@@ -42,22 +42,34 @@ export default function MeusPedidosPage() {
     }, []);
 
     if (isLoading) {
-        return <div className="p-8 text-center">Carregando...</div>;
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '100px' }}>
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p>Carregando pedidos...</p>
+                </div>
+            </div>
+        );
     }
 
     if (!orders.length) {
         return (
-            <div className="p-8 text-center">
-                <h2 className="text-2xl font-bold mb-2">Nenhum pedido encontrado</h2>
-                <Link href="/produtos">
-                    <Button>Ver produtos</Button>
-                </Link>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: '100px' }}>
+                <div className="text-center">
+                    <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold mb-2">Nenhum pedido encontrado</h2>
+                    <p className="text-gray-600 mb-4">Você ainda não fez nenhuma compra.</p>
+                    <Link href="/produtos">
+                        <Button>Começar a comprar</Button>
+                    </Link>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="min-h-screen bg-gray-50" style={{ paddingTop: '100px' }}>
+            <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
             <h1 className="text-3xl font-light text-primary tracking-wider uppercase mb-8 text-center">
                 Meus Pedidos
             </h1>
@@ -74,45 +86,69 @@ export default function MeusPedidosPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex flex-wrap gap-4 mb-2">
-                                {order.items.map((item: OrderItem) => (
-                                    <div key={item.id} className="flex items-center gap-2">
-                                        <div className="relative w-10 h-10 bg-gray-100 rounded">
-                                            <Image
-                                                src={item.product.images?.[0]?.url ?? ""}
-                                                alt={item.product.name}
-                                                className="object-cover rounded"
-                                                width={40}
-                                                height={40}
-                                            />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-medium">{item.product?.name}</div>
-                                            {(item.size || item.color) && (
-                                                <div className="text-xs text-gray-500">
-                                                    {item.size && `Tam: ${item.size}`} {item.size && item.color && '|'} {item.color && `Cor: ${item.color}`}
+                            <div className="mb-4">
+                                <h3 className="text-sm font-semibold mb-2">Produtos:</h3>
+                                {order.items && order.items.length > 0 ? (
+                                    <div className="flex flex-wrap gap-4">
+                                        {order.items.map((item: OrderItem) => (
+                                            <div key={item.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="relative w-12 h-12 bg-white rounded overflow-hidden flex-shrink-0">
+                                                    {item.product?.images?.[0]?.url ? (
+                                                        <Image
+                                                            src={item.product.images[0].url}
+                                                            alt={item.product?.name || 'Produto'}
+                                                            className="object-cover"
+                                                            fill
+                                                            sizes="48px"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                                                            <Package className="w-6 h-6 text-gray-400" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                            <div className="text-xs text-gray-500">Qtd: {item.quantity}</div>
-                                        </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-medium truncate">{item.product?.name || 'Produto'}</div>
+                                                    {(item.size || item.color) && (
+                                                        <div className="text-xs text-gray-500">
+                                                            {item.size && `Tam: ${item.size}`} {item.size && item.color && '| '} {item.color && `Cor: ${item.color}`}
+                                                        </div>
+                                                    )}
+                                                    <div className="text-xs text-gray-600">
+                                                        <span className="font-medium">Qtd: {item.quantity}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic">Nenhum item encontrado neste pedido.</p>
+                                )}
                             </div>
-                            <div className="flex justify-between text-sm mt-2">
-                                <span>Total:</span>
-                                <span className="font-medium">€{Number(order.total).toFixed(2)}</span>
+                            <div className="border-t pt-3 mt-3 space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Total:</span>
+                                <span className="font-semibold text-lg">€{Number(order.total).toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-sm mt-2">
-                                <span>Pagamento:</span>
-                                <span className="font-medium">{order.paymentMethod}</span>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Pagamento:</span>
+                                <span className="font-medium uppercase">{order.paymentMethod}</span>
                             </div>
-                            <div className="flex justify-between text-sm mt-2">
-                                <span>Data:</span>
-                                <span>{new Date(order.createdAt).toLocaleString()}</span>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Data:</span>
+                                <span className="text-gray-700">{new Date(order.createdAt).toLocaleString('pt-PT', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</span>
+                            </div>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
+            </div>
             </div>
         </div>
     );

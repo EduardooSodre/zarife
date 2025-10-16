@@ -543,135 +543,135 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                     className="resize-none"
                                 />
                             </div>
+                        </div>
 
-                            {/* Categoria e Estação na mesma linha - 50% cada */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="categoryId" className="text-sm font-medium">Categoria *</Label>
-                                    <div className="flex gap-2">
-                                        <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
-                                            <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black flex-1">
-                                                <SelectValue placeholder="Selecione" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categories.map((category) => (
-                                                    <div key={category.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
-                                                        <SelectItem value={category.id} className="flex-1 cursor-pointer border-0">
-                                                            {category.name}
-                                                        </SelectItem>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeleteCategory(category.id);
-                                                            }}
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </Button>
-                                                    </div>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
+                        {/* Categoria e Estação na mesma linha - 50% cada */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="categoryId" className="text-sm font-medium">Categoria *</Label>
+                                <div className="flex gap-2">
+                                    <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
+                                        <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black flex-1">
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {categories.map((category) => (
+                                                <div key={category.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                                                    <SelectItem value={category.id} className="flex-1 cursor-pointer border-0">
+                                                        {category.name}
+                                                    </SelectItem>
                                                     <Button
                                                         type="button"
-                                                        variant="outline"
+                                                        variant="ghost"
                                                         size="icon"
-                                                        onClick={() => setShowNewCategoryDialog(true)}
-                                                        className="h-11 w-11 shrink-0 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all"
+                                                        className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteCategory(category.id);
+                                                        }}
                                                     >
-                                                        <FolderPlus className="w-4 h-4" />
+                                                        <X className="w-4 h-4" />
                                                     </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Criar nova categoria</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="season" className="text-sm font-medium">Estação</Label>
-                                    <div className="flex gap-2">
-                                        <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
-                                            <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
-                                                <SelectValue placeholder="Selecione" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {seasons.map((season) => (
-                                                    <div key={season} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
-                                                        <SelectItem value={season} className="flex-1 cursor-pointer border-0">
-                                                            {season}
-                                                        </SelectItem>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeleteSeason(season);
-                                                            }}
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </Button>
-                                                    </div>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="icon"
-                                                        className="h-11 w-11 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
-                                                        onClick={() => setShowNewSeasonDialog(true)}
-                                                    >
-                                                        <FolderPlus className="w-4 h-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Criar nova estação</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </div>
+                                                </div>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    onClick={() => setShowNewCategoryDialog(true)}
+                                                    className="h-9 w-9 shrink-0 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all"
+                                                >
+                                                    <FolderPlus className="w-4 h-4" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Criar nova categoria</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 </div>
                             </div>
 
-                            {/* Marca e Material na mesma linha */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="brand" className="text-sm font-medium">Marca/Coleção</Label>
-                                    <Input
-                                        id="brand"
-                                        name="brand"
-                                        value={formData.brand}
-                                        onChange={handleChange}
-                                        placeholder="Ex: Vestido Lara..."
-                                        className="h-11"
-                                    />
+                            <div className="space-y-2">
+                                <Label htmlFor="season" className="text-sm font-medium">Estação</Label>
+                                <div className="flex gap-2">
+                                    <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
+                                        <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {seasons.map((season) => (
+                                                <div key={season} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                                                    <SelectItem value={season} className="flex-1 cursor-pointer border-0">
+                                                        {season}
+                                                    </SelectItem>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteSeason(season);
+                                                        }}
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="h-9 w-9 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
+                                                    onClick={() => setShowNewSeasonDialog(true)}
+                                                >
+                                                    <FolderPlus className="w-4 h-4" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Criar nova estação</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="material" className="text-sm font-medium">Material/Composição</Label>
-                                    <Input
-                                        id="material"
-                                        name="material"
-                                        value={formData.material}
-                                        onChange={handleChange}
-                                        placeholder="Ex: 100% Algodão..."
-                                        className="h-11"
-                                    />
-                                </div>
+                        {/* Marca e Material na mesma linha */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="brand" className="text-sm font-medium">Marca/Coleção</Label>
+                                <Input
+                                    id="brand"
+                                    name="brand"
+                                    value={formData.brand}
+                                    onChange={handleChange}
+                                    placeholder="Ex: Vestido Lara..."
+                                    className="h-11"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="material" className="text-sm font-medium">Material/Composição</Label>
+                                <Input
+                                    id="material"
+                                    name="material"
+                                    value={formData.material}
+                                    onChange={handleChange}
+                                    placeholder="Ex: 100% Algodão..."
+                                    className="h-11"
+                                />
                             </div>
                         </div>
                     </div>

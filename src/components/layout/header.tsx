@@ -242,7 +242,7 @@ export default function Header() {
                 {/* Menu ROUPAS */}
                 {roupasCategory && (
                   <MenubarMenu>
-                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                       {roupasCategory.name}
                     </MenubarTrigger>
                     <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
@@ -276,7 +276,7 @@ export default function Header() {
                 {/* Menu VESTIDOS */}
                 {vestidosCategory && (
                   <MenubarMenu>
-                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                       {vestidosCategory.name}
                     </MenubarTrigger>
                     <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
@@ -310,7 +310,7 @@ export default function Header() {
                 {/* Menu CONJUNTOS */}
                 {conjuntosCategory && (
                   <MenubarMenu>
-                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                       {conjuntosCategory.name}
                     </MenubarTrigger>
                     <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
@@ -344,7 +344,7 @@ export default function Header() {
                 {/* Menu MODA PRAIA */}
                 {modaPraiaCategory && (
                   <MenubarMenu>
-                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                       {modaPraiaCategory.name}
                     </MenubarTrigger>
                     <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
@@ -378,7 +378,7 @@ export default function Header() {
                 {/* Menu LOOK COMPLETO */}
                 {lookCompletoCategory && (
                   <MenubarMenu>
-                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out">
+                    <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                       {lookCompletoCategory.name}
                     </MenubarTrigger>
                     <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
@@ -668,7 +668,8 @@ export default function Header() {
                           <div className="border-b border-gray-100">
                             <button
                               onClick={() => toggleCategory(roupasCategory.slug)}
-                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group cursor-pointer"
+                              type="button"
                             >
                               <span>{roupasCategory.name}</span>
                               <svg
@@ -723,7 +724,8 @@ export default function Header() {
                           <div className="border-b border-gray-100">
                             <button
                               onClick={() => toggleCategory(vestidosCategory.slug)}
-                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group cursor-pointer"
+                              type="button"
                             >
                               <span>{vestidosCategory.name}</span>
                               <svg
@@ -757,7 +759,8 @@ export default function Header() {
                           <div className="border-b border-gray-100">
                             <button
                               onClick={() => toggleCategory(conjuntosCategory.slug)}
-                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group cursor-pointer"
+                              type="button"
                             >
                               <span>{conjuntosCategory.name}</span>
                               <svg
@@ -791,7 +794,8 @@ export default function Header() {
                           <div className="border-b border-gray-100">
                             <button
                               onClick={() => toggleCategory(modaPraiaCategory.slug)}
-                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group cursor-pointer"
+                              type="button"
                             >
                               <span>{modaPraiaCategory.name}</span>
                               <svg
@@ -825,7 +829,8 @@ export default function Header() {
                           <div className="border-b border-gray-100">
                             <button
                               onClick={() => toggleCategory(lookCompletoCategory.slug)}
-                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group cursor-pointer"
+                              type="button"
                             >
                               <span>{lookCompletoCategory.name}</span>
                               <svg

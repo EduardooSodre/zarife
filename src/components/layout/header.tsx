@@ -611,10 +611,10 @@ export default function Header() {
                               className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{roupasCategory.name}</span>
-                              <svg 
-                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(roupasCategory.slug) ? 'rotate-90' : ''}`} 
-                                fill="none" 
-                                stroke="currentColor" 
+                              <svg
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(roupasCategory.slug) ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -622,37 +622,37 @@ export default function Header() {
                             </button>
                             {expandedCategories.has(roupasCategory.slug) && (
                               <div className="bg-gradient-to-r from-gray-50 to-white">
-                              {roupasCategory.children.map((item, idx) => (
-                                <div key={item.name} className={idx > 0 ? 'border-t border-gray-100/50' : ''}>
-                                  <Link
-                                    href={item.href}
-                                    className="flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 group"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                  >
-                                    <span>{item.name}</span>
+                                {roupasCategory.children.map((item, idx) => (
+                                  <div key={item.name} className={idx > 0 ? 'border-t border-gray-100/50' : ''}>
+                                    <Link
+                                      href={item.href}
+                                      className="flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 group"
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      <span>{item.name}</span>
+                                      {item.children && item.children.length > 0 && (
+                                        <svg className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                      )}
+                                    </Link>
                                     {item.children && item.children.length > 0 && (
-                                      <svg className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                      </svg>
+                                      <div className="bg-gray-50/30 pl-4">
+                                        {item.children.map((subcat) => (
+                                          <Link
+                                            key={subcat.name}
+                                            href={subcat.href}
+                                            className="flex items-center px-6 py-2 text-xs text-gray-600 hover:text-black hover:bg-white/80 transition-all duration-150"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                          >
+                                            <span className="w-1 h-1 bg-gray-400 rounded-full mr-2"></span>
+                                            {subcat.name}
+                                          </Link>
+                                        ))}
+                                      </div>
                                     )}
-                                  </Link>
-                                  {item.children && item.children.length > 0 && (
-                                    <div className="bg-gray-50/30 pl-4">
-                                      {item.children.map((subcat) => (
-                                        <Link
-                                          key={subcat.name}
-                                          href={subcat.href}
-                                          className="flex items-center px-6 py-2 text-xs text-gray-600 hover:text-black hover:bg-white/80 transition-all duration-150"
-                                          onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                          <span className="w-1 h-1 bg-gray-400 rounded-full mr-2"></span>
-                                          {subcat.name}
-                                        </Link>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
+                                  </div>
+                                ))}
                               </div>
                             )}
                           </div>
@@ -666,10 +666,10 @@ export default function Header() {
                               className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{vestidosCategory.name}</span>
-                              <svg 
-                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(vestidosCategory.slug) ? 'rotate-90' : ''}`} 
-                                fill="none" 
-                                stroke="currentColor" 
+                              <svg
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(vestidosCategory.slug) ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -700,10 +700,10 @@ export default function Header() {
                               className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{conjuntosCategory.name}</span>
-                              <svg 
-                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(conjuntosCategory.slug) ? 'rotate-90' : ''}`} 
-                                fill="none" 
-                                stroke="currentColor" 
+                              <svg
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(conjuntosCategory.slug) ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -734,10 +734,10 @@ export default function Header() {
                               className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{modaPraiaCategory.name}</span>
-                              <svg 
-                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(modaPraiaCategory.slug) ? 'rotate-90' : ''}`} 
-                                fill="none" 
-                                stroke="currentColor" 
+                              <svg
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(modaPraiaCategory.slug) ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -768,10 +768,10 @@ export default function Header() {
                               className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{lookCompletoCategory.name}</span>
-                              <svg 
-                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(lookCompletoCategory.slug) ? 'rotate-90' : ''}`} 
-                                fill="none" 
-                                stroke="currentColor" 
+                              <svg
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(lookCompletoCategory.slug) ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

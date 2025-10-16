@@ -125,9 +125,6 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-semibold text-gray-900">
                     €{revenue.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    +12% vs. mês anterior
-                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-gray-50">
                   <Euro className="h-5 w-5 text-gray-600" />
@@ -166,9 +163,6 @@ export default function AdminDashboard() {
                   </p>
                   <p className="text-2xl font-semibold text-gray-900">
                     {totalOrders}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Este mês
                   </p>
                 </div>
                 <div className="p-3 rounded-lg bg-gray-50">
@@ -281,7 +275,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="p-6 pt-0">
               <div className="space-y-3">
-                <Link href="/admin/products/new" className="block">
+                <Link href="/admin/products" className="block">
                   <Button className="w-full justify-start bg-black hover:bg-gray-800">
                     <Plus className="h-4 w-4 mr-2" />
                     Novo Produto
@@ -314,12 +308,8 @@ export default function AdminDashboard() {
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Taxa de Conversão</span>
-                    <span className="font-medium text-green-600">3.2%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Ticket Médio</span>
-                    <span className="font-medium text-gray-900">€{revenue > 0 ? (revenue / totalOrders).toFixed(2) : '0.00'}</span>
+                    <span className="font-medium text-gray-900">€{totalOrders > 0 ? (revenue / totalOrders).toFixed(2) : '0.00'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Produtos Ativos</span>

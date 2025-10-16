@@ -117,10 +117,10 @@ export default function CategoriesPage() {
                 {/* Header */}
                 <div className="mb-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 className="text-4xl font-light text-black mb-4 tracking-wider uppercase">
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black mb-4 tracking-wider uppercase">
                             Gestão de Categorias
                         </h1>
-                        <p className="text-gray-600 text-lg">
+                        <p className="text-gray-600 text-base sm:text-lg">
                             Gerir as categorias de produtos da Zarife
                         </p>
                     </div>

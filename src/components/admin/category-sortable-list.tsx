@@ -27,6 +27,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DeleteCategoryButton } from '@/components/admin/delete-category-button';
 import { EditCategoryDialog } from '@/app/admin/categories/edit-category-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Category {
   id: string;
@@ -124,20 +130,49 @@ function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps
         </div>
 
         {/* Ações */}
-        <div className="flex items-center gap-2">
-          <Link href={`/admin/categories/${category.id}`}>
-            <Button variant="outline" size="sm" className="w-auto cursor-pointer">
-              <Eye className="w-4 h-4" />
-            </Button>
-          </Link>
-          <EditCategoryDialog category={category} onUpdated={onDeleted} />
-          <DeleteCategoryButton 
-            categoryId={category.id} 
-            categoryName={category.name}
-            hasProducts={category._count.products > 0}
-            onDeleted={onDeleted}
-          />
-        </div>
+        <TooltipProvider>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={`/admin/categories/${category.id}`}>
+                  <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver Detalhes</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="inline-flex">
+                  <EditCategoryDialog category={category} onUpdated={onDeleted} />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Editar Categoria</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="inline-flex">
+                  <DeleteCategoryButton 
+                    categoryId={category.id} 
+                    categoryName={category.name}
+                    hasProducts={category._count.products > 0}
+                    onDeleted={onDeleted}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Deletar Categoria</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
     </div>
   );

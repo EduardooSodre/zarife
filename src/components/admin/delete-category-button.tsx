@@ -59,7 +59,7 @@ export function DeleteCategoryButton({ categoryId, categoryName, hasProducts, on
   if (hasProducts) {
     return (
       <div
-        className="flex items-center justify-center w-12 h-9 rounded-md border border-border bg-background text-gray-400 cursor-not-allowed"
+        className="flex items-center justify-center h-8 w-8 p-0 rounded-md border border-border bg-background text-gray-400 cursor-not-allowed"
         title="Categoria possui produtos"
       >
         <Trash2 className="w-4 h-4" />
@@ -71,7 +71,7 @@ export function DeleteCategoryButton({ categoryId, categoryName, hasProducts, on
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <button
-          className="flex items-center justify-center w-12 h-9 rounded-md border border-border bg-background text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+          className="flex items-center justify-center h-8 w-8 p-0 rounded-md border border-border bg-background text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
           disabled={isDeleting}
           title="Deletar categoria"
         >

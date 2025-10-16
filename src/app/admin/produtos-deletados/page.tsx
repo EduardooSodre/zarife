@@ -1,8 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, Package, RotateCcw } from "lucide-react";
+import { Trash2, Package, RotateCcw, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import Image from "next/image";
 
 interface DeletedProduct {
@@ -22,10 +33,11 @@ interface DeletedProduct {
 }
 
 export default function DeletedProductsPage() {
-    const [products, setProducts] = useState<DeletedProduct[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
+  const [products, setProducts] = useState<DeletedProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<{ id: string; name: string } | null>(null);
+  const [dialogAction, setDialogAction] = useState<'restore' | 'delete' | null>(null);
+  const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);    useEffect(() => {
         fetchDeletedProducts();
     }, []);
 
@@ -43,46 +55,52 @@ export default function DeletedProductsPage() {
         }
     }
 
-    async function handleRestore(productId: string) {
-        if (!confirm('Deseja restaurar este produto?')) return;
+  function openDialog(productId: string, productName: string, action: 'restore' | 'delete') {
+    setSelectedProduct({ id: productId, name: productName });
+    setDialogAction(action);
+  }
 
-        try {
-            const response = await fetch(`/api/admin/products/${productId}/restore`, {
-                method: 'POST',
-            });
+  function closeDialog() {
+    setSelectedProduct(null);
+    setDialogAction(null);
+  }
 
-            if (response.ok) {
-                alert('Produto restaurado com sucesso!');
-                fetchDeletedProducts();
-            } else {
-                alert('Erro ao restaurar produto');
-            }
-        } catch (error) {
-            alert('Erro ao restaurar produto');
+  async function confirmAction() {
+    if (!selectedProduct || !dialogAction) return;
+
+    try {
+      if (dialogAction === 'restore') {
+        const response = await fetch(`/api/admin/products/${selectedProduct.id}/restore`, {
+          method: 'POST',
+        });
+
+        if (response.ok) {
+          setAlert({ type: 'success', message: 'Produto restaurado com sucesso!' });
+          fetchDeletedProducts();
+        } else {
+          setAlert({ type: 'error', message: 'Erro ao restaurar produto' });
         }
-    }
+      } else if (dialogAction === 'delete') {
+        const response = await fetch(`/api/admin/products/${selectedProduct.id}?force=true`, {
+          method: 'DELETE',
+        });
 
-    async function handlePermanentDelete(productId: string) {
-        if (!confirm('ATENÇÃO: Esta ação é irreversível! Deseja deletar permanentemente este produto?')) return;
-
-        try {
-            const response = await fetch(`/api/admin/products/${productId}?force=true`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                alert('Produto deletado permanentemente!');
-                fetchDeletedProducts();
-            } else {
-                const error = await response.json();
-                alert(error.error || 'Erro ao deletar produto');
-            }
-        } catch (error) {
-            alert('Erro ao deletar produto');
+        if (response.ok) {
+          setAlert({ type: 'success', message: 'Produto deletado permanentemente!' });
+          fetchDeletedProducts();
+        } else {
+          const error = await response.json();
+          setAlert({ type: 'error', message: error.error || 'Erro ao deletar produto' });
         }
+      }
+    } catch {
+      setAlert({ type: 'error', message: 'Erro ao processar a ação' });
+    } finally {
+      closeDialog();
+      // Auto-hide alert após 5 segundos
+      setTimeout(() => setAlert(null), 5000);
     }
-
-    if (loading) {
+  }    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -90,21 +108,33 @@ export default function DeletedProductsPage() {
         );
     }
 
-    return (
-        <div className="container mx-auto p-6">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold flex items-center gap-2">
-                        <Trash2 className="w-8 h-8" />
-                        Produtos Deletados
-                    </h1>
-                    <p className="text-gray-600 mt-2">
-                        Produtos removidos que possuem pedidos concluídos
-                    </p>
-                </div>
-            </div>
+  return (
+    <div className="container mx-auto p-6">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Trash2 className="w-8 h-8" />
+            Produtos Deletados
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Produtos removidos que possuem pedidos concluídos
+          </p>
+        </div>
+      </div>
 
-            {products.length === 0 ? (
+      {/* Alert de feedback */}
+      {alert && (
+        <Alert className={`mb-6 ${alert.type === 'success' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+          {alert.type === 'success' ? (
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+          )}
+          <AlertDescription className={alert.type === 'success' ? 'text-green-800' : 'text-red-800'}>
+            {alert.message}
+          </AlertDescription>
+        </Alert>
+      )}            {products.length === 0 ? (
                 <div className="text-center py-12">
                     <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                     <h3 className="text-xl font-semibold text-gray-600">Nenhum produto deletado</h3>
@@ -147,7 +177,7 @@ export default function DeletedProductsPage() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleRestore(product.id)}
+                                    onClick={() => openDialog(product.id, product.name, 'restore')}
                                     className="flex items-center gap-2"
                                 >
                                     <RotateCcw className="w-4 h-4" />
@@ -156,7 +186,7 @@ export default function DeletedProductsPage() {
                                 <Button
                                     variant="destructive"
                                     size="sm"
-                                    onClick={() => handlePermanentDelete(product.id)}
+                                    onClick={() => openDialog(product.id, product.name, 'delete')}
                                     className="flex items-center gap-2"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -167,6 +197,46 @@ export default function DeletedProductsPage() {
                     ))}
                 </div>
             )}
+
+            {/* AlertDialog de confirmação */}
+            <AlertDialog open={!!dialogAction} onOpenChange={closeDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {dialogAction === 'restore' ? 'Restaurar Produto' : 'Deletar Permanentemente'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {dialogAction === 'restore' ? (
+                                <>
+                                    Deseja restaurar o produto <span className="font-semibold">&quot;{selectedProduct?.name}&quot;</span>?
+                                    <br />
+                                    <br />
+                                    O produto voltará a aparecer na lista de produtos ativos.
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-red-600 font-semibold">ATENÇÃO: Esta ação é irreversível!</span>
+                                    <br />
+                                    <br />
+                                    Deseja deletar permanentemente o produto <span className="font-semibold">&quot;{selectedProduct?.name}&quot;</span>?
+                                    <br />
+                                    <br />
+                                    Todos os dados do produto serão removidos do banco de dados.
+                                </>
+                            )}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmAction}
+                            className={dialogAction === 'delete' ? 'bg-red-600 hover:bg-red-700' : ''}
+                        >
+                            {dialogAction === 'restore' ? 'Restaurar' : 'Deletar Permanentemente'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

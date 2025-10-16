@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Loader2, Tag, X } from "lucide-react";
+import { Plus, Loader2, Tag, X, FolderPlus } from "lucide-react";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Category {
     id: string;
@@ -373,72 +374,86 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
+                            {/* Categoria e Estação na mesma linha */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
                                     <Label htmlFor="categoryId" className="text-sm font-medium">Categoria *</Label>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setShowNewCategoryDialog(true)}
-                                        className="text-xs h-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                    >
-                                        <Plus className="w-3 h-3 mr-1" />
-                                        Nova
-                                    </Button>
+                                    <div className="flex gap-2 items-center">
+                                        <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
+                                            <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black flex-1">
+                                                <SelectValue placeholder="Selecione" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map((category) => (
+                                                    <SelectItem key={category.id} value={category.id}>
+                                                        {category.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        onClick={() => setShowNewCategoryDialog(true)}
+                                                        className="h-9 w-9 shrink-0 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all"
+                                                    >
+                                                        <FolderPlus className="w-4 h-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Criar nova categoria</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
                                 </div>
-                                <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
-                                    <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black">
-                                        <SelectValue placeholder="Selecione uma categoria" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {categories.map((category) => (
-                                            <SelectItem key={category.id} value={category.id}>
-                                                {category.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="season" className="text-sm font-medium">Estação</Label>
+                                    <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
+                                        <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {SEASONS.map((season) => (
+                                                <SelectItem key={season} value={season} className="cursor-pointer hover:bg-gray-100">
+                                                    {season}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="brand" className="text-sm font-medium">Marca/Coleção</Label>
-                                <Input
-                                    id="brand"
-                                    name="brand"
-                                    value={formData.brand}
-                                    onChange={handleChange}
-                                    placeholder="Ex: Vestido Lara, Conjunto Riviera..."
-                                    className="h-11"
-                                />
-                            </div>
+                            {/* Marca e Material na mesma linha */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="brand" className="text-sm font-medium">Marca/Coleção</Label>
+                                    <Input
+                                        id="brand"
+                                        name="brand"
+                                        value={formData.brand}
+                                        onChange={handleChange}
+                                        placeholder="Ex: Vestido Lara..."
+                                        className="h-11"
+                                    />
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="material" className="text-sm font-medium">Material/Composição</Label>
-                                <Input
-                                    id="material"
-                                    name="material"
-                                    value={formData.material}
-                                    onChange={handleChange}
-                                    placeholder="Ex: 100% Algodão, Viscose..."
-                                    className="h-11"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="season" className="text-sm font-medium">Estação</Label>
-                                <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
-                                    <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
-                                        <SelectValue placeholder="Selecione a estação" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {SEASONS.map((season) => (
-                                            <SelectItem key={season} value={season} className="cursor-pointer hover:bg-gray-100">
-                                                {season}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="space-y-2">
+                                    <Label htmlFor="material" className="text-sm font-medium">Material/Composição</Label>
+                                    <Input
+                                        id="material"
+                                        name="material"
+                                        value={formData.material}
+                                        onChange={handleChange}
+                                        placeholder="Ex: 100% Algodão..."
+                                        className="h-11"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

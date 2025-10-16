@@ -65,7 +65,7 @@ export async function PUT(
       );
     }
 
-    const { name, description, image, isActive } = await request.json();
+    const { name, description, image, isActive, parentId } = await request.json();
 
     console.log("📝 Dados recebidos para atualizar categoria:", {
       categoryId,
@@ -74,6 +74,7 @@ export async function PUT(
       image: image ? "Imagem fornecida" : "Sem imagem",
       imageLength: image?.length,
       isActive,
+      parentId,
     });
 
     if (!name || name.trim() === "") {
@@ -134,6 +135,7 @@ export async function PUT(
       description: description?.trim() || null,
       image: image?.trim() || null,
       isActive: isActive !== undefined ? isActive : true,
+      parentId: parentId || null,
     });
 
     // Atualizar usando raw SQL para garantir que funciona
@@ -145,6 +147,7 @@ export async function PUT(
         description = ${description?.trim() || null},
         image = ${image?.trim() || null},
         is_active = ${isActive !== undefined ? isActive : true},
+        parent_id = ${parentId || null},
         updated_at = NOW()
       WHERE id = ${categoryId}
     `;

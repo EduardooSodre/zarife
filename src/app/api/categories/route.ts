@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, description, image, isActive } = await request.json();
+    const { name, description, image, isActive, parentId } = await request.json();
 
     if (!name || name.trim() === '') {
       return NextResponse.json(
@@ -76,11 +76,13 @@ export async function POST(request: NextRequest) {
         description: description?.trim() || null,
         image: image?.trim() || null,
         isActive: isActive !== undefined ? isActive : true,
+        parentId: parentId || null,
       },
       include: {
         _count: {
           select: { products: true }
-        }
+        },
+        parent: true,
       },
     });
 

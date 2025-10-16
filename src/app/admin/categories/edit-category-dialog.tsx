@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface Category {
 	id: string;
 	name: string;
 	description?: string | null;
 	isActive: boolean;
+	parentId?: string | null;
 }
 
 interface EditCategoryDialogProps {
@@ -23,8 +26,29 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 		name: category.name,
 		description: category.description || "",
 		isActive: category.isActive,
+		parentId: category.parentId || "",
 	});
 	const [loading, setLoading] = useState(false);
+	const [categories, setCategories] = useState<Category[]>([]);
+
+	useEffect(() => {
+		async function fetchCategories() {
+			try {
+				const response = await fetch('/api/categories');
+				if (response.ok) {
+					const data = await response.json();
+					// Filtrar para não permitir que a categoria seja sua própria pai
+					setCategories((data.data || []).filter((c: Category) => c.id !== category.id));
+				}
+			} catch (error) {
+				console.error('Erro ao carregar categorias:', error);
+			}
+		}
+
+		if (open) {
+			fetchCategories();
+		}
+	}, [open, category.id]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		const { name, value, type } = e.target;
@@ -67,16 +91,35 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 				</DialogHeader>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
-						<label className="block text-sm font-medium mb-1">Nome</label>
-						<input name="name" value={form.name} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+						<Label className="block text-sm font-medium mb-1">Nome</Label>
+						<input name="name" value={form.name} onChange={handleChange} className="w-full border rounded px-3 py-2" required placeholder="Nome da categoria" />
 					</div>
 					<div>
-						<label className="block text-sm font-medium mb-1">Descrição</label>
-						<textarea name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} />
+						<Label className="block text-sm font-medium mb-1">Descrição</Label>
+						<textarea name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} placeholder="Descrição da categoria (opcional)" />
+					</div>
+					<div className="space-y-2">
+						<Label className="block text-sm font-medium mb-1">Categoria Pai (Subcategoria)</Label>
+						<Select 
+							value={form.parentId || "none"} 
+							onValueChange={(value) => setForm({ ...form, parentId: value === "none" ? "" : value })}
+						>
+							<SelectTrigger className="border-2 border-gray-300 bg-white focus:border-black">
+								<SelectValue placeholder="Nenhuma (categoria principal)" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="none">Nenhuma (categoria principal)</SelectItem>
+								{categories.map((cat) => (
+									<SelectItem key={cat.id} value={cat.id}>
+										{cat.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 					<div className="flex items-center gap-2">
 						<input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} id="isActive" />
-						<label htmlFor="isActive" className="text-sm">Categoria Ativa</label>
+						<Label htmlFor="isActive" className="text-sm">Categoria Ativa</Label>
 					</div>
 					<div className="flex justify-end gap-2 pt-2">
 						<Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>Cancelar</Button>

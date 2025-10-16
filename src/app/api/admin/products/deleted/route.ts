@@ -19,10 +19,12 @@ export async function GET() {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 
-    // Get products with optimized queries (excluir deletados)
+    // Get deleted products
     const products = await prisma.product.findMany({
       where: {
-        deletedAt: null, // Apenas produtos não deletados
+        deletedAt: {
+          not: null,
+        },
       },
       include: {
         category: {
@@ -32,7 +34,7 @@ export async function GET() {
           },
         },
         images: {
-          take: 1, // Apenas a primeira imagem
+          take: 1,
           orderBy: {
             order: "asc",
           },
@@ -40,18 +42,21 @@ export async function GET() {
         _count: {
           select: {
             images: true,
+            orderItems: true,
           },
         },
       },
       orderBy: {
-        createdAt: "desc",
+        deletedAt: "desc",
       },
-      take: 50, // Limitar a 50 produtos por vez
     });
 
     return NextResponse.json({ products });
   } catch (error) {
-    console.error("Erro ao buscar produtos:", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    console.error("[DELETED_PRODUCTS_GET]", error);
+    return NextResponse.json(
+      { error: "Erro interno do servidor" },
+      { status: 500 }
+    );
   }
 }

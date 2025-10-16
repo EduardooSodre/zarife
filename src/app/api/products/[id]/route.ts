@@ -160,9 +160,29 @@ export async function DELETE(
       );
     }
 
+    // Verificar se é force delete
+    const { searchParams } = new URL(request.url);
+    const force = searchParams.get('force') === 'true';
+
     // Verificar se o produto existe
     const existingProduct = await prisma.product.findUnique({
       where: { id: id },
+      include: {
+        orderItems: {
+          include: {
+            order: {
+              select: {
+                status: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: { 
+            orderItems: true,
+          },
+        },
+      },
     });
 
     if (!existingProduct) {
@@ -172,7 +192,61 @@ export async function DELETE(
       );
     }
 
-    // Deletar produto e suas imagens (cascade)
+    // Se force=true e produto já está deletado, permitir exclusão permanente
+    if (force && existingProduct.deletedAt) {
+      await prisma.product.delete({
+        where: { id: id },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Produto deletado permanentemente',
+      });
+    }
+
+    // Verificar se existem pedidos com este produto
+    if (existingProduct._count.orderItems > 0) {
+      // Verificar se todos os pedidos estão com status DELIVERED
+      const allDelivered = existingProduct.orderItems.every(
+        (item) => item.order.status === 'DELIVERED'
+      );
+
+      if (!allDelivered) {
+        // Contar pedidos pendentes
+        const pendingOrders = existingProduct.orderItems.filter(
+          (item) => item.order.status !== 'DELIVERED'
+        );
+
+        return NextResponse.json(
+          { 
+            error: 'Não é possível deletar um produto com pedidos pendentes',
+            details: {
+              totalOrders: existingProduct._count.orderItems,
+              pendingOrders: pendingOrders.length,
+              message: `Este produto possui ${pendingOrders.length} pedido(s) pendente(s). Aguarde a conclusão de todos os pedidos ou mova para produtos deletados.`
+            }
+          },
+          { status: 400 }
+        );
+      }
+
+      // Todos os pedidos estão concluídos, fazer soft delete
+      await prisma.product.update({
+        where: { id: id },
+        data: {
+          deletedAt: new Date(),
+          isActive: false,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Produto movido para produtos deletados',
+        softDelete: true,
+      });
+    }
+
+    // Sem pedidos, deletar permanentemente
     await prisma.product.delete({
       where: { id: id },
     });

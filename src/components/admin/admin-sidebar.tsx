@@ -9,7 +9,8 @@ import {
   ShoppingCart, 
   Users, 
   Settings,
-  Store
+  Store,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,11 @@ const navigation = [
     name: "Produtos",
     href: "/admin/products",
     icon: Package,
+  },
+  {
+    name: "Produtos Deletados",
+    href: "/admin/produtos-deletados",
+    icon: Trash2,
   },
   {
     name: "Categorias",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
-import { Menu, Bell, Search } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { AdminMobileSidebar } from "./admin-mobile-sidebar";
 
 export function AdminHeader() {
@@ -25,19 +25,8 @@ export function AdminHeader() {
             </button>
           </div>
 
-          {/* Search bar */}
-          <div className="flex-1 max-w-lg mx-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Buscar produtos, pedidos..."
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-sm"
-              />
-            </div>
-          </div>
+          {/* Espaçamento */}
+          <div className="flex-1"></div>
 
           {/* Right side */}
           <div className="flex items-center space-x-4">

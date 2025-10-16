@@ -41,27 +41,28 @@ interface NewProductDialogProps {
     buttonClassName?: string;
 }
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 export function NewProductDialog({ onCreated, buttonText = "Novo Produto", buttonClassName }: NewProductDialogProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [seasons, setSeasons] = useState<string[]>(['Primavera', 'Verão', 'Outono', 'Inverno', 'Atemporal']);
+    const [sizes, setSizes] = useState<string[]>(['XS', 'S', 'M', 'L', 'XL', 'XXL']);
     const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
     const [showNewCategoryDialog, setShowNewCategoryDialog] = useState(false);
     const [showNewSeasonDialog, setShowNewSeasonDialog] = useState(false);
+    const [showNewSizeDialog, setShowNewSizeDialog] = useState(false);
     const [newCategoryForm, setNewCategoryForm] = useState({
         name: '',
         description: '',
         parentId: '',
     });
     const [newSeasonName, setNewSeasonName] = useState('');
+    const [newSizeName, setNewSizeName] = useState('');
 
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
-        oldPrice: '',
         stock: '',
         categoryId: '',
         isActive: true,
@@ -80,20 +81,35 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     });
 
     useEffect(() => {
-        async function fetchCategories() {
+        async function fetchData() {
             try {
-                const response = await fetch('/api/categories/for-products');
-                if (response.ok) {
-                    const data = await response.json();
-                    setCategories(data.all || []);
+                // Buscar categorias
+                const categoriesResponse = await fetch('/api/categories/for-products');
+                if (categoriesResponse.ok) {
+                    const categoriesData = await categoriesResponse.json();
+                    setCategories(categoriesData.all || []);
+                }
+
+                // Buscar estações
+                const seasonsResponse = await fetch('/api/seasons');
+                if (seasonsResponse.ok) {
+                    const seasonsData = await seasonsResponse.json();
+                    setSeasons(seasonsData.data.map((s: { name: string }) => s.name));
+                }
+
+                // Buscar tamanhos
+                const sizesResponse = await fetch('/api/sizes');
+                if (sizesResponse.ok) {
+                    const sizesData = await sizesResponse.json();
+                    setSizes(sizesData.data.map((s: { name: string }) => s.name));
                 }
             } catch (error) {
-                console.error('Erro ao carregar categorias:', error);
+                console.error('Erro ao carregar dados:', error);
             }
         }
 
         if (open) {
-            fetchCategories();
+            fetchData();
         }
     }, [open]);
 
@@ -165,27 +181,158 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         }
     };
 
-    const handleCreateSeason = () => {
+    const handleCreateSeason = async () => {
         if (!newSeasonName.trim()) {
             alert('Nome da estação é obrigatório');
             return;
         }
 
-        // Verificar se já existe
-        if (seasons.some(s => s.toLowerCase() === newSeasonName.toLowerCase())) {
-            alert('Esta estação já existe');
+        try {
+            const response = await fetch('/api/seasons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newSeasonName }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao criar estação');
+            }
+
+            const result = await response.json();
+
+            // Adicionar à lista local
+            setSeasons([...seasons, result.data.name]);
+            
+            // Selecionar a nova estação
+            setFormData({ ...formData, season: result.data.name });
+
+            // Resetar form e fechar dialog
+            setNewSeasonName('');
+            setShowNewSeasonDialog(false);
+
+            alert('Estação criada com sucesso!');
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'Erro ao criar estação');
+        }
+    };    const handleCreateSize = async () => {
+        if (!newSizeName.trim()) {
+            alert('Nome do tamanho é obrigatório');
             return;
         }
 
-        // Adicionar nova estação
-        setSeasons([...seasons, newSeasonName]);
+        try {
+            const response = await fetch('/api/sizes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newSizeName }),
+            });
 
-        // Selecionar a nova estação
-        setFormData({ ...formData, season: newSeasonName });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao criar tamanho');
+            }
 
-        // Resetar form e fechar dialog
-        setNewSeasonName('');
-        setShowNewSeasonDialog(false);
+            const result = await response.json();
+
+            // Adicionar à lista local
+            setSizes([...sizes, result.data.name]);
+
+            // Selecionar o novo tamanho
+            setNewVariant({ ...newVariant, size: result.data.name });
+
+            // Resetar form e fechar dialog
+            setNewSizeName('');
+            setShowNewSizeDialog(false);
+
+            alert('Tamanho criado com sucesso!');
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'Erro ao criar tamanho');
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId: string) => {
+        if (!confirm('Tem certeza que deseja excluir esta categoria?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/categories/${categoryId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao excluir categoria');
+            }
+
+            // Atualizar lista de categorias
+            setCategories(categories.filter(c => c.id !== categoryId));
+            
+            // Limpar seleção se for a categoria selecionada
+            if (formData.categoryId === categoryId) {
+                setFormData({ ...formData, categoryId: '' });
+            }
+
+            alert('Categoria excluída com sucesso!');
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'Erro ao excluir categoria');
+        }
+    };
+
+    const handleDeleteSeason = async (season: string) => {
+        if (!confirm(`Tem certeza que deseja excluir a estação "${season}"?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/seasons?name=${encodeURIComponent(season)}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao excluir estação');
+            }
+
+            // Remover da lista local
+            setSeasons(seasons.filter(s => s !== season));
+
+            // Limpar seleção se for a estação selecionada
+            if (formData.season === season) {
+                setFormData({ ...formData, season: '' });
+            }
+
+            alert('Estação excluída com sucesso!');
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'Erro ao excluir estação');
+        }
+    };
+
+    const handleDeleteSize = async (size: string) => {
+        if (!confirm(`Tem certeza que deseja excluir o tamanho "${size}"?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/sizes?name=${encodeURIComponent(size)}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao excluir tamanho');
+            }
+
+            // Remover da lista local
+            setSizes(sizes.filter(s => s !== size));
+
+            // Limpar seleção se for o tamanho selecionado
+            if (newVariant.size === size) {
+                setNewVariant({ ...newVariant, size: '' });
+            }
+
+            alert('Tamanho excluído com sucesso!');
+        } catch (error) {
+            alert(error instanceof Error ? error.message : 'Erro ao excluir tamanho');
+        }
     };
 
     const addVariant = () => {
@@ -307,7 +454,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                 body: JSON.stringify({
                     ...formData,
                     price: Number(formData.price),
-                    oldPrice: formData.oldPrice ? Number(formData.oldPrice) : null,
+                    oldPrice: null, // Removido - não usa mais preço anterior
                     stock: Number(formData.stock) || 0,
                     isOnSale: formData.isOnSale,
                     salePercentage: formData.isOnSale && formData.salePercentage ? parseInt(formData.salePercentage) : null,
@@ -328,7 +475,6 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                 name: '',
                 description: '',
                 price: '',
-                oldPrice: '',
                 stock: '',
                 categoryId: '',
                 isActive: true,
@@ -398,20 +544,34 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                 />
                             </div>
 
-                            {/* Categoria e Estação na mesma linha */}
+                            {/* Categoria e Estação na mesma linha - 50% cada */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="categoryId" className="text-sm font-medium">Categoria *</Label>
-                                    <div className="flex gap-2 items-center">
+                                    <div className="flex gap-2">
                                         <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
                                             <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black flex-1">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {categories.map((category) => (
-                                                    <SelectItem key={category.id} value={category.id}>
-                                                        {category.name}
-                                                    </SelectItem>
+                                                    <div key={category.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                                                        <SelectItem value={category.id} className="flex-1 cursor-pointer border-0">
+                                                            {category.name}
+                                                        </SelectItem>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteCategory(category.id);
+                                                            }}
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -423,7 +583,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                                         variant="outline"
                                                         size="icon"
                                                         onClick={() => setShowNewCategoryDialog(true)}
-                                                        className="h-9 w-9 shrink-0 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all"
+                                                        className="h-11 w-11 shrink-0 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all"
                                                     >
                                                         <FolderPlus className="w-4 h-4" />
                                                     </Button>
@@ -440,14 +600,28 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                     <Label htmlFor="season" className="text-sm font-medium">Estação</Label>
                                     <div className="flex gap-2">
                                         <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
-                                            <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
+                                            <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
                                                 <SelectValue placeholder="Selecione" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {seasons.map((season) => (
-                                                    <SelectItem key={season} value={season} className="cursor-pointer hover:bg-gray-100">
-                                                        {season}
-                                                    </SelectItem>
+                                                    <div key={season} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                                                        <SelectItem value={season} className="flex-1 cursor-pointer border-0">
+                                                            {season}
+                                                        </SelectItem>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteSeason(season);
+                                                            }}
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -458,7 +632,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                                         type="button"
                                                         variant="outline"
                                                         size="icon"
-                                                        className="h-9 w-9 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
+                                                        className="h-11 w-11 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
                                                         onClick={() => setShowNewSeasonDialog(true)}
                                                     >
                                                         <FolderPlus className="w-4 h-4" />
@@ -507,7 +681,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         <h3 className="text-lg font-semibold border-b pb-2">Preços e Promoções</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="price" className="text-sm font-medium">Preço *</Label>
+                                <Label htmlFor="price" className="text-sm font-medium">Preço Base *</Label>
                                 <Input
                                     id="price"
                                     name="price"
@@ -515,24 +689,11 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                     step="0.01"
                                     value={formData.price}
                                     onChange={handleChange}
-                                    placeholder="R$ 0,00"
+                                    placeholder="€ 0,00"
                                     required
                                     className="h-11"
                                 />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="oldPrice" className="text-sm font-medium">Preço Anterior (De)</Label>
-                                <Input
-                                    id="oldPrice"
-                                    name="oldPrice"
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.oldPrice}
-                                    onChange={handleChange}
-                                    placeholder="R$ 0,00"
-                                    className="h-11"
-                                />
+                                <p className="text-xs text-gray-500">Este é o preço sem desconto</p>
                             </div>
 
                             <div className="space-y-2">
@@ -587,25 +748,39 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                             min="1"
                                             max="99"
                                             value={formData.salePercentage}
-                                            onChange={handleChange}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                const percentage = parseInt(value);
+                                                // Validar que o desconto está entre 1 e 99
+                                                if (value === '' || (percentage >= 1 && percentage <= 99)) {
+                                                    handleChange(e);
+                                                }
+                                            }}
                                             placeholder="Ex: 20 para 20% de desconto"
                                             required={formData.isOnSale}
                                             className="h-11"
                                         />
+                                        <p className="text-xs text-amber-700">Desconto de 1% a 99%</p>
                                     </div>
                                     {salePrice && formData.price && (
                                         <div className="flex items-center">
-                                            <div className="text-sm w-full bg-green-50 border-2 border-green-200 p-3 rounded-lg">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="font-medium text-green-900">Preço com desconto:</span>
-                                                    <div className="text-right">
-                                                        <div className="line-through text-gray-500 text-xs">
-                                                            R$ {parseFloat(formData.price).toFixed(2)}
-                                                        </div>
-                                                        <div className="text-lg font-bold text-green-700">
-                                                            R$ {salePrice}
-                                                        </div>
+                                            <div className="text-sm w-full bg-green-50 border-2 border-green-200 p-4 rounded-lg">
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-medium text-gray-600">Preço Original:</span>
+                                                        <span className="line-through text-gray-500 font-medium">
+                                                            € {parseFloat(formData.price).toFixed(2)}
+                                                        </span>
                                                     </div>
+                                                    <div className="flex justify-between items-center pt-1 border-t border-green-200">
+                                                        <span className="font-bold text-green-900">Preço Final:</span>
+                                                        <span className="text-xl font-bold text-green-700">
+                                                            € {salePrice}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-green-600 text-center pt-1">
+                                                        Economia de {formData.salePercentage}% (€ {(parseFloat(formData.price) - parseFloat(salePrice)).toFixed(2)})
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -622,21 +797,55 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         {/* Adicionar nova variante */}
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 space-y-3 hover:border-gray-400 transition-colors">
                             <Label className="text-sm font-medium">Adicionar Nova Variante</Label>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                                 <div className="space-y-2">
                                     <Label className="text-xs font-medium text-gray-700">Tamanho *</Label>
-                                    <Select value={newVariant.size} onValueChange={(value) => setNewVariant({ ...newVariant, size: value })}>
-                                        <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-black">
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {SIZES.map((size) => (
-                                                <SelectItem key={size} value={size} className="cursor-pointer hover:bg-gray-100">
-                                                    {size}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <div className="flex gap-2">
+                                        <Select value={newVariant.size} onValueChange={(value) => setNewVariant({ ...newVariant, size: value })}>
+                                            <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-black h-10">
+                                                <SelectValue placeholder="Selecione" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {sizes.map((size) => (
+                                                    <div key={size} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                                                        <SelectItem value={size} className="flex-1 cursor-pointer border-0">
+                                                            {size}
+                                                        </SelectItem>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteSize(size);
+                                                            }}
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="h-10 w-10 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
+                                                        onClick={() => setShowNewSizeDialog(true)}
+                                                    >
+                                                        <FolderPlus className="w-4 h-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Criar novo tamanho</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
@@ -660,7 +869,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                     />
                                 </div>
 
-                                <Button type="button" onClick={addVariant} className="w-full mt-auto h-10 bg-black hover:bg-gray-800 text-white font-medium">
+                                <Button type="button" onClick={addVariant} className="h-10 bg-black hover:bg-gray-800 text-white font-medium">
                                     <Plus className="w-4 h-4 mr-2" />
                                     Adicionar
                                 </Button>
@@ -892,6 +1101,49 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                             </Button>
                             <Button type="button" onClick={handleCreateSeason}>
                                 Criar Estação
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog para criar novo tamanho */}
+            <Dialog open={showNewSizeDialog} onOpenChange={setShowNewSizeDialog}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Novo Tamanho</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="newSizeName">Nome do Tamanho *</Label>
+                            <Input
+                                id="newSizeName"
+                                value={newSizeName}
+                                onChange={(e) => setNewSizeName(e.target.value)}
+                                placeholder="Ex: 3XL, PP, G, 38, 40..."
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleCreateSize();
+                                    }
+                                }}
+                            />
+                            <p className="text-xs text-gray-500">O tamanho será convertido para maiúsculas</p>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setShowNewSizeDialog(false);
+                                    setNewSizeName('');
+                                }}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button type="button" onClick={handleCreateSize}>
+                                Criar Tamanho
                             </Button>
                         </div>
                     </div>

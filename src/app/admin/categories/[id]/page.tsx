@@ -120,8 +120,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         {/* Header */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
-            <Link 
-              href="/admin/categories" 
+            <Link
+              href="/admin/categories"
               className="inline-flex items-center justify-center h-10 w-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -186,7 +186,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                   <label className="text-xs sm:text-sm font-medium text-gray-700">Nome</label>
                   <p className="mt-1 text-sm sm:text-base text-gray-900">{category.name}</p>
                 </div>
-                
+
                 <div>
                   <label className="text-xs sm:text-sm font-medium text-gray-700">Slug</label>
                   <p className="mt-1 text-gray-600 font-mono text-xs sm:text-sm break-all">{category.slug}</p>
@@ -329,7 +329,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-sm sm:text-base text-gray-900 truncate">
                               {product.name}
@@ -338,7 +338,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                               €{Number(product.price).toFixed(2)}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                              <Badge 
+                              <Badge
                                 variant={product.stock > 0 ? 'default' : 'destructive'}
                                 className="text-xs"
                               >
@@ -346,7 +346,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                               </Badge>
                             </div>
                           </div>
-                          
+
                           <div className="flex-shrink-0">
                             <Link href={`/admin/products/${product.id}`}>
                               <Button size="sm" variant="outline" className="h-8">

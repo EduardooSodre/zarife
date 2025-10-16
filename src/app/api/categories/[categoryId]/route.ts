@@ -16,7 +16,7 @@ export async function GET(
       },
       include: {
         children: {
-          orderBy: { name: 'asc' },
+          orderBy: { name: "asc" },
         },
         products: {
           where: { isActive: true },
@@ -178,9 +178,13 @@ export async function PUT(
     console.log("📋 Categoria após atualização:", updatedCategory[0]);
 
     // Se tiver subcategorias para criar, criar todas
-    if (subcategories && Array.isArray(subcategories) && subcategories.length > 0) {
+    if (
+      subcategories &&
+      Array.isArray(subcategories) &&
+      subcategories.length > 0
+    ) {
       console.log("🔧 Criando subcategorias:", subcategories);
-      
+
       const subcategoryPromises = subcategories.map((subName: string) => {
         const subSlug = subName
           .toLowerCase()

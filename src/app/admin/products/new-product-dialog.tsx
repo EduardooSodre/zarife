@@ -64,6 +64,11 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     const [newSeasonName, setNewSeasonName] = useState('');
     const [newSizeName, setNewSizeName] = useState('');
 
+    // Estado para descrições adicionais
+    const [additionalDescriptions, setAdditionalDescriptions] = useState<Array<{ title: string; content: string }>>([]);
+    const [newDescTitle, setNewDescTitle] = useState('');
+    const [newDescContent, setNewDescContent] = useState('');
+
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -150,6 +155,21 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
     const handleRemoveSubcategory = (index: number) => {
         setSubcategories(subcategories.filter((_, i) => i !== index));
+    };
+
+    const handleAddDescription = () => {
+        if (newDescTitle.trim() && newDescContent.trim()) {
+            setAdditionalDescriptions([...additionalDescriptions, {
+                title: newDescTitle.trim(),
+                content: newDescContent.trim()
+            }]);
+            setNewDescTitle('');
+            setNewDescContent('');
+        }
+    };
+
+    const handleRemoveDescription = (index: number) => {
+        setAdditionalDescriptions(additionalDescriptions.filter((_, i) => i !== index));
     };
 
     const handleCreateCategory = async () => {
@@ -487,6 +507,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                     material: formData.material || null,
                     brand: formData.brand || null,
                     season: formData.season || null,
+                    additionalDescriptions: additionalDescriptions.length > 0 ? additionalDescriptions : null,
                     variants: variantsWithUploadedImages,
                 }),
             });
@@ -512,6 +533,9 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
             });
             setVariants([]);
             setNewVariant({ size: '', color: '', stock: '0' });
+            setAdditionalDescriptions([]);
+            setNewDescTitle('');
+            setNewDescContent('');
 
             setOpen(false);
             onCreated?.();
@@ -558,7 +582,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                             </div>
 
                             <div className="space-y-2 lg:col-span-2">
-                                <Label htmlFor="description" className="text-sm font-medium">Descrição</Label>
+                                <Label htmlFor="description" className="text-sm font-medium">Descrição Geral</Label>
                                 <Textarea
                                     id="description"
                                     name="description"
@@ -568,6 +592,85 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                     rows={4}
                                     className="resize-none"
                                 />
+                            </div>
+
+                            {/* Descrições Adicionais - Para Conjuntos */}
+                            <div className="space-y-3 lg:col-span-2 border-t pt-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <Label className="text-sm font-medium">Descrições Adicionais (Opcional)</Label>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Ideal para conjuntos: adicione descrição específica para cada peça (ex: Blusa, Saia)
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Adicionar nova descrição */}
+                                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="descTitle" className="text-xs font-medium">Título da Seção</Label>
+                                        <Input
+                                            id="descTitle"
+                                            value={newDescTitle}
+                                            onChange={(e) => setNewDescTitle(e.target.value)}
+                                            placeholder="Ex: DESCRIÇÃO DA BLUSA, DESCRIÇÃO DA SAIA..."
+                                            className="h-9 text-sm"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="descContent" className="text-xs font-medium">Conteúdo</Label>
+                                        <Textarea
+                                            id="descContent"
+                                            value={newDescContent}
+                                            onChange={(e) => setNewDescContent(e.target.value)}
+                                            placeholder="Descreva os detalhes desta peça específica..."
+                                            rows={3}
+                                            className="resize-none text-sm"
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        onClick={handleAddDescription}
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full"
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Adicionar Descrição
+                                    </Button>
+                                </div>
+
+                                {/* Lista de descrições adicionadas */}
+                                {additionalDescriptions.length > 0 && (
+                                    <div className="space-y-3">
+                                        {additionalDescriptions.map((desc, index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-white border-2 border-gray-200 rounded-lg p-4 space-y-2"
+                                            >
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex-1 space-y-1">
+                                                        <h4 className="font-semibold text-sm text-gray-900 uppercase">
+                                                            {desc.title}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                                                            {desc.content}
+                                                        </p>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 flex-shrink-0 ml-2"
+                                                        onClick={() => handleRemoveDescription(index)}
+                                                    >
+                                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

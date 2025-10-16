@@ -81,7 +81,7 @@ export default function DeletedProductsPage() {
                     setAlert({ type: 'error', message: 'Erro ao restaurar produto' });
                 }
             } else if (dialogAction === 'delete') {
-                const response = await fetch(`/api/admin/products/${selectedProduct.id}?force=true`, {
+                const response = await fetch(`/api/products/${selectedProduct.id}?force=true`, {
                     method: 'DELETE',
                 });
 
@@ -173,7 +173,7 @@ export default function DeletedProductsPage() {
                                 </p>
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -188,9 +188,11 @@ export default function DeletedProductsPage() {
                                     size="sm"
                                     onClick={() => openDialog(product.id, product.name, 'delete')}
                                     className="flex items-center gap-2"
+                                    disabled={product._count.orderItems > 0}
+                                    title={product._count.orderItems > 0 ? 'Produtos com pedidos não podem ser deletados permanentemente' : 'Deletar permanentemente'}
                                 >
                                     <Trash2 className="w-4 h-4" />
-                                    Deletar Permanentemente
+                                    {product._count.orderItems > 0 ? 'Não Deletável' : 'Deletar Permanentemente'}
                                 </Button>
                             </div>
                         </div>
@@ -221,7 +223,10 @@ export default function DeletedProductsPage() {
                                     Deseja deletar permanentemente o produto <span className="font-semibold">&quot;{selectedProduct?.name}&quot;</span>?
                                     <br />
                                     <br />
-                                    Todos os dados do produto serão removidos do banco de dados.
+                                    <span className="text-sm text-gray-600">
+                                        ⚠️ <strong>Importante:</strong> Apenas produtos SEM pedidos podem ser deletados permanentemente. 
+                                        Produtos com histórico de pedidos serão mantidos para preservar os registros de vendas.
+                                    </span>
                                 </>
                             )}
                         </AlertDialogDescription>

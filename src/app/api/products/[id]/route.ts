@@ -192,20 +192,22 @@ export async function DELETE(
       );
     }
 
-    // Se force=true e produto já está deletado, permitir exclusão permanente
-    if (force && existingProduct.deletedAt) {
-      await prisma.product.delete({
-        where: { id: id },
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: "Produto deletado permanentemente",
-      });
-    }
-
     // Verificar se existem pedidos com este produto
     if (existingProduct._count.orderItems > 0) {
+      // Se force=true, não permitir deleção permanente de produtos com pedidos
+      if (force && existingProduct.deletedAt) {
+        return NextResponse.json(
+          {
+            error: "Não é possível deletar permanentemente um produto com histórico de pedidos",
+            details: {
+              totalOrders: existingProduct._count.orderItems,
+              message: "Produtos com pedidos devem ser mantidos no sistema para preservar o histórico de vendas.",
+            },
+          },
+          { status: 400 }
+        );
+      }
+
       // Verificar se todos os pedidos estão com status DELIVERED
       const allDelivered = existingProduct.orderItems.every(
         (item) => item.order.status === "DELIVERED"
@@ -246,7 +248,20 @@ export async function DELETE(
       });
     }
 
-    // Sem pedidos, deletar permanentemente
+    // Sem pedidos - permitir deleção permanente
+    // Se force=true e produto está deletado, deletar permanentemente
+    if (force && existingProduct.deletedAt) {
+      await prisma.product.delete({
+        where: { id: id },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Produto deletado permanentemente",
+      });
+    }
+
+    // Se não tem pedidos e não está deletado, deletar permanentemente
     await prisma.product.delete({
       where: { id: id },
     });

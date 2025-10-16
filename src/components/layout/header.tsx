@@ -24,6 +24,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface HeaderCategory {
   id: string;
@@ -406,107 +412,160 @@ export default function Header() {
 
             {/* Right side actions */}
             <div className="hidden md:flex items-center space-x-3">
-              {/* Search - Mais elegante e alinhado */}
-              <div className="relative" ref={searchRef}>
-                {isSearchOpen ? (
-                  <form onSubmit={handleSearch} className="flex items-center bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Buscar produtos..."
-                      className="w-64 px-3 py-2 text-sm bg-transparent focus:outline-none"
-                      autoFocus
-                    />
-                    <button
-                      type="submit"
-                      className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                      aria-label="Buscar"
-                    >
-                      <Search className="w-4 h-4" />
-                    </button>
-                  </form>
-                ) : (
-                  <button
-                    onClick={() => setIsSearchOpen(true)}
-                    className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors"
-                    aria-label="Abrir busca"
-                  >
-                    <Search className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-
-              {/* User Authentication */}
-              <SignedOut>
-                <SignInButton>
-                  <button className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors" aria-label="Entrar">
-                    <User className="w-5 h-5" />
-                  </button>
-                </SignInButton>
-              </SignedOut>
-
-              <SignedIn>
-                <UserButton
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-6 h-6"
-                    }
-                  }}
-                />
-              </SignedIn>
-
-              {/* Favorites - Only show when signed in */}
-              <SignedIn>
-                <Link
-                  href="/favoritos"
-                  className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
-                  aria-label="Favoritos"
-                >
-                  <Heart className="w-5 h-5" />
-                  {favoritesCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none font-medium">
-                      {favoritesCount}
-                    </span>
+              <TooltipProvider>
+                {/* Search - Mais elegante e alinhado */}
+                <div className="relative" ref={searchRef}>
+                  {isSearchOpen ? (
+                    <form onSubmit={handleSearch} className="flex items-center bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar produtos..."
+                        className="w-64 px-3 py-2 text-sm bg-transparent focus:outline-none"
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                        aria-label="Buscar"
+                      >
+                        <Search className="w-4 h-4" />
+                      </button>
+                    </form>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setIsSearchOpen(true)}
+                          className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors"
+                          aria-label="Abrir busca"
+                        >
+                          <Search className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Pesquisar</p>
+                      </TooltipContent>
+                    </Tooltip>
                   )}
-                </Link>
-              </SignedIn>
+                </div>
 
-              {/* Meus Pedidos - Only show when signed in */}
-              <SignedIn>
-                <Link
-                  href="/meus-pedidos"
-                  className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
-                  aria-label="Meus Pedidos"
-                >
-                  <Package className="w-5 h-5" />
-                </Link>
-              </SignedIn>
+                {/* User Authentication */}
+                <SignedOut>
+                  <SignInButton>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors" aria-label="Entrar">
+                          <User className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Iniciar sessão</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </SignInButton>
+                </SignedOut>
 
-              {/* Admin - Only show when user is admin */}
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
-                  aria-label="Painel Admin"
-                >
-                  <Shield className="w-5 h-5" />
-                </Link>
-              )}
+                <SignedIn>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <UserButton
+                          appearance={{
+                            elements: {
+                              avatarBox: "w-6 h-6"
+                            }
+                          }}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Conta</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </SignedIn>
 
-              {/* Shopping Cart */}
-              <button
-                onClick={handleCartClick}
-                className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
-                aria-label="Carrinho de compras"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none font-medium">
-                    {totalItems}
-                  </span>
+                {/* Favorites - Only show when signed in */}
+                <SignedIn>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/favoritos"
+                        className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
+                        aria-label="Favoritos"
+                      >
+                        <Heart className="w-5 h-5" />
+                        {favoritesCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none font-medium">
+                            {favoritesCount}
+                          </span>
+                        )}
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Favoritos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </SignedIn>
+
+                {/* Meus Pedidos - Only show when signed in */}
+                <SignedIn>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/meus-pedidos"
+                        className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
+                        aria-label="Meus Pedidos"
+                      >
+                        <Package className="w-5 h-5" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Os meus pedidos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </SignedIn>
+
+                {/* Admin - Only show when user is admin */}
+                {isAdmin && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/admin"
+                        className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
+                        aria-label="Painel Admin"
+                      >
+                        <Shield className="w-5 h-5" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Painel de administração</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
-              </button>
+
+                {/* Shopping Cart */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleCartClick}
+                      className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
+                      aria-label="Carrinho de compras"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      {totalItems > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none font-medium">
+                          {totalItems}
+                        </span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Carrinho de compras</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
             {/* Mobile Menu Button - Right side */}

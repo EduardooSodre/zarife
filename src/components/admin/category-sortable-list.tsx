@@ -20,13 +20,14 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Eye } from 'lucide-react';
+import { GripVertical, Eye, Plus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DeleteCategoryButton } from '@/components/admin/delete-category-button';
 import { EditCategoryDialog } from '@/app/admin/categories/edit-category-dialog';
+import { NewCategoryDialog } from '@/components/admin/new-category-dialog';
 import {
   Tooltip,
   TooltipContent,
@@ -152,6 +153,25 @@ function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps
               </TooltipTrigger>
               <TooltipContent>
                 <p>Editar Categoria</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="inline-flex">
+                  <NewCategoryDialog
+                    parentId={category.id}
+                    onCreated={onDeleted}
+                    triggerButton={
+                      <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    }
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Adicionar Subcategoria</p>
               </TooltipContent>
             </Tooltip>
 

@@ -1,56 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, X } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { convertToBase64 } from "@/lib/upload";
 import Image from "next/image";
 
-interface Category {
-    id: string;
-    name: string;
-    description?: string | null;
-    isActive: boolean;
-    parentId?: string | null;
-}
-
 interface NewCategoryDialogProps {
     onCreated?: () => void;
+    parentId?: string | null;
+    triggerButton?: React.ReactNode;
 }
 
-export function NewCategoryDialog({ onCreated }: NewCategoryDialogProps) {
+export function NewCategoryDialog({ onCreated, parentId = null, triggerButton }: NewCategoryDialogProps) {
     const [open, setOpen] = useState(false);
     const [form, setForm] = useState({
         name: "",
         description: "",
         isActive: true,
-        parentId: "",
     });
     const [loading, setLoading] = useState(false);
-    const [categories, setCategories] = useState<Category[]>([]);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchCategories() {
-            try {
-                const response = await fetch('/api/categories');
-                if (response.ok) {
-                    const data = await response.json();
-                    setCategories(data.data || []);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar categorias:', error);
-            }
-        }
-
-        if (open) {
-            fetchCategories();
-        }
-    }, [open]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -91,7 +64,7 @@ export function NewCategoryDialog({ onCreated }: NewCategoryDialogProps) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...form,
-                    parentId: form.parentId || null,
+                    parentId: parentId || null,
                     image: imageBase64,
                 }),
             });
@@ -101,7 +74,6 @@ export function NewCategoryDialog({ onCreated }: NewCategoryDialogProps) {
                     name: "",
                     description: "",
                     isActive: true,
-                    parentId: "",
                 });
                 setImageFile(null);
                 setImagePreview(null);
@@ -122,14 +94,16 @@ export function NewCategoryDialog({ onCreated }: NewCategoryDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="flex items-center gap-2 bg-black hover:bg-black/90 text-white cursor-pointer">
-                    <Plus className="w-4 h-4" />
-                    Nova Categoria
-                </Button>
+                {triggerButton || (
+                    <Button className="flex items-center gap-2 bg-black hover:bg-black/90 text-white cursor-pointer">
+                        <Plus className="w-4 h-4" />
+                        {parentId ? "Nova Subcategoria" : "Nova Categoria"}
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="max-w-lg w-full">
                 <DialogHeader>
-                    <DialogTitle>Nova Categoria</DialogTitle>
+                    <DialogTitle>{parentId ? "Nova Subcategoria" : "Nova Categoria"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -153,28 +127,6 @@ export function NewCategoryDialog({ onCreated }: NewCategoryDialogProps) {
                             rows={3}
                             placeholder="Descrição da categoria (opcional)"
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <Label className="block text-sm font-medium mb-1">Categoria Pai (Subcategoria)</Label>
-                        <Select
-                            value={form.parentId || "none"}
-                            onValueChange={(value) => setForm({ ...form, parentId: value === "none" ? "" : value })}
-                        >
-                            <SelectTrigger className="border-2 border-gray-300 bg-white focus:border-black">
-                                <SelectValue placeholder="Nenhuma (categoria principal)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">Nenhuma (categoria principal)</SelectItem>
-                                {categories.map((cat) => (
-                                    <SelectItem key={cat.id} value={cat.id}>
-                                        {cat.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <p className="text-xs text-gray-500">
-                            Deixe vazio para criar uma categoria principal ou selecione uma categoria existente para criar uma subcategoria.
-                        </p>
                     </div>
                     <div className="space-y-2">
                         <Label className="block text-sm font-medium mb-1">Imagem (Opcional)</Label>

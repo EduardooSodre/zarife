@@ -198,10 +198,12 @@ export async function DELETE(
       if (force && existingProduct.deletedAt) {
         return NextResponse.json(
           {
-            error: "Não é possível deletar permanentemente um produto com histórico de pedidos",
+            error:
+              "Não é possível deletar permanentemente um produto com histórico de pedidos",
             details: {
               totalOrders: existingProduct._count.orderItems,
-              message: "Produtos com pedidos devem ser mantidos no sistema para preservar o histórico de vendas.",
+              message:
+                "Produtos com pedidos devem ser mantidos no sistema para preservar o histórico de vendas.",
             },
           },
           { status: 400 }

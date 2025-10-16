@@ -224,7 +224,7 @@ export default function DeletedProductsPage() {
                                     <br />
                                     <br />
                                     <span className="text-sm text-gray-600">
-                                        ⚠️ <strong>Importante:</strong> Apenas produtos SEM pedidos podem ser deletados permanentemente. 
+                                        ⚠️ <strong>Importante:</strong> Apenas produtos SEM pedidos podem ser deletados permanentemente.
                                         Produtos com histórico de pedidos serão mantidos para preservar os registros de vendas.
                                     </span>
                                 </>

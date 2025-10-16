@@ -51,6 +51,7 @@ export default function Header() {
   const [categories, setCategories] = useState<HeaderCategory[]>([])
   const [isScrolled, setIsScrolled] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const searchRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const { user } = useUser()
@@ -160,6 +161,18 @@ export default function Header() {
     setIsOpen(true)
   }
 
+  const toggleCategory = (categorySlug: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(categorySlug)) {
+        newSet.delete(categorySlug)
+      } else {
+        newSet.add(categorySlug)
+      }
+      return newSet
+    })
+  }
+
   // Encontrar categorias específicas
   const roupasCategory = categories.find(cat => cat.slug === 'roupas')
   const vestidosCategory = categories.find(cat => cat.slug === 'vestidos')
@@ -183,8 +196,28 @@ export default function Header() {
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            {/* Logo - Always on the left */}
-            <Link href="/" className="flex items-center">
+            {/* Mobile: User Button - Left */}
+            <div className="md:hidden flex items-center">
+              <SignedIn>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8"
+                    }
+                  }}
+                />
+              </SignedIn>
+              <SignedOut>
+                <SignInButton>
+                  <button className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors" aria-label="Entrar">
+                    <User className="w-6 h-6" />
+                  </button>
+                </SignInButton>
+              </SignedOut>
+            </div>
+
+            {/* Desktop: Logo - Left / Mobile: Logo - Center */}
+            <Link href="/" className="flex items-center md:relative absolute left-1/2 md:left-0 transform -translate-x-1/2 md:transform-none">
               <Image
                 src="/ZARIFE_LOGO.png"
                 alt="Zarife"
@@ -512,28 +545,6 @@ export default function Header() {
                       </button>
                     </form>
 
-                    {/* User Info */}
-                    <SignedIn>
-                      <div className="flex items-center justify-between">
-                        <UserButton
-                          appearance={{
-                            elements: {
-                              avatarBox: "w-8 h-8"
-                            }
-                          }}
-                        />
-                      </div>
-                    </SignedIn>
-
-                    <SignedOut>
-                      <SignInButton>
-                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors">
-                          <User className="w-4 h-4" />
-                          Entrar
-                        </button>
-                      </SignInButton>
-                    </SignedOut>
-
                     {/* Quick Actions */}
                     <div className="grid grid-cols-3 gap-2">
                       <SignedIn>
@@ -595,17 +606,22 @@ export default function Header() {
                         {/* ROUPAS */}
                         {roupasCategory && (
                           <div className="border-b border-gray-100">
-                            <Link
-                              href={roupasCategory.href}
-                              className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
-                              onClick={() => setIsMobileMenuOpen(false)}
+                            <button
+                              onClick={() => toggleCategory(roupasCategory.slug)}
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{roupasCategory.name}</span>
-                              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg 
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(roupasCategory.slug) ? 'rotate-90' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
-                            </Link>
-                            <div className="bg-gradient-to-r from-gray-50 to-white">
+                            </button>
+                            {expandedCategories.has(roupasCategory.slug) && (
+                              <div className="bg-gradient-to-r from-gray-50 to-white">
                               {roupasCategory.children.map((item, idx) => (
                                 <div key={item.name} className={idx > 0 ? 'border-t border-gray-100/50' : ''}>
                                   <Link
@@ -637,119 +653,144 @@ export default function Header() {
                                   )}
                                 </div>
                               ))}
-                            </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
                         {/* VESTIDOS */}
                         {vestidosCategory && (
                           <div className="border-b border-gray-100">
-                            <Link
-                              href={vestidosCategory.href}
-                              className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
-                              onClick={() => setIsMobileMenuOpen(false)}
+                            <button
+                              onClick={() => toggleCategory(vestidosCategory.slug)}
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{vestidosCategory.name}</span>
-                              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg 
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(vestidosCategory.slug) ? 'rotate-90' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
-                            </Link>
-                            <div className="bg-gradient-to-r from-gray-50 to-white">
-                              {vestidosCategory.children.map((item, idx) => (
-                                <Link
-                                  key={item.name}
-                                  href={item.href}
-                                  className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  <span>{item.name}</span>
-                                </Link>
-                              ))}
-                            </div>
+                            </button>
+                            {expandedCategories.has(vestidosCategory.slug) && (
+                              <div className="bg-gradient-to-r from-gray-50 to-white">
+                                {vestidosCategory.children.map((item, idx) => (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                  >
+                                    <span>{item.name}</span>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
 
                         {/* CONJUNTOS */}
                         {conjuntosCategory && (
                           <div className="border-b border-gray-100">
-                            <Link
-                              href={conjuntosCategory.href}
-                              className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
-                              onClick={() => setIsMobileMenuOpen(false)}
+                            <button
+                              onClick={() => toggleCategory(conjuntosCategory.slug)}
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{conjuntosCategory.name}</span>
-                              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg 
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(conjuntosCategory.slug) ? 'rotate-90' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
-                            </Link>
-                            <div className="bg-gradient-to-r from-gray-50 to-white">
-                              {conjuntosCategory.children.map((item, idx) => (
-                                <Link
-                                  key={item.name}
-                                  href={item.href}
-                                  className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  <span>{item.name}</span>
-                                </Link>
-                              ))}
-                            </div>
+                            </button>
+                            {expandedCategories.has(conjuntosCategory.slug) && (
+                              <div className="bg-gradient-to-r from-gray-50 to-white">
+                                {conjuntosCategory.children.map((item, idx) => (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                  >
+                                    <span>{item.name}</span>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
 
                         {/* MODA PRAIA */}
                         {modaPraiaCategory && (
                           <div className="border-b border-gray-100">
-                            <Link
-                              href={modaPraiaCategory.href}
-                              className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
-                              onClick={() => setIsMobileMenuOpen(false)}
+                            <button
+                              onClick={() => toggleCategory(modaPraiaCategory.slug)}
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{modaPraiaCategory.name}</span>
-                              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg 
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(modaPraiaCategory.slug) ? 'rotate-90' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
-                            </Link>
-                            <div className="bg-gradient-to-r from-gray-50 to-white">
-                              {modaPraiaCategory.children.map((item, idx) => (
-                                <Link
-                                  key={item.name}
-                                  href={item.href}
-                                  className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  <span>{item.name}</span>
-                                </Link>
-                              ))}
-                            </div>
+                            </button>
+                            {expandedCategories.has(modaPraiaCategory.slug) && (
+                              <div className="bg-gradient-to-r from-gray-50 to-white">
+                                {modaPraiaCategory.children.map((item, idx) => (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                  >
+                                    <span>{item.name}</span>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
 
                         {/* LOOK COMPLETO */}
                         {lookCompletoCategory && (
                           <div className="border-b border-gray-100">
-                            <Link
-                              href={lookCompletoCategory.href}
-                              className="flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
-                              onClick={() => setIsMobileMenuOpen(false)}
+                            <button
+                              onClick={() => toggleCategory(lookCompletoCategory.slug)}
+                              className="w-full flex items-center justify-between px-4 py-3.5 text-sm font-bold text-gray-900 hover:bg-gray-50 tracking-wide transition-colors group"
                             >
                               <span>{lookCompletoCategory.name}</span>
-                              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg 
+                                className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${expandedCategories.has(lookCompletoCategory.slug) ? 'rotate-90' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
-                            </Link>
-                            <div className="bg-gradient-to-r from-gray-50 to-white">
-                              {lookCompletoCategory.children.map((item, idx) => (
-                                <Link
-                                  key={item.name}
-                                  href={item.href}
-                                  className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  <span>{item.name}</span>
-                                </Link>
-                              ))}
-                            </div>
+                            </button>
+                            {expandedCategories.has(lookCompletoCategory.slug) && (
+                              <div className="bg-gradient-to-r from-gray-50 to-white">
+                                {lookCompletoCategory.children.map((item, idx) => (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center justify-between px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-black transition-all duration-150 ${idx > 0 ? 'border-t border-gray-100/50' : ''}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                  >
+                                    <span>{item.name}</span>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

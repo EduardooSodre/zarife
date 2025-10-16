@@ -76,9 +76,8 @@ function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-white border border-gray-200 rounded-lg p-4 ${
-        isDragging ? 'opacity-60 z-50 shadow-lg' : 'hover:shadow-md'
-      } ${!category.isActive ? 'opacity-60 bg-gray-50' : ''} transition-all duration-200`}
+      className={`bg-white border border-gray-200 rounded-lg p-4 ${isDragging ? 'opacity-60 z-50 shadow-lg' : 'hover:shadow-md'
+        } ${!category.isActive ? 'opacity-60 bg-gray-50' : ''} transition-all duration-200`}
     >
       <div className="flex items-center gap-4">
         {/* Drag Handle */}
@@ -159,8 +158,8 @@ function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="inline-flex">
-                  <DeleteCategoryButton 
-                    categoryId={category.id} 
+                  <DeleteCategoryButton
+                    categoryId={category.id}
                     categoryName={category.name}
                     hasProducts={category._count.products > 0}
                     onDeleted={onDeleted}

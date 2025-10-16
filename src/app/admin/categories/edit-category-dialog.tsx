@@ -85,12 +85,12 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 		setLoading(true);
 		try {
 			let imageBase64 = imagePreview;
-			
+
 			// Se tem um novo arquivo, converte para base64
 			if (imageFile) {
 				imageBase64 = await convertToBase64(imageFile);
 			}
-			
+
 			const res = await fetch(`/api/categories/${category.id}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },

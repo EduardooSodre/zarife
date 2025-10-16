@@ -42,19 +42,20 @@ interface NewProductDialogProps {
 }
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const SEASONS = ['Primavera', 'Verão', 'Outono', 'Inverno', 'Atemporal'];
-
 export function NewProductDialog({ onCreated, buttonText = "Novo Produto", buttonClassName }: NewProductDialogProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [seasons, setSeasons] = useState<string[]>(['Primavera', 'Verão', 'Outono', 'Inverno', 'Atemporal']);
     const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
     const [showNewCategoryDialog, setShowNewCategoryDialog] = useState(false);
+    const [showNewSeasonDialog, setShowNewSeasonDialog] = useState(false);
     const [newCategoryForm, setNewCategoryForm] = useState({
         name: '',
         description: '',
         parentId: '',
     });
+    const [newSeasonName, setNewSeasonName] = useState('');
 
     const [formData, setFormData] = useState({
         name: '',
@@ -162,6 +163,29 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         } catch (error) {
             alert(error instanceof Error ? error.message : 'Erro ao criar categoria');
         }
+    };
+
+    const handleCreateSeason = () => {
+        if (!newSeasonName.trim()) {
+            alert('Nome da estação é obrigatório');
+            return;
+        }
+
+        // Verificar se já existe
+        if (seasons.some(s => s.toLowerCase() === newSeasonName.toLowerCase())) {
+            alert('Esta estação já existe');
+            return;
+        }
+
+        // Adicionar nova estação
+        setSeasons([...seasons, newSeasonName]);
+        
+        // Selecionar a nova estação
+        setFormData({ ...formData, season: newSeasonName });
+
+        // Resetar form e fechar dialog
+        setNewSeasonName('');
+        setShowNewSeasonDialog(false);
     };
 
     const addVariant = () => {
@@ -414,18 +438,38 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
                                 <div className="space-y-2">
                                     <Label htmlFor="season" className="text-sm font-medium">Estação</Label>
-                                    <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
-                                        <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {SEASONS.map((season) => (
-                                                <SelectItem key={season} value={season} className="cursor-pointer hover:bg-gray-100">
-                                                    {season}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <div className="flex gap-2">
+                                        <Select value={formData.season} onValueChange={(value) => setFormData({ ...formData, season: value })}>
+                                            <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
+                                                <SelectValue placeholder="Selecione" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {seasons.map((season) => (
+                                                    <SelectItem key={season} value={season} className="cursor-pointer hover:bg-gray-100">
+                                                        {season}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="h-9 w-9 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
+                                                        onClick={() => setShowNewSeasonDialog(true)}
+                                                    >
+                                                        <FolderPlus className="w-4 h-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Criar nova estação</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
                                 </div>
                             </div>
 
@@ -806,6 +850,48 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                             </Button>
                             <Button type="button" onClick={handleCreateCategory}>
                                 Criar Categoria
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog para criar nova estação */}
+            <Dialog open={showNewSeasonDialog} onOpenChange={setShowNewSeasonDialog}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Nova Estação</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="newSeasonName">Nome da Estação *</Label>
+                            <Input
+                                id="newSeasonName"
+                                value={newSeasonName}
+                                onChange={(e) => setNewSeasonName(e.target.value)}
+                                placeholder="Ex: Primavera/Verão, Alto Verão..."
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleCreateSeason();
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setShowNewSeasonDialog(false);
+                                    setNewSeasonName('');
+                                }}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button type="button" onClick={handleCreateSeason}>
+                                Criar Estação
                             </Button>
                         </div>
                     </div>

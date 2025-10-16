@@ -41,6 +41,19 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Traduzir status para português
+  const translateStatus = (status: string): string => {
+    const statusMap: Record<string, string> = {
+      'PAID': 'PAGO',
+      'PENDING': 'PENDENTE',
+      'SHIPPED': 'ENVIADO',
+      'DELIVERED': 'ENTREGUE',
+      'CANCELLED': 'CANCELADO',
+      'PROCESSING': 'PROCESSANDO'
+    };
+    return statusMap[status] || status;
+  };
+
   useEffect(() => {
     async function fetchDashboardData() {
       try {
@@ -256,7 +269,7 @@ export default function AdminDashboard() {
                                 ? "bg-red-100 text-red-800"
                                 : "bg-yellow-100 text-yellow-800"
                           }`}>
-                          {order.status}
+                          {translateStatus(order.status)}
                         </span>
                       </div>
                     </div>

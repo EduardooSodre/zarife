@@ -15,6 +15,9 @@ export async function GET(
         id: categoryId,
       },
       include: {
+        children: {
+          orderBy: { name: 'asc' },
+        },
         products: {
           where: { isActive: true },
           include: {
@@ -65,7 +68,7 @@ export async function PUT(
       );
     }
 
-    const { name, description, image, isActive, parentId } =
+    const { name, description, image, isActive, parentId, subcategories } =
       await request.json();
 
     console.log("📝 Dados recebidos para atualizar categoria:", {
@@ -76,6 +79,7 @@ export async function PUT(
       imageLength: image?.length,
       isActive,
       parentId,
+      subcategories,
     });
 
     if (!name || name.trim() === "") {
@@ -172,6 +176,34 @@ export async function PUT(
     }>;
 
     console.log("📋 Categoria após atualização:", updatedCategory[0]);
+
+    // Se tiver subcategorias para criar, criar todas
+    if (subcategories && Array.isArray(subcategories) && subcategories.length > 0) {
+      console.log("🔧 Criando subcategorias:", subcategories);
+      
+      const subcategoryPromises = subcategories.map((subName: string) => {
+        const subSlug = subName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .trim();
+
+        return prisma.category.create({
+          data: {
+            name: subName.trim(),
+            slug: subSlug,
+            isActive: true,
+            parentId: categoryId,
+          },
+        });
+      });
+
+      await Promise.all(subcategoryPromises);
+      console.log("✅ Subcategorias criadas com sucesso");
+    }
 
     // Revalidar cache das páginas relacionadas
     revalidatePath("/");

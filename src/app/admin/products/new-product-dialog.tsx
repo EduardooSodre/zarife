@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Loader2, Tag, X, FolderPlus } from "lucide-react";
+import { Plus, Loader2, Tag, X, FolderPlus, Trash2, Upload } from "lucide-react";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { convertToBase64 } from "@/lib/upload";
 
 interface Category {
     id: string;
@@ -55,7 +57,10 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         name: '',
         description: '',
         parentId: '',
+        image: '',
     });
+    const [subcategories, setSubcategories] = useState<string[]>([]);
+    const [newSubcategory, setNewSubcategory] = useState('');
     const [newSeasonName, setNewSeasonName] = useState('');
     const [newSizeName, setNewSizeName] = useState('');
 
@@ -136,9 +141,26 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         }));
     };
 
+    const handleAddSubcategory = () => {
+        if (newSubcategory.trim() && !subcategories.includes(newSubcategory.trim())) {
+            setSubcategories([...subcategories, newSubcategory.trim()]);
+            setNewSubcategory('');
+        }
+    };
+
+    const handleRemoveSubcategory = (index: number) => {
+        setSubcategories(subcategories.filter((_, i) => i !== index));
+    };
+
     const handleCreateCategory = async () => {
         if (!newCategoryForm.name.trim()) {
             alert('Nome da categoria é obrigatório');
+            return;
+        }
+
+        // Se tiver parentId, não pode ter subcategorias
+        if (newCategoryForm.parentId && subcategories.length > 0) {
+            alert('Subcategorias só podem ser criadas em categorias principais');
             return;
         }
 
@@ -150,7 +172,9 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                     name: newCategoryForm.name,
                     description: newCategoryForm.description,
                     parentId: newCategoryForm.parentId || null,
+                    image: newCategoryForm.image || null,
                     isActive: true,
+                    subcategories: !newCategoryForm.parentId && subcategories.length > 0 ? subcategories : undefined,
                 }),
             });
 
@@ -172,7 +196,9 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
             setFormData({ ...formData, categoryId: result.data.id });
 
             // Resetar form e fechar dialog
-            setNewCategoryForm({ name: '', description: '', parentId: '' });
+            setNewCategoryForm({ name: '', description: '', parentId: '', image: '' });
+            setSubcategories([]);
+            setNewSubcategory('');
             setShowNewCategoryDialog(false);
 
             alert('Categoria criada com sucesso!');
@@ -555,25 +581,54 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                             <SelectValue placeholder="Selecione" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {categories.map((category) => (
-                                                <div key={category.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
-                                                    <SelectItem value={category.id} className="flex-1 cursor-pointer border-0">
-                                                        {category.name}
-                                                    </SelectItem>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteCategory(category.id);
-                                                        }}
-                                                    >
-                                                        <X className="w-4 h-4" />
-                                                    </Button>
-                                                </div>
-                                            ))}
+                                            {/* Categorias Principais */}
+                                            {categories
+                                                .filter(cat => !cat.slug.includes('/'))
+                                                .sort((a, b) => a.name.localeCompare(b.name))
+                                                .map((category) => (
+                                                    <div key={category.id}>
+                                                        <div className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                                                            <SelectItem value={category.id} className="flex-1 cursor-pointer border-0 font-semibold">
+                                                                {category.name}
+                                                            </SelectItem>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteCategory(category.id);
+                                                                }}
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </Button>
+                                                        </div>
+                                                        {/* Subcategorias */}
+                                                        {categories
+                                                            .filter(sub => sub.slug.startsWith(`${category.slug}/`))
+                                                            .sort((a, b) => a.name.localeCompare(b.name))
+                                                            .map((subcategory) => (
+                                                                <div key={subcategory.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group ml-4">
+                                                                    <SelectItem value={subcategory.id} className="flex-1 cursor-pointer border-0 text-gray-700">
+                                                                        └─ {subcategory.name}
+                                                                    </SelectItem>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-6 w-6 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleDeleteCategory(subcategory.id);
+                                                                        }}
+                                                                    >
+                                                                        <X className="w-4 h-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                ))}
                                         </SelectContent>
                                     </Select>
                                     <TooltipProvider>
@@ -1000,7 +1055,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
             {/* Dialog para criar nova categoria */}
             <Dialog open={showNewCategoryDialog} onOpenChange={setShowNewCategoryDialog}>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Nova Categoria</DialogTitle>
                     </DialogHeader>
@@ -1027,32 +1082,153 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="newCategoryParent">Categoria Pai (Subcategoria)</Label>
+                            <Label htmlFor="newCategoryParent">Tipo de Categoria</Label>
                             <Select
                                 value={newCategoryForm.parentId || "none"}
                                 onValueChange={(value) => setNewCategoryForm({ ...newCategoryForm, parentId: value === "none" ? "" : value })}
                             >
                                 <SelectTrigger className="border-2 border-gray-300 bg-white focus:border-black">
-                                    <SelectValue placeholder="Nenhuma (categoria principal)" />
+                                    <SelectValue placeholder="Categoria Principal" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="none">Nenhuma (categoria principal)</SelectItem>
+                                    <SelectItem value="none">Categoria Principal</SelectItem>
                                     {categories.filter(c => !c.slug.includes('/')).map((category) => (
                                         <SelectItem key={category.id} value={category.id}>
-                                            {category.name}
+                                            Subcategoria de {category.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
+                            <p className="text-xs text-gray-500">
+                                Categorias principais podem ter imagem e subcategorias
+                            </p>
                         </div>
 
-                        <div className="flex justify-end gap-2 pt-2">
+                        {/* Imagem - apenas para categorias principais */}
+                        {!newCategoryForm.parentId && (
+                            <div className="space-y-2">
+                                <Label htmlFor="newCategoryImage">Imagem da Categoria</Label>
+                                <div className="space-y-3">
+                                    {newCategoryForm.image ? (
+                                        <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-200">
+                                            <Image
+                                                src={newCategoryForm.image}
+                                                alt="Preview"
+                                                fill
+                                                className="object-cover"
+                                                sizes="(max-width: 768px) 100vw, 600px"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="icon"
+                                                className="absolute top-2 right-2 h-8 w-8 z-10"
+                                                onClick={() => setNewCategoryForm({ ...newCategoryForm, image: '' })}
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-center w-full">
+                                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                                                    <p className="mb-2 text-sm text-gray-500">
+                                                        <span className="font-semibold">Clique para fazer upload</span>
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">PNG, JPG ou WEBP</p>
+                                                </div>
+                                                <input
+                                                    id="newCategoryImage"
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            try {
+                                                                const base64 = await convertToBase64(file);
+                                                                setNewCategoryForm({ ...newCategoryForm, image: base64 });
+                                                            } catch (error) {
+                                                                console.error('Erro ao converter imagem:', error);
+                                                                alert('Erro ao processar imagem');
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Subcategorias - apenas para categorias principais */}
+                        {!newCategoryForm.parentId && (
+                            <div className="space-y-3 border-t pt-4">
+                                <div>
+                                    <Label className="text-sm font-medium">Subcategorias</Label>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Adicione subcategorias para organizar melhor seus produtos
+                                    </p>
+                                </div>
+                                
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={newSubcategory}
+                                        onChange={(e) => setNewSubcategory(e.target.value)}
+                                        placeholder="Nome da subcategoria"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleAddSubcategory();
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        type="button"
+                                        onClick={handleAddSubcategory}
+                                        size="icon"
+                                        variant="outline"
+                                        className="flex-shrink-0"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                    </Button>
+                                </div>
+
+                                {subcategories.length > 0 && (
+                                    <div className="space-y-2">
+                                        {subcategories.map((sub, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center justify-between p-2 bg-gray-50 rounded border"
+                                            >
+                                                <span className="text-sm">{sub}</span>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    onClick={() => handleRemoveSubcategory(index)}
+                                                >
+                                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-2 pt-2 border-t">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => {
                                     setShowNewCategoryDialog(false);
-                                    setNewCategoryForm({ name: '', description: '', parentId: '' });
+                                    setNewCategoryForm({ name: '', description: '', parentId: '', image: '' });
+                                    setSubcategories([]);
+                                    setNewSubcategory('');
                                 }}
                             >
                                 Cancelar

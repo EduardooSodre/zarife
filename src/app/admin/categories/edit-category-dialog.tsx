@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Edit, Upload, X } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { convertToBase64 } from "@/lib/upload";
 import Image from "next/image";
@@ -29,31 +28,10 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 		name: category.name,
 		description: category.description || "",
 		isActive: category.isActive,
-		parentId: category.parentId || "",
 	});
 	const [loading, setLoading] = useState(false);
-	const [categories, setCategories] = useState<Category[]>([]);
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreview, setImagePreview] = useState<string | null>(category.image || null);
-
-	useEffect(() => {
-		async function fetchCategories() {
-			try {
-				const response = await fetch('/api/categories');
-				if (response.ok) {
-					const data = await response.json();
-					// Filtrar para não permitir que a categoria seja sua própria pai
-					setCategories((data.data || []).filter((c: Category) => c.id !== category.id));
-				}
-			} catch (error) {
-				console.error('Erro ao carregar categorias:', error);
-			}
-		}
-
-		if (open) {
-			fetchCategories();
-		}
-	}, [open, category.id]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		const { name, value, type } = e.target;
@@ -86,8 +64,8 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 		try {
 			let imageBase64 = imagePreview;
 
-			// Se tem um novo arquivo, converte para base64
-			if (imageFile) {
+			// Se tem um novo arquivo e não é subcategoria, converte para base64
+			if (imageFile && !category.parentId) {
 				imageBase64 = await convertToBase64(imageFile);
 			}
 
@@ -96,7 +74,8 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					...form,
-					image: imageBase64,
+					// Só envia imagem se não for subcategoria
+					image: !category.parentId ? imageBase64 : undefined,
 				}),
 			});
 			if (res.ok) {
@@ -130,63 +109,46 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 						<Label className="block text-sm font-medium mb-1">Descrição</Label>
 						<textarea name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-3 py-2" rows={3} placeholder="Descrição da categoria (opcional)" />
 					</div>
-					<div className="space-y-2">
-						<Label className="block text-sm font-medium mb-1">Categoria Pai (Subcategoria)</Label>
-						<Select
-							value={form.parentId || "none"}
-							onValueChange={(value) => setForm({ ...form, parentId: value === "none" ? "" : value })}
-						>
-							<SelectTrigger className="border-2 border-gray-300 bg-white focus:border-black">
-								<SelectValue placeholder="Nenhuma (categoria principal)" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="none">Nenhuma (categoria principal)</SelectItem>
-								{categories.map((cat) => (
-									<SelectItem key={cat.id} value={cat.id}>
-										{cat.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-					<div className="space-y-2">
-						<Label className="block text-sm font-medium mb-1">Imagem (Opcional)</Label>
-						{imagePreview ? (
-							<div className="relative w-full h-40 border-2 border-gray-300 rounded-lg overflow-hidden">
-								<Image
-									src={imagePreview}
-									alt="Preview"
-									fill
-									className="object-cover"
-								/>
-								<Button
-									type="button"
-									variant="destructive"
-									size="sm"
-									onClick={handleRemoveImage}
-									className="absolute top-2 right-2 h-8 w-8 p-0"
-								>
-									<X className="w-4 h-4" />
-								</Button>
-							</div>
-						) : (
-							<label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-								<div className="flex flex-col items-center justify-center pt-5 pb-6">
-									<Upload className="w-10 h-10 mb-3 text-gray-400" />
-									<p className="mb-2 text-sm text-gray-500">
-										<span className="font-semibold">Clique para fazer upload</span>
-									</p>
-									<p className="text-xs text-gray-400">PNG, JPG ou WEBP (MAX. 5MB)</p>
+					{!category.parentId && (
+						<div className="space-y-2">
+							<Label className="block text-sm font-medium mb-1">Imagem (Opcional)</Label>
+							{imagePreview ? (
+								<div className="relative w-full h-40 border-2 border-gray-300 rounded-lg overflow-hidden">
+									<Image
+										src={imagePreview}
+										alt="Preview"
+										fill
+										className="object-cover"
+									/>
+									<Button
+										type="button"
+										variant="destructive"
+										size="sm"
+										onClick={handleRemoveImage}
+										className="absolute top-2 right-2 h-8 w-8 p-0"
+									>
+										<X className="w-4 h-4" />
+									</Button>
 								</div>
-								<input
-									type="file"
-									className="hidden"
-									accept="image/*"
-									onChange={handleImageChange}
-								/>
-							</label>
-						)}
-					</div>
+							) : (
+								<label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+									<div className="flex flex-col items-center justify-center pt-5 pb-6">
+										<Upload className="w-10 h-10 mb-3 text-gray-400" />
+										<p className="mb-2 text-sm text-gray-500">
+											<span className="font-semibold">Clique para fazer upload</span>
+										</p>
+										<p className="text-xs text-gray-400">PNG, JPG ou WEBP (MAX. 5MB)</p>
+									</div>
+									<input
+										type="file"
+										className="hidden"
+										accept="image/*"
+										onChange={handleImageChange}
+									/>
+								</label>
+							)}
+						</div>
+					)}
 					<div className="flex items-center gap-2">
 						<input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} id="isActive" title="Categoria Ativa" />
 						<Label htmlFor="isActive" className="text-sm">Categoria Ativa</Label>

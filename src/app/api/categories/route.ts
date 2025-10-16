@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, description, image, isActive, parentId } =
+    const { name, description, image, isActive, parentId, subcategories } =
       await request.json();
 
     if (!name || name.trim() === "") {
@@ -83,6 +83,31 @@ export async function POST(request: NextRequest) {
         parent: true,
       },
     });
+
+    // Se tiver subcategorias, criar todas
+    if (subcategories && Array.isArray(subcategories) && subcategories.length > 0) {
+      const subcategoryPromises = subcategories.map((subName: string) => {
+        const subSlug = subName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .trim();
+
+        return prisma.category.create({
+          data: {
+            name: subName.trim(),
+            slug: subSlug,
+            isActive: true,
+            parentId: category.id,
+          },
+        });
+      });
+
+      await Promise.all(subcategoryPromises);
+    }
 
     return NextResponse.json(
       { success: true, data: category },

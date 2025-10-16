@@ -20,7 +20,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Eye, Plus } from 'lucide-react';
+import { GripVertical, Eye, Plus, MoreVertical, Edit, Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,13 @@ import { Button } from '@/components/ui/button';
 import { DeleteCategoryButton } from '@/components/admin/delete-category-button';
 import { EditCategoryDialog } from '@/app/admin/categories/edit-category-dialog';
 import { NewCategoryDialog } from '@/components/admin/new-category-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
@@ -130,68 +137,147 @@ function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps
         </div>
 
         {/* Ações */}
-        <TooltipProvider>
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={`/admin/categories/${category.id}`}>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+        <div className="flex items-center gap-1">
+          {/* Desktop: Botões com Tooltips */}
+          <TooltipProvider>
+            <div className="hidden sm:flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href={`/admin/categories/${category.id}`}>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Ver Detalhes</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="inline-flex">
+                    <EditCategoryDialog category={category} onUpdated={onDeleted} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Editar Categoria</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="inline-flex">
+                    <NewCategoryDialog
+                      parentId={category.id}
+                      onCreated={onDeleted}
+                      triggerButton={
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      }
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Adicionar Subcategoria</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="inline-flex">
+                    <DeleteCategoryButton
+                      categoryId={category.id}
+                      categoryName={category.name}
+                      hasProducts={category._count.products > 0}
+                      onDeleted={onDeleted}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Deletar Categoria</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
+
+          {/* Mobile: Dropdown Menu */}
+          <div className="sm:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={`/admin/categories/${category.id}`} className="flex items-center gap-2 cursor-pointer">
                     <Eye className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Ver Detalhes</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="inline-flex">
-                  <EditCategoryDialog category={category} onUpdated={onDeleted} />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Editar Categoria</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="inline-flex">
-                  <NewCategoryDialog
-                    parentId={category.id}
-                    onCreated={onDeleted}
-                    triggerButton={
-                      <Button variant="outline" size="sm" className="h-8 w-8 p-0 cursor-pointer">
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    }
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Adicionar Subcategoria</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="inline-flex">
-                  <DeleteCategoryButton
-                    categoryId={category.id}
-                    categoryName={category.name}
-                    hasProducts={category._count.products > 0}
-                    onDeleted={onDeleted}
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Deletar Categoria</p>
-              </TooltipContent>
-            </Tooltip>
+                    Ver Detalhes
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const editButton = document.querySelector(`[data-category-id="${category.id}"] button[data-edit]`) as HTMLButtonElement;
+                    editButton?.click();
+                  }}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Edit className="w-4 h-4" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const addSubButton = document.querySelector(`[data-category-id="${category.id}"] button[data-add-sub]`) as HTMLButtonElement;
+                    addSubButton?.click();
+                  }}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  Adicionar Subcategoria
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const deleteButton = document.querySelector(`[data-category-id="${category.id}"] button[data-delete]`) as HTMLButtonElement;
+                    deleteButton?.click();
+                  }}
+                  className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-700"
+                  disabled={category._count.products > 0}
+                >
+                  <Trash className="w-4 h-4" />
+                  Deletar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </TooltipProvider>
+
+          {/* Hidden triggers for mobile dropdown */}
+          <div className="hidden" data-category-id={category.id}>
+            <div data-edit>
+              <EditCategoryDialog category={category} onUpdated={onDeleted} />
+            </div>
+            <div data-add-sub>
+              <NewCategoryDialog
+                parentId={category.id}
+                onCreated={onDeleted}
+                triggerButton={<button title="Add subcategory">Add</button>}
+              />
+            </div>
+            <div data-delete>
+              <DeleteCategoryButton
+                categoryId={category.id}
+                categoryName={category.name}
+                hasProducts={category._count.products > 0}
+                onDeleted={onDeleted}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

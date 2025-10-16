@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, X } from "lucide-react";
+import { Plus, Upload, X, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { convertToBase64 } from "@/lib/upload";
 import Image from "next/image";
@@ -24,6 +24,8 @@ export function NewCategoryDialog({ onCreated, parentId = null, triggerButton }:
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [subcategories, setSubcategories] = useState<string[]>([]);
+    const [newSubcategory, setNewSubcategory] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -50,12 +52,24 @@ export function NewCategoryDialog({ onCreated, parentId = null, triggerButton }:
         setImagePreview(null);
     };
 
+    const handleAddSubcategory = () => {
+        if (newSubcategory.trim()) {
+            setSubcategories([...subcategories, newSubcategory.trim()]);
+            setNewSubcategory("");
+        }
+    };
+
+    const handleRemoveSubcategory = (index: number) => {
+        setSubcategories(subcategories.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
             let imageBase64 = null;
-            if (imageFile) {
+            // Só adiciona imagem se não for subcategoria
+            if (imageFile && !parentId) {
                 imageBase64 = await convertToBase64(imageFile);
             }
 
@@ -66,6 +80,7 @@ export function NewCategoryDialog({ onCreated, parentId = null, triggerButton }:
                     ...form,
                     parentId: parentId || null,
                     image: imageBase64,
+                    subcategories: !parentId ? subcategories : undefined, // Só envia subcategorias se for categoria principal
                 }),
             });
             if (res.ok) {
@@ -77,6 +92,8 @@ export function NewCategoryDialog({ onCreated, parentId = null, triggerButton }:
                 });
                 setImageFile(null);
                 setImagePreview(null);
+                setSubcategories([]);
+                setNewSubcategory("");
                 setOpen(false);
                 onCreated?.();
             } else {
@@ -128,44 +145,87 @@ export function NewCategoryDialog({ onCreated, parentId = null, triggerButton }:
                             placeholder="Descrição da categoria (opcional)"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label className="block text-sm font-medium mb-1">Imagem (Opcional)</Label>
-                        {imagePreview ? (
-                            <div className="relative w-full h-40 border-2 border-gray-300 rounded-lg overflow-hidden">
-                                <Image
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    fill
-                                    className="object-cover"
+                    {!parentId && (
+                        <div className="space-y-2">
+                            <Label className="block text-sm font-medium mb-1">Imagem (Opcional)</Label>
+                            {imagePreview ? (
+                                <div className="relative w-full h-40 border-2 border-gray-300 rounded-lg overflow-hidden">
+                                    <Image
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={handleRemoveImage}
+                                        className="absolute top-2 right-2 h-8 w-8 p-0"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ) : (
+                                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                                        <p className="mb-2 text-sm text-gray-500">
+                                            <span className="font-semibold">Clique para fazer upload</span>
+                                        </p>
+                                        <p className="text-xs text-gray-400">PNG, JPG ou WEBP (MAX. 5MB)</p>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
+                            )}
+                        </div>
+                    )}
+                    {!parentId && (
+                        <div className="space-y-2">
+                            <Label className="block text-sm font-medium mb-1">Subcategorias (Opcional)</Label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={newSubcategory}
+                                    onChange={(e) => setNewSubcategory(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSubcategory())}
+                                    className="flex-1 border rounded px-3 py-2"
+                                    placeholder="Nome da subcategoria"
                                 />
                                 <Button
                                     type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={handleRemoveImage}
-                                    className="absolute top-2 right-2 h-8 w-8 p-0"
+                                    onClick={handleAddSubcategory}
+                                    variant="outline"
+                                    className="cursor-pointer"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <Plus className="w-4 h-4" />
                                 </Button>
                             </div>
-                        ) : (
-                            <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <Upload className="w-10 h-10 mb-3 text-gray-400" />
-                                    <p className="mb-2 text-sm text-gray-500">
-                                        <span className="font-semibold">Clique para fazer upload</span>
-                                    </p>
-                                    <p className="text-xs text-gray-400">PNG, JPG ou WEBP (MAX. 5MB)</p>
+                            {subcategories.length > 0 && (
+                                <div className="space-y-2 mt-2">
+                                    {subcategories.map((sub, index) => (
+                                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded border">
+                                            <span className="text-sm">{sub}</span>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => handleRemoveSubcategory(index)}
+                                                className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
                                 </div>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                />
-                            </label>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
                     <div className="flex items-center gap-2">
                         <input
                             type="checkbox"

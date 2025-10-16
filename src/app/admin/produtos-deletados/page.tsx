@@ -5,14 +5,14 @@ import { Trash2, Package, RotateCcw, CheckCircle2, AlertTriangle } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Image from "next/image";
 
@@ -33,11 +33,11 @@ interface DeletedProduct {
 }
 
 export default function DeletedProductsPage() {
-  const [products, setProducts] = useState<DeletedProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<{ id: string; name: string } | null>(null);
-  const [dialogAction, setDialogAction] = useState<'restore' | 'delete' | null>(null);
-  const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);    useEffect(() => {
+    const [products, setProducts] = useState<DeletedProduct[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedProduct, setSelectedProduct] = useState<{ id: string; name: string } | null>(null);
+    const [dialogAction, setDialogAction] = useState<'restore' | 'delete' | null>(null);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null); useEffect(() => {
         fetchDeletedProducts();
     }, []);
 
@@ -55,52 +55,52 @@ export default function DeletedProductsPage() {
         }
     }
 
-  function openDialog(productId: string, productName: string, action: 'restore' | 'delete') {
-    setSelectedProduct({ id: productId, name: productName });
-    setDialogAction(action);
-  }
-
-  function closeDialog() {
-    setSelectedProduct(null);
-    setDialogAction(null);
-  }
-
-  async function confirmAction() {
-    if (!selectedProduct || !dialogAction) return;
-
-    try {
-      if (dialogAction === 'restore') {
-        const response = await fetch(`/api/admin/products/${selectedProduct.id}/restore`, {
-          method: 'POST',
-        });
-
-        if (response.ok) {
-          setAlert({ type: 'success', message: 'Produto restaurado com sucesso!' });
-          fetchDeletedProducts();
-        } else {
-          setAlert({ type: 'error', message: 'Erro ao restaurar produto' });
-        }
-      } else if (dialogAction === 'delete') {
-        const response = await fetch(`/api/admin/products/${selectedProduct.id}?force=true`, {
-          method: 'DELETE',
-        });
-
-        if (response.ok) {
-          setAlert({ type: 'success', message: 'Produto deletado permanentemente!' });
-          fetchDeletedProducts();
-        } else {
-          const error = await response.json();
-          setAlert({ type: 'error', message: error.error || 'Erro ao deletar produto' });
-        }
-      }
-    } catch {
-      setAlert({ type: 'error', message: 'Erro ao processar a ação' });
-    } finally {
-      closeDialog();
-      // Auto-hide alert após 5 segundos
-      setTimeout(() => setAlert(null), 5000);
+    function openDialog(productId: string, productName: string, action: 'restore' | 'delete') {
+        setSelectedProduct({ id: productId, name: productName });
+        setDialogAction(action);
     }
-  }    if (loading) {
+
+    function closeDialog() {
+        setSelectedProduct(null);
+        setDialogAction(null);
+    }
+
+    async function confirmAction() {
+        if (!selectedProduct || !dialogAction) return;
+
+        try {
+            if (dialogAction === 'restore') {
+                const response = await fetch(`/api/admin/products/${selectedProduct.id}/restore`, {
+                    method: 'POST',
+                });
+
+                if (response.ok) {
+                    setAlert({ type: 'success', message: 'Produto restaurado com sucesso!' });
+                    fetchDeletedProducts();
+                } else {
+                    setAlert({ type: 'error', message: 'Erro ao restaurar produto' });
+                }
+            } else if (dialogAction === 'delete') {
+                const response = await fetch(`/api/admin/products/${selectedProduct.id}?force=true`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    setAlert({ type: 'success', message: 'Produto deletado permanentemente!' });
+                    fetchDeletedProducts();
+                } else {
+                    const error = await response.json();
+                    setAlert({ type: 'error', message: error.error || 'Erro ao deletar produto' });
+                }
+            }
+        } catch {
+            setAlert({ type: 'error', message: 'Erro ao processar a ação' });
+        } finally {
+            closeDialog();
+            // Auto-hide alert após 5 segundos
+            setTimeout(() => setAlert(null), 5000);
+        }
+    } if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -108,33 +108,33 @@ export default function DeletedProductsPage() {
         );
     }
 
-  return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Trash2 className="w-8 h-8" />
-            Produtos Deletados
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Produtos removidos que possuem pedidos concluídos
-          </p>
-        </div>
-      </div>
+    return (
+        <div className="container mx-auto p-6">
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold flex items-center gap-2">
+                        <Trash2 className="w-8 h-8" />
+                        Produtos Deletados
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                        Produtos removidos que possuem pedidos concluídos
+                    </p>
+                </div>
+            </div>
 
-      {/* Alert de feedback */}
-      {alert && (
-        <Alert className={`mb-6 ${alert.type === 'success' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-          {alert.type === 'success' ? (
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-          ) : (
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          )}
-          <AlertDescription className={alert.type === 'success' ? 'text-green-800' : 'text-red-800'}>
-            {alert.message}
-          </AlertDescription>
-        </Alert>
-      )}            {products.length === 0 ? (
+            {/* Alert de feedback */}
+            {alert && (
+                <Alert className={`mb-6 ${alert.type === 'success' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                    {alert.type === 'success' ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    ) : (
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                    )}
+                    <AlertDescription className={alert.type === 'success' ? 'text-green-800' : 'text-red-800'}>
+                        {alert.message}
+                    </AlertDescription>
+                </Alert>
+            )}            {products.length === 0 ? (
                 <div className="text-center py-12">
                     <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                     <h3 className="text-xl font-semibold text-gray-600">Nenhum produto deletado</h3>

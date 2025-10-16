@@ -305,7 +305,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     <p className="text-sm sm:text-base text-gray-600 mb-4">
                       Esta categoria ainda não possui produtos.
                     </p>
-                    <Link href="/admin/products/new">
+                    <Link href="/admin/products">
                       <Button size="sm">Adicionar Produto</Button>
                     </Link>
                   </div>

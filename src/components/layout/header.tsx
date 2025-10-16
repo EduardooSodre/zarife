@@ -61,7 +61,7 @@ export default function Header() {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const searchRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
-  
+
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       // small timeout to allow animation/DOM to settle

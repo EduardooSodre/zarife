@@ -29,6 +29,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         orderBy: { order: "asc" },
       },
       variants: {
+        include: {
+          images: {
+            orderBy: { order: "asc" },
+          },
+        },
         orderBy: [
           { size: "asc" },
           { color: "asc" }

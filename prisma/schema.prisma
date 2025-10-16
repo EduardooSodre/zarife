@@ -84,24 +84,28 @@ model Product {
 }
 
 model ProductImage {
-  id        String  @id @default(cuid())
-  productId String  @map("product_id")
-  url       String
-  order     Int     @default(0)
+  id               String          @id @default(cuid())
+  productId        String          @map("product_id")
+  productVariantId String?         @map("product_variant_id")
+  url              String
+  order            Int             @default(0)
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
   @@map("product_images")
 }
 
 model ProductVariant {
-  id        String @id @default(cuid())
-  productId String @map("product_id")
+  id        String         @id @default(cuid())
+  productId String         @map("product_id")
   size      String?
   color     String?
-  stock     Int    @default(0)
+  stock     Int            @default(0)
+  sku       String?
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  images  ProductImage[]
 
   @@unique([productId, size, color])
   @@map("product_variants")

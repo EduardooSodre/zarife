@@ -94,7 +94,6 @@ export async function POST(request: NextRequest) {
       brand,
       season,
       gender,
-      images,
       variants,
     } = body;
 
@@ -148,34 +147,50 @@ export async function POST(request: NextRequest) {
         brand,
         season,
         gender,
-        images: {
-          create:
-            images?.map((image: { url: string; order: number }) => ({
+      },
+    });
+
+    // Criar variantes com imagens
+    if (variants && Array.isArray(variants)) {
+      for (const variant of variants) {
+        const createdVariant = await prisma.productVariant.create({
+          data: {
+            productId: product.id,
+            size: variant.size,
+            color: variant.color,
+            stock: variant.stock,
+          },
+        });
+
+        // Criar imagens da variante
+        if (variant.images && Array.isArray(variant.images)) {
+          await prisma.productImage.createMany({
+            data: variant.images.map((image: { url: string; order: number }) => ({
+              productId: product.id,
+              productVariantId: createdVariant.id,
               url: image.url,
               order: image.order,
-            })) || [],
-        },
-        variants: {
-          create:
-            variants?.map(
-              (variant: { size?: string; color?: string; stock: number }) => ({
-                size: variant.size,
-                color: variant.color,
-                stock: variant.stock,
-              })
-            ) || [],
-        },
-      },
+            })),
+          });
+        }
+      }
+    }
+
+    // Buscar produto completo com todas as relações
+    const fullProduct = await prisma.product.findUnique({
+      where: { id: product.id },
       include: {
         category: true,
-        images: true,
+        images: {
+          orderBy: { order: "asc" },
+        },
         variants: true,
       },
     });
 
     return NextResponse.json({
       success: true,
-      data: product,
+      data: fullProduct,
     });
   } catch (error) {
     console.error("Error creating product:", error);

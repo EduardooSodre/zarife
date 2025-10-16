@@ -1172,7 +1172,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                         Adicione subcategorias para organizar melhor seus produtos
                                     </p>
                                 </div>
-                                
+
                                 <div className="flex gap-2">
                                     <Input
                                         value={newSubcategory}

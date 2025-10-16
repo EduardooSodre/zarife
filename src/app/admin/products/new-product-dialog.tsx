@@ -203,7 +203,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
             // Adicionar à lista local
             setSeasons([...seasons, result.data.name]);
-            
+
             // Selecionar a nova estação
             setFormData({ ...formData, season: result.data.name });
 
@@ -215,7 +215,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         } catch (error) {
             alert(error instanceof Error ? error.message : 'Erro ao criar estação');
         }
-    };    const handleCreateSize = async () => {
+    }; const handleCreateSize = async () => {
         if (!newSizeName.trim()) {
             alert('Nome do tamanho é obrigatório');
             return;
@@ -267,7 +267,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
             // Atualizar lista de categorias
             setCategories(categories.filter(c => c.id !== categoryId));
-            
+
             // Limpar seleção se for a categoria selecionada
             if (formData.categoryId === categoryId) {
                 setFormData({ ...formData, categoryId: '' });

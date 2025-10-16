@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const seasons = await prisma.season.findMany({
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
 
@@ -89,7 +89,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const name = searchParams.get('name');
+    const name = searchParams.get("name");
 
     if (!name) {
       return NextResponse.json(

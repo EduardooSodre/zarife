@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const sizes = await prisma.size.findMany({
       orderBy: {
-        order: 'asc',
+        order: "asc",
       },
     });
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Obter o maior order existente
     const maxOrderSize = await prisma.size.findFirst({
-      orderBy: { order: 'desc' },
+      orderBy: { order: "desc" },
       select: { order: true },
     });
 
@@ -98,7 +98,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const name = searchParams.get('name');
+    const name = searchParams.get("name");
 
     if (!name) {
       return NextResponse.json(

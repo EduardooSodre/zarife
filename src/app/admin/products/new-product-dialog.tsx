@@ -179,7 +179,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
         // Adicionar nova estação
         setSeasons([...seasons, newSeasonName]);
-        
+
         // Selecionar a nova estação
         setFormData({ ...formData, season: newSeasonName });
 

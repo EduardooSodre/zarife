@@ -165,12 +165,14 @@ export async function POST(request: NextRequest) {
         // Criar imagens da variante
         if (variant.images && Array.isArray(variant.images)) {
           await prisma.productImage.createMany({
-            data: variant.images.map((image: { url: string; order: number }) => ({
-              productId: product.id,
-              productVariantId: createdVariant.id,
-              url: image.url,
-              order: image.order,
-            })),
+            data: variant.images.map(
+              (image: { url: string; order: number }) => ({
+                productId: product.id,
+                productVariantId: createdVariant.id,
+                url: image.url,
+                order: image.order,
+              })
+            ),
           });
         }
       }

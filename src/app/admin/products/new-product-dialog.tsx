@@ -48,7 +48,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
-    
+
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -144,13 +144,13 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     };
 
     const updateVariantImages = (variantId: string, images: ImageItem[]) => {
-        setVariants(variants.map(v => 
+        setVariants(variants.map(v =>
             v.id === variantId ? { ...v, images } : v
         ));
     };
 
     const updateVariantStock = (variantId: string, stock: number) => {
-        setVariants(variants.map(v => 
+        setVariants(variants.map(v =>
             v.id === variantId ? { ...v, stock } : v
         ));
     };
@@ -466,7 +466,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                     {/* Variantes */}
                     <div className="space-y-4 border-t pt-4">
                         <h3 className="font-semibold text-lg">Variantes (Tamanhos e Cores) *</h3>
-                        
+
                         {/* Adicionar nova variante */}
                         <div className="border rounded-lg p-4 bg-gray-50 space-y-3">
                             <Label>Adicionar Nova Variante</Label>
@@ -518,9 +518,9 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                             <Tabs value={activeVariantTab} onValueChange={setActiveVariantTab} className="w-full">
                                 <TabsList className="w-full grid bg-gray-100 p-1" style={{ gridTemplateColumns: `repeat(${Math.min(variants.length, 4)}, 1fr)` }}>
                                     {variants.map((variant, index) => (
-                                        <TabsTrigger 
-                                            key={variant.id} 
-                                            value={index.toString()} 
+                                        <TabsTrigger
+                                            key={variant.id}
+                                            value={index.toString()}
                                             className="text-xs font-medium data-[state=active]:bg-black data-[state=active]:text-white data-[state=inactive]:bg-white data-[state=inactive]:text-gray-700 border-2 data-[state=active]:border-black data-[state=inactive]:border-gray-300"
                                         >
                                             {variant.size} - {variant.color}

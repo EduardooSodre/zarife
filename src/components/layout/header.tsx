@@ -417,18 +417,18 @@ export default function Header() {
                 {/* Search - Mais elegante e alinhado */}
                 <div className="relative" ref={searchRef}>
                   {isSearchOpen ? (
-                    <form onSubmit={handleSearch} className="flex items-center bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <form onSubmit={handleSearch} className="absolute right-0 top-1/2 transform -translate-y-1/2 z-50 flex items-center bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg overflow-hidden shadow-lg w-[20rem] md:w-72">
                       <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Buscar produtos..."
-                        className="w-64 px-3 py-2 text-sm bg-transparent focus:outline-none"
+                        className="w-full px-3 py-2 text-sm bg-transparent focus:outline-none"
                         autoFocus
                       />
                       <button
                         type="submit"
-                        className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                        className="p-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                         aria-label="Buscar"
                       >
                         <Search className="w-4 h-4" />

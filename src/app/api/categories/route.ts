@@ -85,7 +85,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Se tiver subcategorias, criar todas
-    if (subcategories && Array.isArray(subcategories) && subcategories.length > 0) {
+    if (
+      subcategories &&
+      Array.isArray(subcategories) &&
+      subcategories.length > 0
+    ) {
       const subcategoryPromises = subcategories.map((subName: string) => {
         const subSlug = subName
           .toLowerCase()

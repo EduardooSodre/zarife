@@ -217,7 +217,7 @@ function SortableCategoryItem({ category, onDeleted }: SortableCategoryItemProps
                     Ver Detalhes
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={(e) => {
                     e.preventDefault();
                     const editButton = document.querySelector(`[data-category-id="${category.id}"] button[data-edit]`) as HTMLButtonElement;

@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Package, 
-  FolderTree, 
-  ShoppingCart, 
-  Users, 
+import {
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  ShoppingCart,
+  Users,
   Settings,
   Store,
   Trash2
@@ -72,9 +72,9 @@ export function AdminSidebar() {
         {/* Navigation */}
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
           {navigation.map((item) => {
-            const isActive = pathname === item.href || 
+            const isActive = pathname === item.href ||
               (item.href !== "/admin" && pathname.startsWith(item.href));
-            
+
             return (
               <Link
                 key={item.name}

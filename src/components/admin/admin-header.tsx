@@ -60,7 +60,7 @@ export function AdminHeader() {
       </header>
 
       {/* Mobile sidebar */}
-      <AdminMobileSidebar 
+      <AdminMobileSidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />

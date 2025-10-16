@@ -73,7 +73,7 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
       {/* Dialog de confirmação de deleção */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <button 
+          <button
             className="inline-flex items-center justify-center h-7 sm:h-8 px-2 sm:px-3 rounded-md border border-border bg-white hover:bg-red-50 hover:text-red-600 text-xs sm:text-sm transition-colors cursor-pointer disabled:opacity-50"
             disabled={isDeleting}
             title="Deletar produto"
@@ -85,7 +85,7 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
           <AlertDialogHeader>
             <AlertDialogTitle>Deletar Produto</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja deletar o produto &quot;{productName}&quot;? 
+              Tem certeza que deseja deletar o produto &quot;{productName}&quot;?
               {/* Se não houver pedidos, deletar permanentemente. Se houver pedidos concluídos, mover para deletados */}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -111,7 +111,7 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
                 <p className="text-gray-700 font-medium">
                   {errorInfo?.error}
                 </p>
-                
+
                 {errorInfo?.details && (
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
                     <div className="flex items-center justify-between text-sm">

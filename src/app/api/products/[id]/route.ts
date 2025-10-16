@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { checkAdminAuth } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { checkAdminAuth } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    
+
     const product = await prisma.product.findUnique({
       where: {
         id: id,
@@ -17,7 +17,7 @@ export async function GET(
         category: true,
         images: {
           orderBy: {
-            order: 'asc',
+            order: "asc",
           },
         },
       },
@@ -25,7 +25,7 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
@@ -35,9 +35,9 @@ export async function GET(
       data: product,
     });
   } catch (error) {
-    console.error('Erro ao buscar produto:', error);
+    console.error("Erro ao buscar produto:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -49,12 +49,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-    
+
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
@@ -83,7 +83,7 @@ export async function PUT(
 
     if (!existingProduct) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
@@ -136,9 +136,9 @@ export async function PUT(
       data: updatedProduct,
     });
   } catch (error) {
-    console.error('Erro ao atualizar produto:', error);
+    console.error("Erro ao atualizar produto:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -150,19 +150,19 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    
+
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
 
     // Verificar se é force delete
     const { searchParams } = new URL(request.url);
-    const force = searchParams.get('force') === 'true';
+    const force = searchParams.get("force") === "true";
 
     // Verificar se o produto existe
     const existingProduct = await prisma.product.findUnique({
@@ -178,7 +178,7 @@ export async function DELETE(
           },
         },
         _count: {
-          select: { 
+          select: {
             orderItems: true,
           },
         },
@@ -187,7 +187,7 @@ export async function DELETE(
 
     if (!existingProduct) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
@@ -200,7 +200,7 @@ export async function DELETE(
 
       return NextResponse.json({
         success: true,
-        message: 'Produto deletado permanentemente',
+        message: "Produto deletado permanentemente",
       });
     }
 
@@ -208,23 +208,23 @@ export async function DELETE(
     if (existingProduct._count.orderItems > 0) {
       // Verificar se todos os pedidos estão com status DELIVERED
       const allDelivered = existingProduct.orderItems.every(
-        (item) => item.order.status === 'DELIVERED'
+        (item) => item.order.status === "DELIVERED"
       );
 
       if (!allDelivered) {
         // Contar pedidos pendentes
         const pendingOrders = existingProduct.orderItems.filter(
-          (item) => item.order.status !== 'DELIVERED'
+          (item) => item.order.status !== "DELIVERED"
         );
 
         return NextResponse.json(
-          { 
-            error: 'Não é possível deletar um produto com pedidos pendentes',
+          {
+            error: "Não é possível deletar um produto com pedidos pendentes",
             details: {
               totalOrders: existingProduct._count.orderItems,
               pendingOrders: pendingOrders.length,
-              message: `Este produto possui ${pendingOrders.length} pedido(s) pendente(s). Aguarde a conclusão de todos os pedidos ou mova para produtos deletados.`
-            }
+              message: `Este produto possui ${pendingOrders.length} pedido(s) pendente(s). Aguarde a conclusão de todos os pedidos ou mova para produtos deletados.`,
+            },
           },
           { status: 400 }
         );
@@ -241,7 +241,7 @@ export async function DELETE(
 
       return NextResponse.json({
         success: true,
-        message: 'Produto movido para produtos deletados',
+        message: "Produto movido para produtos deletados",
         softDelete: true,
       });
     }
@@ -253,12 +253,12 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Produto deletado com sucesso',
+      message: "Produto deletado com sucesso",
     });
   } catch (error) {
-    console.error('Erro ao deletar produto:', error);
+    console.error("Erro ao deletar produto:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }

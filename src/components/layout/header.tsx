@@ -438,7 +438,7 @@ export default function Header() {
                       <TooltipTrigger asChild>
                         <button
                           onClick={() => setIsSearchOpen(true)}
-                          className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors"
+                          className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors cursor-pointer"
                           aria-label="Abrir busca"
                         >
                           <Search className="w-5 h-5" />
@@ -456,7 +456,7 @@ export default function Header() {
                   <SignInButton>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors" aria-label="Entrar">
+                        <button className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors cursor-pointer" aria-label="Entrar">
                           <User className="w-5 h-5" />
                         </button>
                       </TooltipTrigger>
@@ -470,7 +470,7 @@ export default function Header() {
                 <SignedIn>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div>
+                      <button className="p-2 hover:bg-gray-100/50 rounded-lg transition-colors cursor-pointer flex items-center" aria-label="Conta">
                         <UserButton
                           appearance={{
                             elements: {
@@ -478,7 +478,7 @@ export default function Header() {
                             }
                           }}
                         />
-                      </div>
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Conta</p>
@@ -550,7 +550,7 @@ export default function Header() {
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleCartClick}
-                      className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative"
+                      className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors relative cursor-pointer"
                       aria-label="Carrinho de compras"
                     >
                       <ShoppingCart className="w-5 h-5" />
@@ -636,7 +636,7 @@ export default function Header() {
                           setIsMobileMenuOpen(false)
                           handleCartClick()
                         }}
-                        className="flex flex-col items-center gap-1 p-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                        className="flex flex-col items-center gap-1 p-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
                       >
                         <ShoppingCart className="w-5 h-5" />
                         <span className="text-xs">Carrinho</span>

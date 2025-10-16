@@ -40,6 +40,7 @@ export async function GET() {
         _count: {
           select: {
             images: true,
+            orderItems: true,
           },
         },
       },

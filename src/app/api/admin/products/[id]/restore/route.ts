@@ -22,7 +22,6 @@ export async function POST(
     await prisma.product.update({
       where: { id: id },
       data: {
-        deletedAt: null,
         isActive: true,
       },
     });

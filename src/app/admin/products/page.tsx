@@ -29,6 +29,7 @@ interface Product {
     }>;
     _count: {
         images: number;
+        orderItems: number;
     };
 }
 
@@ -43,6 +44,8 @@ export default function AdminProductsPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    console.log('🔄 Current state - Products:', products.length, 'Categories:', categories.length);
 
     // Estados para filtros
     const [searchTerm, setSearchTerm] = useState('');
@@ -88,8 +91,14 @@ export default function AdminProductsPage() {
                 const productsData = await productsResponse.json();
                 const categoriesData = await categoriesResponse.json();
 
+                console.log('📦 Products loaded:', productsData.products?.length || 0);
+                console.log('📁 Categories response:', categoriesData);
+
+                const categoriesList = categoriesData.data || categoriesData.all || [];
+                console.log('📁 Categories list:', categoriesList.length);
+
                 setProducts(productsData.products || []);
-                setCategories(categoriesData.data || []);
+                setCategories(categoriesList);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Erro desconhecido');
             } finally {
@@ -414,6 +423,7 @@ export default function AdminProductsPage() {
                                                 <DeleteProductButton
                                                     productId={product.id}
                                                     productName={product.name}
+                                                    onDeleted={refreshProducts}
                                                 />
                                             </div>
                                         </div>
@@ -421,10 +431,15 @@ export default function AdminProductsPage() {
 
                                     {/* Product Details */}
                                     <div className="p-3 sm:p-4">
-                                        <div className="mb-2">
+                                        <div className="mb-2 flex flex-wrap gap-2">
                                             {product.category && (
                                                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                                     {product.category.name}
+                                                </span>
+                                            )}
+                                            {product._count.orderItems > 0 && (
+                                                <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full font-medium">
+                                                    {product._count.orderItems} {product._count.orderItems === 1 ? 'pedido' : 'pedidos'}
                                                 </span>
                                             )}
                                         </div>

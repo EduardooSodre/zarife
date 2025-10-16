@@ -36,6 +36,7 @@ export async function GET() {
     };
 
     return NextResponse.json({
+      data: categories,
       all: categories,
       byLevel: categoriesByLevel
     });

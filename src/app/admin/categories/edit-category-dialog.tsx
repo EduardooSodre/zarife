@@ -118,7 +118,7 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 						</Select>
 					</div>
 					<div className="flex items-center gap-2">
-						<input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} id="isActive" />
+						<input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} id="isActive" title="Categoria Ativa" />
 						<Label htmlFor="isActive" className="text-sm">Categoria Ativa</Label>
 					</div>
 					<div className="flex justify-end gap-2 pt-2">

@@ -18,6 +18,7 @@ import {
 interface DeleteProductButtonProps {
   productId: string;
   productName: string;
+  onDeleted?: () => void;
 }
 
 interface DeleteError {
@@ -29,7 +30,7 @@ interface DeleteError {
   };
 }
 
-export function DeleteProductButton({ productId, productName }: DeleteProductButtonProps) {
+export function DeleteProductButton({ productId, productName, onDeleted }: DeleteProductButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorInfo, setErrorInfo] = useState<DeleteError | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
@@ -52,6 +53,9 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
           alert('✅ ' + data.message);
         }
         router.refresh();
+        if (onDeleted) {
+          onDeleted();
+        }
       } else {
         // Erro - mostrar dialog com detalhes
         setErrorInfo(data);

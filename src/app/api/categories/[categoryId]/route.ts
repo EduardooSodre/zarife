@@ -235,8 +235,27 @@ export async function DELETE(
       );
     }
 
+    // Guardar a ordem da categoria deletada
+    const deletedOrder = existingCategory.order;
+
+    // Deletar a categoria
     await prisma.category.delete({
       where: { id: categoryId },
+    });
+
+    // Recalcular as ordens das categorias que vêm depois da deletada
+    // Todas as categorias com ordem maior que a deletada devem ter sua ordem reduzida em 1
+    await prisma.category.updateMany({
+      where: {
+        order: {
+          gt: deletedOrder,
+        },
+      },
+      data: {
+        order: {
+          decrement: 1,
+        },
+      },
     });
 
     return NextResponse.json({

@@ -65,7 +65,8 @@ export async function PUT(
       );
     }
 
-    const { name, description, image, isActive, parentId } = await request.json();
+    const { name, description, image, isActive, parentId } =
+      await request.json();
 
     console.log("📝 Dados recebidos para atualizar categoria:", {
       categoryId,

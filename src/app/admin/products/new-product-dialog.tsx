@@ -142,7 +142,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
             }
 
             const result = await response.json();
-            
+
             // Atualizar lista de categorias
             const categoriesResponse = await fetch('/api/categories/for-products');
             if (categoriesResponse.ok) {
@@ -152,11 +152,11 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
             // Selecionar a nova categoria
             setFormData({ ...formData, categoryId: result.data.id });
-            
+
             // Resetar form e fechar dialog
             setNewCategoryForm({ name: '', description: '', parentId: '' });
             setShowNewCategoryDialog(false);
-            
+
             alert('Categoria criada com sucesso!');
         } catch (error) {
             alert(error instanceof Error ? error.message : 'Erro ao criar categoria');
@@ -709,17 +709,17 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
                     {/* Botões de Ação */}
                     <div className="flex justify-end gap-3 pt-6 border-t-2">
-                        <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setOpen(false)} 
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpen(false)}
                             disabled={loading}
                             className="px-6"
                         >
                             Cancelar
                         </Button>
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             disabled={loading}
                             className="px-8 bg-black hover:bg-gray-800 text-white font-semibold"
                         >
@@ -760,8 +760,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
 
                         <div className="space-y-2">
                             <Label htmlFor="newCategoryParent">Categoria Pai (Subcategoria)</Label>
-                            <Select 
-                                value={newCategoryForm.parentId || "none"} 
+                            <Select
+                                value={newCategoryForm.parentId || "none"}
                                 onValueChange={(value) => setNewCategoryForm({ ...newCategoryForm, parentId: value === "none" ? "" : value })}
                             >
                                 <SelectTrigger className="border-2 border-gray-300 bg-white focus:border-black">
@@ -779,9 +779,9 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         </div>
 
                         <div className="flex justify-end gap-2 pt-2">
-                            <Button 
-                                type="button" 
-                                variant="outline" 
+                            <Button
+                                type="button"
+                                variant="outline"
                                 onClick={() => {
                                     setShowNewCategoryDialog(false);
                                     setNewCategoryForm({ name: '', description: '', parentId: '' });

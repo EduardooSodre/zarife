@@ -1,29 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { checkAdminAuth } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { checkAdminAuth } from "@/lib/auth";
 
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
       include: {
         _count: {
-          select: { products: true }
-        }
+          select: { products: true },
+        },
       },
-      orderBy: [
-        { order: 'asc' },
-        { name: 'asc' }
-      ],
+      orderBy: [{ order: "asc" }, { name: "asc" }],
     });
 
     return NextResponse.json({
       success: true,
-      data: categories
+      data: categories,
     });
   } catch (error) {
-    console.error('Erro ao buscar categorias:', error);
+    console.error("Erro ao buscar categorias:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -32,30 +29,31 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
 
-    const { name, description, image, isActive, parentId } = await request.json();
+    const { name, description, image, isActive, parentId } =
+      await request.json();
 
-    if (!name || name.trim() === '') {
+    if (!name || name.trim() === "") {
       return NextResponse.json(
-        { error: 'Nome é obrigatório' },
+        { error: "Nome é obrigatório" },
         { status: 400 }
       );
     }
 
     const slug = name
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
       .trim();
 
     const existingCategory = await prisma.category.findFirst({
@@ -64,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     if (existingCategory) {
       return NextResponse.json(
-        { error: 'Uma categoria com este nome já existe' },
+        { error: "Uma categoria com este nome já existe" },
         { status: 400 }
       );
     }
@@ -80,17 +78,20 @@ export async function POST(request: NextRequest) {
       },
       include: {
         _count: {
-          select: { products: true }
+          select: { products: true },
         },
         parent: true,
       },
     });
 
-    return NextResponse.json({ success: true, data: category }, { status: 201 });
-  } catch (error) {
-    console.error('Erro ao criar categoria:', error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { success: true, data: category },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Erro ao criar categoria:", error);
+    return NextResponse.json(
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }

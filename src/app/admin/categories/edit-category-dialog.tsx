@@ -100,8 +100,8 @@ export function EditCategoryDialog({ category, onUpdated }: EditCategoryDialogPr
 					</div>
 					<div className="space-y-2">
 						<Label className="block text-sm font-medium mb-1">Categoria Pai (Subcategoria)</Label>
-						<Select 
-							value={form.parentId || "none"} 
+						<Select
+							value={form.parentId || "none"}
 							onValueChange={(value) => setForm({ ...form, parentId: value === "none" ? "" : value })}
 						>
 							<SelectTrigger className="border-2 border-gray-300 bg-white focus:border-black">

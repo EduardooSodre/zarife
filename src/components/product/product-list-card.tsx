@@ -106,11 +106,13 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                     <button
                         onClick={handleToggleFavorite}
                         className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1 transition-all duration-200 z-10 cursor-pointer group"
+                        title={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                        aria-label={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                     >
                         <Heart
                             className={`h-5 w-5 transition-all duration-200 drop-shadow-sm ${isWishlisted
-                                    ? 'fill-red-500 text-red-500 scale-110'
-                                    : 'text-white hover:text-red-500 hover:fill-red-500 hover:scale-110 group-hover:drop-shadow-md'
+                                ? 'fill-red-500 text-red-500 scale-110'
+                                : 'text-white hover:text-red-500 hover:fill-red-500 hover:scale-110 group-hover:drop-shadow-md'
                                 }`}
                         />
                     </button>

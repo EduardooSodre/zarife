@@ -156,9 +156,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Description */}
             {product.description && (
               <div className="prose prose-gray max-w-none">
-                <p className="text-gray-700 leading-relaxed">
-                  {product.description}
-                </p>
+                {product.description.split('\n').map((line, idx) => (
+                  <p key={idx} className="text-gray-700 leading-relaxed">
+                    {line}
+                  </p>
+                ))}
               </div>
             )}
 
@@ -168,7 +170,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 {additionalDescriptions.map((desc, index) => (
                   <div key={index} className="space-y-2">
                     <h3 className="font-semibold text-gray-900">{desc.title}</h3>
-                    <p className="text-gray-700 leading-relaxed">{desc.content}</p>
+                    {desc.content.split('\n').map((line, idx) => (
+                      <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
+                    ))}
                   </div>
                 ))}
               </div>

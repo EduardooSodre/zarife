@@ -108,11 +108,10 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                         className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1 transition-all duration-200 z-10 cursor-pointer group"
                     >
                         <Heart
-                            className={`h-5 w-5 transition-all duration-200 drop-shadow-sm ${
-                                isWishlisted 
-                                    ? 'fill-red-500 text-red-500 scale-110' 
+                            className={`h-5 w-5 transition-all duration-200 drop-shadow-sm ${isWishlisted
+                                    ? 'fill-red-500 text-red-500 scale-110'
                                     : 'text-white hover:text-red-500 hover:fill-red-500 hover:scale-110 group-hover:drop-shadow-md'
-                            }`}
+                                }`}
                         />
                     </button>
                 </div>
@@ -126,7 +125,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                 {product.category.name}
                             </span>
                         )}
-                        
+
                         {/* Product Name */}
                         <Link href={`/product/${product.id}`}>
                             <h3 className="text-base md:text-lg font-medium text-gray-900 hover:text-black transition-colors duration-200 line-clamp-2">
@@ -155,7 +154,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                     </span>
                                 )}
                             </div>
-                            
+
                             {/* Stock Info */}
                             <span className={`text-xs ${totalStock > 0 ? 'text-green-600' : 'text-red-600'
                                 }`}>

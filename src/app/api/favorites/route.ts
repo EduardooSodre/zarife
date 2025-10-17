@@ -1,19 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/db';
-import { calculateProductStock } from '@/lib/products';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/db";
+import { calculateProductStock } from "@/lib/products";
 
 export async function GET() {
   try {
     const { userId: clerkUserId } = await auth();
-    
+
     if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Find user in our database by clerkId
     const user = await prisma.user.findUnique({
-      where: { clerkId: clerkUserId }
+      where: { clerkId: clerkUserId },
     });
 
     if (!user) {
@@ -29,10 +29,10 @@ export async function GET() {
             images: true,
             category: true,
             variants: { select: { stock: true } },
-          }
-        }
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     const formattedFavorites = favorites.map((fav) => ({
@@ -48,26 +48,29 @@ export async function GET() {
 
     return NextResponse.json({ favorites: formattedFavorites });
   } catch (error) {
-    console.error('Error fetching favorites:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching favorites:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { userId: clerkUserId } = await auth();
-    
+
     if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Find user in our database by clerkId
     const user = await prisma.user.findUnique({
-      where: { clerkId: clerkUserId }
+      where: { clerkId: clerkUserId },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const { product } = await request.json();
@@ -78,12 +81,15 @@ export async function POST(request: NextRequest) {
         userId_productId: {
           userId: user.id,
           productId: product.id,
-        }
-      }
+        },
+      },
     });
 
     if (existingFavorite) {
-      return NextResponse.json({ error: 'Product already in favorites' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Product already in favorites" },
+        { status: 400 }
+      );
     }
 
     // Add to favorites
@@ -91,12 +97,15 @@ export async function POST(request: NextRequest) {
       data: {
         userId: user.id,
         productId: product.id,
-      }
+      },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error adding to favorites:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error adding to favorites:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

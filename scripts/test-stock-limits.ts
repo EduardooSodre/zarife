@@ -18,7 +18,7 @@ async function testStockLimits() {
   }
 
   console.log(`📦 Produto de teste: ${product.name}`);
-  
+
   // Calcular estoque total das variantes
   const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
   console.log(`   Estoque total: ${totalStock}\n`);

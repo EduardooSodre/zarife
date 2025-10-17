@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { checkAdminAuth } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { checkAdminAuth } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    
+
     const product = await prisma.product.findUnique({
       where: {
         id: id,
@@ -17,7 +17,7 @@ export async function GET(
         category: true,
         images: {
           orderBy: {
-            order: 'asc',
+            order: "asc",
           },
         },
       },
@@ -25,7 +25,7 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
@@ -35,9 +35,9 @@ export async function GET(
       data: product,
     });
   } catch (error) {
-    console.error('Erro ao buscar produto:', error);
+    console.error("Erro ao buscar produto:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -49,12 +49,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await context.params;
-    
+
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
@@ -82,7 +82,7 @@ export async function PUT(
 
     if (!existingProduct) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
@@ -134,9 +134,9 @@ export async function PUT(
       data: updatedProduct,
     });
   } catch (error) {
-    console.error('Erro ao atualizar produto:', error);
+    console.error("Erro ao atualizar produto:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
@@ -148,12 +148,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    
+
     const { isAdmin } = await checkAdminAuth();
-    
+
     if (!isAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: "Forbidden - Admin access required" },
         { status: 403 }
       );
     }
@@ -165,7 +165,7 @@ export async function DELETE(
 
     if (!existingProduct) {
       return NextResponse.json(
-        { error: 'Produto não encontrado' },
+        { error: "Produto não encontrado" },
         { status: 404 }
       );
     }
@@ -177,12 +177,12 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Produto deletado com sucesso',
+      message: "Produto deletado com sucesso",
     });
   } catch (error) {
-    console.error('Erro ao deletar produto:', error);
+    console.error("Erro ao deletar produto:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }

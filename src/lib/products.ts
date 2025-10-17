@@ -74,9 +74,9 @@ export async function getProductsWithPagination({
 export async function getProductsByCategory(categoryPatterns: string[]) {
   const categories = await prisma.category.findMany({
     where: {
-      OR: categoryPatterns.map(pattern => ({
-        name: { contains: pattern, mode: "insensitive" as const }
-      }))
+      OR: categoryPatterns.map((pattern) => ({
+        name: { contains: pattern, mode: "insensitive" as const },
+      })),
     },
     include: {
       products: {
@@ -93,14 +93,14 @@ export async function getProductsByCategory(categoryPatterns: string[]) {
     },
   });
 
-  return categories.flatMap(category => category.products);
+  return categories.flatMap((category) => category.products);
 }
 
 /**
  * Calcula o estoque total de um produto baseado em suas variantes
  */
 export function calculateProductStock(product: {
-  variants?: { stock: number }[]
+  variants?: { stock: number }[];
 }): number {
   if (!product.variants || product.variants.length === 0) {
     return 0;
@@ -111,8 +111,6 @@ export function calculateProductStock(product: {
 /**
  * Verifica se um produto tem estoque disponível
  */
-export function hasStock(product: {
-  variants?: { stock: number }[]
-}): boolean {
+export function hasStock(product: { variants?: { stock: number }[] }): boolean {
   return calculateProductStock(product) > 0;
 }

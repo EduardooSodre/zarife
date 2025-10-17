@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { calculateProductStock } from "@/lib/products";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,6 +46,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) {
     notFound();
   }
+
+  // Calcular estoque total das variantes
+  const totalStock = calculateProductStock(product);
+
+  // Extrair descrições adicionais com type safety
+  const additionalDescriptions = 'additionalDescriptions' in product && product.additionalDescriptions
+    ? (product.additionalDescriptions as Array<{ title: string; content: string }>)
+    : [];
 
   // Get related products from the same category
   const relatedProducts = await prisma.product.findMany({
@@ -129,11 +138,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Stock Status */}
             <div className="flex items-center space-x-2">
-              {product.stock > 0 ? (
+              {totalStock > 0 ? (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span className="text-sm text-gray-600">
-                    {product.stock <= 5 ? `Apenas ${product.stock} em estoque` : 'Em estoque'}
+                    {totalStock <= 5 ? `Apenas ${totalStock} em estoque` : 'Em estoque'}
                   </span>
                 </>
               ) : (
@@ -153,6 +162,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
 
+            {/* Additional Descriptions */}
+            {additionalDescriptions.length > 0 && (
+              <div className="space-y-4 border-t border-gray-200 pt-6">
+                {additionalDescriptions.map((desc, index) => (
+                  <div key={index} className="space-y-2">
+                    <h3 className="font-semibold text-gray-900">{desc.title}</h3>
+                    <p className="text-gray-700 leading-relaxed">{desc.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Product Details */}
             <div className="space-y-4">
               {product.material && (
@@ -167,23 +188,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <span className="text-gray-700">{product.season}</span>
                 </div>
               )}
-              {product.gender && (
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-900 w-24">Público:</span>
-                  <span className="text-gray-700">{product.gender}</span>
-                </div>
-              )}
             </div>
-
-            {/* Stock Status - apenas se não há variações */}
-            {(!product.variants || product.variants.length === 0) && (
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span className={`font-medium ${product.stock > 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  {product.stock > 0 ? `${product.stock} em stock` : 'Esgotado'}
-                </span>
-              </div>
-            )}
 
             {/* Product Variants and Actions */}
             <ProductClientWrapper
@@ -193,7 +198,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 price: Number(product.price),
                 oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
                 images: product.images || [],
-                stock: product.stock,
+                stock: totalStock,
                 category: product.category
               }}
               variants={

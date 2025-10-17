@@ -37,6 +37,11 @@ export async function GET() {
             order: "asc",
           },
         },
+        variants: {
+          select: {
+            stock: true,
+          },
+        },
         _count: {
           select: {
             images: true,

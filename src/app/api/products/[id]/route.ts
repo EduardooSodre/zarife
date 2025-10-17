@@ -75,7 +75,6 @@ export async function PUT(
       additionalDescriptions,
       price,
       oldPrice,
-      stock,
       categoryId,
       isFeatured,
       isActive,
@@ -84,7 +83,6 @@ export async function PUT(
       material,
       brand,
       season,
-      gender,
       images,
       variants,
     } = data;
@@ -120,7 +118,6 @@ export async function PUT(
           }),
           price,
           oldPrice,
-          stock,
           categoryId,
           isFeatured,
           isActive,
@@ -130,7 +127,6 @@ export async function PUT(
           material,
           brand,
           season,
-          gender,
         },
       });
 

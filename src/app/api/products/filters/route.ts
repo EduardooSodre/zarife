@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
-    const [categories, brands, materials, seasons, genders, colors, priceRange] = await Promise.all([
+    const [categories, brands, materials, seasons, colors, priceRange] = await Promise.all([
       // Categorias
       prisma.category.findMany({
         where: { isActive: true },
@@ -54,17 +54,6 @@ export async function GET() {
         distinct: ['season'],
         orderBy: { season: 'asc' }
       }),
-      
-      // Gêneros únicos
-      prisma.product.findMany({
-        where: {
-          isActive: true,
-          gender: { not: null }
-        },
-        select: { gender: true },
-        distinct: ['gender'],
-        orderBy: { gender: 'asc' }
-      }),
 
       // Cores únicas das variantes
       prisma.productVariant.findMany({
@@ -93,7 +82,6 @@ export async function GET() {
       brands: brands.map(b => b.brand).filter(Boolean),
       materials: materials.map(m => m.material).filter(Boolean),
       seasons: seasons.map(s => s.season).filter(Boolean),
-      genders: genders.map(g => g.gender).filter(Boolean),
       colors: colors.map(c => c.color).filter(Boolean),
       priceRange: {
         min: Number(priceRange._min.price) || 0,

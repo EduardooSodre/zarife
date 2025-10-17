@@ -14,8 +14,6 @@ export async function GET(request: NextRequest) {
     const brand = searchParams.get("brand") || "";
     const material = searchParams.get("material") || "";
     const season = searchParams.get("season") || "";
-    const gender = searchParams.get("gender") || "";
-    const inStock = searchParams.get("inStock") === "true";
     const onSale = searchParams.get("onSale") === "true";
     const sortBy = searchParams.get("sortBy") || "newest";
     const page = parseInt(searchParams.get("page") || "1");
@@ -55,12 +53,6 @@ export async function GET(request: NextRequest) {
     if (brand) where.brand = { contains: brand, mode: "insensitive" };
     if (material) where.material = { contains: material, mode: "insensitive" };
     if (season) where.season = season;
-    if (gender) where.gender = gender;
-
-    // Filtro por estoque
-    if (inStock) {
-      where.stock = { gt: 0 };
-    }
 
     // Filtro por saldo
     if (onSale) {

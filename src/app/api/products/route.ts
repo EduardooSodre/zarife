@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
       additionalDescriptions,
       price,
       oldPrice,
-      stock,
       categoryId,
       isFeatured,
       isActive,
@@ -94,7 +93,6 @@ export async function POST(request: NextRequest) {
       material,
       brand,
       season,
-      gender,
       variants,
     } = body;
 
@@ -138,7 +136,6 @@ export async function POST(request: NextRequest) {
         ...(additionalDescriptions && { additionalDescriptions }),
         price: priceNum,
         oldPrice: oldPrice ? parseFloat(oldPrice) : null,
-        stock: parseInt(stock) || 0,
         categoryId,
         isFeatured: Boolean(isFeatured),
         isActive: Boolean(isActive),
@@ -148,7 +145,6 @@ export async function POST(request: NextRequest) {
         material,
         brand,
         season,
-        gender,
       },
     });
 

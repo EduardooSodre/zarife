@@ -11,6 +11,7 @@ import Image from "next/image";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { EditProductDialog } from "./edit-product-dialog";
 import { NewProductDialog } from "./new-product-dialog";
+import { calculateProductStock } from "@/lib/products";
 
 interface Product {
     id: string;
@@ -19,7 +20,6 @@ interface Product {
     additionalDescriptions?: Array<{ title: string; content: string }> | null;
     price: number;
     oldPrice?: number | null;
-    stock: number;
     categoryId: string;
     isActive: boolean;
     isOnSale: boolean;
@@ -33,6 +33,9 @@ interface Product {
     };
     images: Array<{
         url: string;
+    }>;
+    variants?: Array<{
+        stock: number;
     }>;
     _count: {
         images: number;
@@ -135,11 +138,14 @@ export default function AdminProductsPage() {
 
         // Filtro de stock
         if (selectedStockStatus === 'in-stock') {
-            filtered = filtered.filter(product => product.stock > 0);
+            filtered = filtered.filter(product => calculateProductStock(product) > 0);
         } else if (selectedStockStatus === 'out-of-stock') {
-            filtered = filtered.filter(product => product.stock === 0);
+            filtered = filtered.filter(product => calculateProductStock(product) === 0);
         } else if (selectedStockStatus === 'low-stock') {
-            filtered = filtered.filter(product => product.stock > 0 && product.stock <= 5);
+            filtered = filtered.filter(product => {
+                const stock = calculateProductStock(product);
+                return stock > 0 && stock <= 5;
+            });
         }
 
         setFilteredProducts(filtered);
@@ -228,7 +234,7 @@ export default function AdminProductsPage() {
                             <div className="h-2 w-2 bg-green-500 rounded-full mr-2 sm:mr-3"></div>
                             <div>
                                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Em Stock</p>
-                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => p.stock > 0).length}</p>
+                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => calculateProductStock(p) > 0).length}</p>
                             </div>
                         </div>
                     </div>
@@ -237,7 +243,7 @@ export default function AdminProductsPage() {
                             <div className="h-2 w-2 bg-red-500 rounded-full mr-2 sm:mr-3"></div>
                             <div>
                                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Sem Stock</p>
-                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => p.stock === 0).length}</p>
+                                <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => calculateProductStock(p) === 0).length}</p>
                             </div>
                         </div>
                     </div>
@@ -400,12 +406,17 @@ export default function AdminProductsPage() {
 
                                         {/* Stock Status */}
                                         <div className="absolute top-2 sm:top-3 left-2 sm:left-3">
-                                            <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full ${product.stock > 0
-                                                ? "bg-green-100 text-green-800"
-                                                : "bg-red-100 text-red-800"
-                                                }`}>
-                                                {product.stock > 0 ? `${product.stock} em stock` : "Esgotado"}
-                                            </span>
+                                            {(() => {
+                                                const stock = calculateProductStock(product);
+                                                return (
+                                                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full ${stock > 0
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-red-100 text-red-800"
+                                                        }`}>
+                                                        {stock > 0 ? `${stock} em stock` : "Esgotado"}
+                                                    </span>
+                                                );
+                                            })()}
                                         </div>
 
                                         {/* Actions Overlay */}
@@ -418,10 +429,10 @@ export default function AdminProductsPage() {
                                                 </Link>
                                                 {(() => {
                                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                    const { oldPrice, ...productWithoutOldPrice } = product;
+                                                    const { oldPrice, variants, ...productData } = product;
                                                     return <EditProductDialog
                                                         product={{
-                                                            ...productWithoutOldPrice,
+                                                            ...productData,
                                                             price: Number(product.price),
                                                         }}
                                                         onUpdated={refreshProducts}
@@ -476,10 +487,10 @@ export default function AdminProductsPage() {
                                             <div className="flex items-center space-x-1">
                                                 {(() => {
                                                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                    const { oldPrice, ...productWithoutOldPrice } = product;
+                                                    const { oldPrice, variants, ...productData } = product;
                                                     return <EditProductDialog
                                                         product={{
-                                                            ...productWithoutOldPrice,
+                                                            ...productData,
                                                             price: Number(product.price),
                                                         }}
                                                         onUpdated={refreshProducts}

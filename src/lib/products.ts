@@ -95,3 +95,24 @@ export async function getProductsByCategory(categoryPatterns: string[]) {
 
   return categories.flatMap(category => category.products);
 }
+
+/**
+ * Calcula o estoque total de um produto baseado em suas variantes
+ */
+export function calculateProductStock(product: {
+  variants?: { stock: number }[]
+}): number {
+  if (!product.variants || product.variants.length === 0) {
+    return 0;
+  }
+  return product.variants.reduce((total, variant) => total + variant.stock, 0);
+}
+
+/**
+ * Verifica se um produto tem estoque disponível
+ */
+export function hasStock(product: {
+  variants?: { stock: number }[]
+}): boolean {
+  return calculateProductStock(product) > 0;
+}

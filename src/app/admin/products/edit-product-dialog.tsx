@@ -49,7 +49,6 @@ interface Product {
   description?: string | null;
   additionalDescriptions?: Array<{ title: string; content: string }> | null;
   price: number;
-  stock: number;
   categoryId: string;
   isActive: boolean;
   isFeatured?: boolean;
@@ -82,7 +81,6 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     name: product.name,
     description: product.description || '',
     price: product.price.toString(),
-    stock: product.stock.toString(),
     categoryId: product.categoryId,
     isActive: product.isActive,
     isFeatured: product.isFeatured || false,
@@ -321,7 +319,6 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
         body: JSON.stringify({
           ...formData,
           price: Number(formData.price),
-          stock: Number(formData.stock) || 0,
           isFeatured: formData.isFeatured,
           isOnSale: formData.isOnSale,
           salePercentage: formData.isOnSale && formData.salePercentage ? parseInt(formData.salePercentage) : null,
@@ -577,20 +574,6 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                   className="h-11"
                 />
                 <p className="text-xs text-gray-500">Este é o preço sem desconto</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="stock" className="text-sm font-medium">Estoque Inicial</Label>
-                <Input
-                  id="stock"
-                  name="stock"
-                  type="number"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  placeholder="0"
-                  className="h-11"
-                />
-                <p className="text-xs text-gray-500">Estoque das variantes é gerenciado separadamente</p>
               </div>
             </div>
 

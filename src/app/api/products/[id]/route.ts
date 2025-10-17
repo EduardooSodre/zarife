@@ -139,10 +139,12 @@ export async function PUT(
               color: variant.color,
               stock: variant.stock,
               images: {
-                create: variant.images.map((img: { url: string; order: number }) => ({
-                  url: img.url,
-                  order: img.order,
-                })),
+                create: variant.images.map(
+                  (img: { url: string; order: number }) => ({
+                    url: img.url,
+                    order: img.order,
+                  })
+                ),
               },
             },
           });
@@ -150,7 +152,11 @@ export async function PUT(
       }
 
       // Atualizar imagens antigas (se fornecidas e não usando variantes)
-      if (images && Array.isArray(images) && (!variants || variants.length === 0)) {
+      if (
+        images &&
+        Array.isArray(images) &&
+        (!variants || variants.length === 0)
+      ) {
         // Deletar imagens existentes
         await tx.productImage.deleteMany({
           where: { productId: id },

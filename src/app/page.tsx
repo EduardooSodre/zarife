@@ -50,9 +50,9 @@ export default async function Home() {
 
   return (
     <>
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-white -mt-[7rem]">
         {/* Hero Section with fashion imagery */}
-        <section className="relative h-[calc(100vh-1rem)] min-h-[500px] sm:min-h-[600px] overflow-hidden">
+        <section className="relative h-screen min-h-[500px] sm:min-h-[600px] overflow-hidden">
           {/* Background Image with Parallax */}
           <ParallaxBanner />
 

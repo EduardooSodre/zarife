@@ -34,7 +34,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
         <div className="min-h-screen flex flex-col relative bg-white">
           <UserSync />
           <Header />
-          <main className="flex-1 bg-white">
+          <main className="flex-1 bg-white pt-[7rem]">
             {children}
           </main>
           <Footer />

@@ -198,16 +198,16 @@ export default function Header() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-black text-white text-center py-1">
+      <div className="bg-black text-white text-center py-1 fixed top-0 left-0 right-0 z-50">
         <p className="text-xs uppercase tracking-widest">
           COMPRE ONLINE E NA NOSSA LOJA
         </p>
       </div>
 
       <header
-        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
+        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
           }`}
-        style={{ top: (isScrolled || !isHomePage) ? '0' : '2rem' }}
+        style={{ top: isScrolled ? '0' : '2rem' }}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">

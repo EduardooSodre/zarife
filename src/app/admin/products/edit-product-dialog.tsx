@@ -43,7 +43,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [seasons, setSeasons] = useState<string[]>([]);
-  
+
   const [formData, setFormData] = useState({
     name: product.name,
     description: product.description || '',
@@ -189,7 +189,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
         <DialogHeader>
           <DialogTitle>Editar Produto</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Informações Básicas */}
           <div className="space-y-4">
@@ -378,7 +378,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
           {/* Preços e Promoções */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2">Preços e Promoções</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-sm font-medium">Preço Base *</Label>

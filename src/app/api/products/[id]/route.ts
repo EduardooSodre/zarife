@@ -80,9 +80,10 @@ export async function PUT(
     } = data;
 
     // Calcular salePrice se estiver em promoção
-    const salePrice = isOnSale && salePercentage 
-      ? Number(price) * (1 - salePercentage / 100)
-      : null;
+    const salePrice =
+      isOnSale && salePercentage
+        ? Number(price) * (1 - salePercentage / 100)
+        : null;
 
     // Verificar se o produto existe
     const existingProduct = await prisma.product.findUnique({

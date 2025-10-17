@@ -16,10 +16,17 @@ interface Product {
     id: string;
     name: string;
     description?: string | null;
+    additionalDescriptions?: Array<{ title: string; content: string }> | null;
     price: number;
     oldPrice?: number | null;
     stock: number;
+    categoryId: string;
     isActive: boolean;
+    isOnSale: boolean;
+    salePercentage?: number | null;
+    material?: string | null;
+    brand?: string | null;
+    season?: string | null;
     category: {
         name: string;
         slug: string;

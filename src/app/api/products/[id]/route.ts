@@ -63,18 +63,26 @@ export async function PUT(
     const {
       name,
       description,
+      additionalDescriptions,
       price,
       oldPrice,
       stock,
       categoryId,
       isFeatured,
       isActive,
+      isOnSale,
+      salePercentage,
       material,
       brand,
       season,
       gender,
       images,
     } = data;
+
+    // Calcular salePrice se estiver em promoção
+    const salePrice = isOnSale && salePercentage 
+      ? Number(price) * (1 - salePercentage / 100)
+      : null;
 
     // Verificar se o produto existe
     const existingProduct = await prisma.product.findUnique({
@@ -96,12 +104,16 @@ export async function PUT(
         data: {
           name,
           description,
+          additionalDescriptions: additionalDescriptions || null,
           price,
           oldPrice,
           stock,
           categoryId,
           isFeatured,
           isActive,
+          isOnSale: isOnSale || false,
+          salePercentage: isOnSale ? salePercentage : null,
+          salePrice,
           material,
           brand,
           season,

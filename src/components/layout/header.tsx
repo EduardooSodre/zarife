@@ -210,7 +210,7 @@ export default function Header() {
       </div>
 
       <header
-        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100 top-0' : 'bg-transparent top-8'}`}
+        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-xl top-0' : 'bg-transparent top-8'}`}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">

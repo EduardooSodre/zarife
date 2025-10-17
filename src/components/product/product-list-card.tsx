@@ -68,8 +68,8 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
             className={`group bg-white border border-gray-200 hover:shadow-lg transition-all duration-300 ${className}`}
         >
             <div className="flex flex-col sm:flex-row gap-4 p-4">
-                {/* Product Image */}
-                <div className="relative flex-shrink-0 w-full sm:w-32 md:w-40 lg:w-48">
+                {/* Product Image and Description */}
+                <div className="relative flex-shrink-0 w-full sm:w-32 md:w-40 lg:w-48 flex flex-col items-stretch">
                     <Link href={`/product/${product.id}`}>
                         <div className="relative w-full aspect-square sm:aspect-[4/5] overflow-hidden bg-gray-50">
                             {product.images && product.images.length > 0 ? (
@@ -101,6 +101,13 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                             )}
                         </div>
                     </Link>
+
+                    {/* Description - Always visible, below image */}
+                    {product.description && (
+                        <div className="mt-2 px-1">
+                            <p className="text-xs text-gray-600 line-clamp-2">{product.description}</p>
+                        </div>
+                    )}
 
                     {/* Wishlist Button */}
                     <button
@@ -134,13 +141,6 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                 {product.name}
                             </h3>
                         </Link>
-
-                        {/* Description - Hidden on mobile */}
-                        {product.description && (
-                            <p className="hidden sm:block text-sm text-gray-600 line-clamp-2">
-                                {product.description}
-                            </p>
-                        )}
                     </div>
 
                     {/* Price and Actions */}

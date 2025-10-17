@@ -110,23 +110,21 @@ export default function Header() {
     checkAdmin()
   }, [user])
 
+  const [bannerHidden, setBannerHidden] = useState(false);
+
   // Controlar transparência do header baseado no scroll
   useEffect(() => {
     const handleScroll = () => {
-      // Banner desaparece após 50px de scroll
       setBannerHidden(window.scrollY > 50);
-      // Header só fica branco após o fim da hero na home
       if (pathname === '/') {
-        const heroHeight = window.innerHeight - 32; // 32px = 2rem do banner
+        const heroHeight = window.innerHeight - 32;
         setIsScrolled(window.scrollY > heroHeight);
       } else {
         setIsScrolled(true);
       }
     };
 
-    // Estado para o banner
     setBannerHidden(window.scrollY > 50);
-    // Estado inicial do header
     if (pathname === '/') {
       const heroHeight = window.innerHeight - 32;
       setIsScrolled(window.scrollY > heroHeight);
@@ -134,10 +132,26 @@ export default function Header() {
       setIsScrolled(true);
     }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [pathname]);
-  const [bannerHidden, setBannerHidden] = useState(false);
+    // Definir offset dinâmico para o conteúdo principal
+    const setHeaderOffset = () => {
+      // header: h-20 = 80px, banner: h-8 = 32px
+      let offset = 80;
+      if (pathname === '/' && !bannerHidden) {
+        offset += 32;
+      }
+      document.body.style.setProperty('--header-offset', offset + 'px');
+    };
+    setHeaderOffset();
+    window.addEventListener('scroll', () => {
+      handleScroll();
+      setHeaderOffset();
+    });
+    window.addEventListener('resize', setHeaderOffset);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', setHeaderOffset);
+    };
+  }, [pathname, bannerHidden]);
 
   // Fechar busca com ESC e ao clicar fora
   useEffect(() => {
@@ -202,12 +216,14 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Banner - desaparece ao rolar */}
-      <div className={`bg-black text-white text-center py-1 fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${bannerHidden ? '-translate-y-full' : 'translate-y-0'}`}>
-        <p className="text-xs uppercase tracking-widest">
-          COMPRE ONLINE E NA NOSSA LOJA
-        </p>
-      </div>
+      {/* Top Banner - só na home */}
+      {pathname === '/' && (
+        <div className={`bg-black text-white text-center py-1 fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${bannerHidden ? '-translate-y-full' : 'translate-y-0'}`}>
+          <p className="text-xs uppercase tracking-widest">
+            COMPRE ONLINE E NA NOSSA LOJA
+          </p>
+        </div>
+      )}
 
       <header
         className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-xl top-0' : 'bg-transparent top-8'}`}

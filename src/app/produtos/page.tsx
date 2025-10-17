@@ -166,14 +166,14 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
     <PageTransition>
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
-        <section className="pt-22 bg-white border-b border-gray-100">
+        <section className="pt-0 bg-white border-b border-gray-100">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-light text-black mb-4 tracking-wider">
+            <div className="text-center mt-6 mb-0">
+              <h1 className="text-3xl md:text-4xl font-light text-black mt-0 mb-1 tracking-wider">
                 PRODUTOS
               </h1>
-              <div className="w-24 h-px bg-black mx-auto mb-4"></div>
-              <p className="text-gray-600">
+              <div className="w-24 h-px bg-black mx-auto mb-0"></div>
+              <p className="text-gray-600 text-base md:text-lg mt-4 mb-4">
                 Descubra a nossa coleção completa com filtros avançados
               </p>
             </div>
@@ -181,14 +181,14 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
         </section>
 
         {/* Main Content */}
-        <section className="py-8">
+        <section className="py-0">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             {/* Filtros e Controles */}
             <ProductFilters />
 
             {/* Results Info e Sort */}
-            <div className=" mb-6 p-4 bg-white border border-gray-200 shadow-sm rounded-sm">
+            <div className="mb-2 p-2 bg-white border border-gray-200 shadow-sm rounded-sm">
               <div className="flex justify-between">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">
@@ -203,7 +203,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
               <>
                 {/* Products Display - Grid or List */}
                 {viewMode === 'list' ? (
-                  <div className="space-y-4 mb-12">
+                  <div className="space-y-6 mb-6">
                     {products.map((product) => (
                       <ProductListCard
                         key={product.id}
@@ -213,7 +213,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-8 gap-x-4 mb-8 mt-4">
                     {products.map((product) => (
                       <FastProductCard
                         key={product.id}

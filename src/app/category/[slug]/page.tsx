@@ -53,7 +53,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white" style={{ paddingTop: '100px' }}>
+  <div className="min-h-screen bg-white">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
@@ -73,12 +73,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
 
           {/* Category Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-light text-black mb-3 tracking-wider uppercase">
+          <div className="text-center mb-0">
+            <h1 className="text-3xl md:text-4xl font-light text-black mb-0 tracking-wider uppercase">
               {serializedCategory.name}
             </h1>
-            <div className="w-24 h-px bg-black mx-auto mb-4"></div>
-            <p className="text-gray-600">
+            <div className="w-24 h-px bg-black mx-auto mb-0"></div>
+            <p className="text-gray-600 text-base md:text-lg">
               Descubra a nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
             </p>
           </div>
@@ -98,7 +98,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           ) : (
             <>
               {/* Products Count */}
-              <div className="mb-8">
+              <div className="mb-2">
                 <p className="text-gray-600">
                   {serializedCategory.products.length} {serializedCategory.products.length === 1 ? 'produto encontrado' : 'produtos encontrados'}
                 </p>

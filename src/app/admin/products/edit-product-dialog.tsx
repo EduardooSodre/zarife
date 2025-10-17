@@ -8,13 +8,39 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Edit, Loader2, Tag, Plus, Trash2 } from "lucide-react";
+import { Plus, Loader2, Tag, X, Trash2, Edit } from "lucide-react";
+import { ImageUploader } from "@/components/admin/image-uploader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
 interface Category {
   id: string;
   name: string;
   slug: string;
+}
+
+interface ImageItem {
+  id: string;
+  url?: string;
+  file: File;
+  preview: string;
+  order: number;
+}
+
+interface ProductVariant {
+  id: string;
+  size: string;
+  color: string;
+  stock: number;
+  images: ImageItem[];
+}
+
+interface VariantData {
+  id: string;
+  size: string;
+  color: string;
+  stock: number;
+  images: Array<{ id: string; url: string; order: number }>;
 }
 
 interface Product {
@@ -26,11 +52,13 @@ interface Product {
   stock: number;
   categoryId: string;
   isActive: boolean;
+  isFeatured?: boolean;
   isOnSale: boolean;
   salePercentage?: number | null;
   material?: string | null;
   brand?: string | null;
   season?: string | null;
+  variants?: VariantData[];
 }
 
 interface EditProductDialogProps {
@@ -43,6 +71,12 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [seasons, setSeasons] = useState<string[]>([]);
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
+
+  const [additionalDescriptions, setAdditionalDescriptions] = useState<Array<{ title: string; content: string }>>([]);
+  const [newDescTitle, setNewDescTitle] = useState('');
+  const [newDescContent, setNewDescContent] = useState('');
 
   const [formData, setFormData] = useState({
     name: product.name,
@@ -51,6 +85,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     stock: product.stock.toString(),
     categoryId: product.categoryId,
     isActive: product.isActive,
+    isFeatured: product.isFeatured || false,
     isOnSale: product.isOnSale,
     salePercentage: product.salePercentage?.toString() || '',
     material: product.material || '',
@@ -58,37 +93,84 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     season: product.season || '',
   });
 
-  const [additionalDescriptions, setAdditionalDescriptions] = useState<Array<{ title: string; content: string }>>(
-    product.additionalDescriptions || []
-  );
-  const [newDescTitle, setNewDescTitle] = useState('');
-  const [newDescContent, setNewDescContent] = useState('');
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [newVariant, setNewVariant] = useState({
+    size: '',
+    color: '',
+    stock: '0'
+  });
 
   useEffect(() => {
-    if (open) {
-      fetchData();
-    }
-  }, [open]);
+    if (!open) return;
 
-  const fetchData = async () => {
-    try {
-      // Buscar categorias
-      const categoriesResponse = await fetch('/api/categories/for-products');
-      if (categoriesResponse.ok) {
-        const categoriesData = await categoriesResponse.json();
-        setCategories(categoriesData.all || []);
-      }
+    async function fetchData() {
+      try {
+        const categoriesResponse = await fetch('/api/categories/for-products');
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.all || []);
+        }
 
-      // Buscar estações
-      const seasonsResponse = await fetch('/api/seasons');
-      if (seasonsResponse.ok) {
-        const seasonsData = await seasonsResponse.json();
-        setSeasons(seasonsData.data.map((s: { name: string }) => s.name));
+        const seasonsResponse = await fetch('/api/seasons');
+        if (seasonsResponse.ok) {
+          const seasonsData = await seasonsResponse.json();
+          setSeasons(seasonsData.data.map((s: { name: string }) => s.name));
+        }
+
+        const sizesResponse = await fetch('/api/sizes');
+        if (sizesResponse.ok) {
+          const sizesData = await sizesResponse.json();
+          setSizes(sizesData.data.map((s: { name: string }) => s.name));
+        }
+
+        const productResponse = await fetch(`/api/products/${product.id}`);
+        if (productResponse.ok) {
+          const productData = await productResponse.json();
+          const fullProduct = productData.data;
+
+          if (fullProduct.additionalDescriptions && Array.isArray(fullProduct.additionalDescriptions)) {
+            setAdditionalDescriptions(fullProduct.additionalDescriptions);
+          }
+
+          if (fullProduct.variants && Array.isArray(fullProduct.variants)) {
+            const loadedVariants: ProductVariant[] = fullProduct.variants.map((v: VariantData) => ({
+              id: v.id,
+              size: v.size,
+              color: v.color,
+              stock: v.stock,
+              images: v.images.map((img: { id: string; url: string; order: number }) => ({
+                id: img.id,
+                url: img.url,
+                file: new File([], img.url),
+                preview: img.url,
+                order: img.order,
+              })),
+            }));
+            setVariants(loadedVariants);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
       }
-    } catch (error) {
-      console.error('Erro ao buscar dados:', error);
     }
+
+    fetchData();
+  }, [open, product.id]);
+
+  // Calcular preço com desconto
+  const calculateSalePrice = () => {
+    if (!formData.isOnSale || !formData.price || !formData.salePercentage) {
+      return null;
+    }
+    const price = parseFloat(formData.price);
+    const percentage = parseInt(formData.salePercentage);
+    if (isNaN(price) || isNaN(percentage) || percentage < 0 || percentage > 100) {
+      return null;
+    }
+    return (price * (1 - percentage / 100)).toFixed(2);
   };
+
+  const salePrice = calculateSalePrice();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -113,9 +195,55 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     setAdditionalDescriptions(additionalDescriptions.filter((_, i) => i !== index));
   };
 
-  const salePrice = formData.isOnSale && formData.price && formData.salePercentage
-    ? (parseFloat(formData.price) * (1 - parseInt(formData.salePercentage) / 100)).toFixed(2)
-    : null;
+  const addVariant = () => {
+    if (!newVariant.size || !newVariant.color) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Selecione tamanho e cor para a variante",
+      });
+      return;
+    }
+
+    const exists = variants.some(v => v.size === newVariant.size && v.color === newVariant.color);
+    if (exists) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Já existe uma variante com esse tamanho e cor",
+      });
+      return;
+    }
+
+    const variant: ProductVariant = {
+      id: `temp-${Date.now()}`,
+      size: newVariant.size,
+      color: newVariant.color,
+      stock: parseInt(newVariant.stock) || 0,
+      images: []
+    };
+
+    setVariants([...variants, variant]);
+    setNewVariant({ size: '', color: '', stock: '0' });
+    setActiveVariantTab(variants.length.toString());
+  };
+
+  const removeVariant = (id: string) => {
+    setVariants(variants.filter(v => v.id !== id));
+    setActiveVariantTab("0");
+  };
+
+  const updateVariantImages = (variantId: string, images: ImageItem[]) => {
+    setVariants(variants.map(v =>
+      v.id === variantId ? { ...v, images } : v
+    ));
+  };
+
+  const updateVariantStock = (variantId: string, stock: number) => {
+    setVariants(variants.map(v =>
+      v.id === variantId ? { ...v, stock } : v
+    ));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,35 +266,84 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
       return;
     }
 
+    if (variants.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Erro de validação",
+        description: "Adicione pelo menos uma variante (tamanho + cor)",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const variantsWithUploadedImages = await Promise.all(
+        variants.map(async (variant) => {
+          const uploadedImages = await Promise.all(
+            variant.images.map(async (image) => {
+              if (image.url && !image.url.startsWith('blob:')) {
+                return { url: image.url, order: image.order };
+              }
+
+              const formData = new FormData();
+              formData.append('file', image.file);
+
+              const uploadResponse = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!uploadResponse.ok) {
+                throw new Error('Falha no upload de imagem');
+              }
+
+              const uploadData = await uploadResponse.json();
+              return { url: uploadData.url, order: image.order };
+            })
+          );
+
+          return {
+            id: variant.id.startsWith('temp-') ? undefined : variant.id,
+            size: variant.size,
+            color: variant.color,
+            stock: variant.stock,
+            images: uploadedImages,
+          };
+        })
+      );
+
       const response = await fetch(`/api/products/${product.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           ...formData,
           price: Number(formData.price),
-          stock: Number(formData.stock),
+          stock: Number(formData.stock) || 0,
+          isFeatured: formData.isFeatured,
+          isOnSale: formData.isOnSale,
           salePercentage: formData.isOnSale && formData.salePercentage ? parseInt(formData.salePercentage) : null,
           material: formData.material || null,
           brand: formData.brand || null,
           season: formData.season || null,
           additionalDescriptions: additionalDescriptions.length > 0 ? additionalDescriptions : null,
+          variants: variantsWithUploadedImages,
         }),
       });
 
-      if (response.ok) {
-        toast({
-          title: "Produto atualizado",
-          description: "As alterações foram salvas com sucesso.",
-        });
-        setOpen(false);
-        onUpdated?.();
-      } else {
+      if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Erro ao atualizar produto');
       }
+
+      setOpen(false);
+      onUpdated?.();
+      toast({
+        title: "Produto atualizado",
+        description: "As alterações foram salvas com sucesso.",
+      });
     } catch (error) {
       toast({
         variant: "destructive",
@@ -185,149 +362,156 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
           <Edit className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Editar Produto</DialogTitle>
+      <DialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-2xl font-bold">Editar Produto</DialogTitle>
+          <p className="text-sm text-gray-500">Modifique os dados do produto e suas variantes</p>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Informações Básicas */}
+        <form onSubmit={handleSubmit} className="space-y-8 py-4">
+          {/* Seção: Informações Básicas */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2">
               <Tag className="w-5 h-5" />
               Informações Básicas
             </h3>
-
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">Nome do Produto *</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Ex: Vestido Elegante de Festa"
-                required
-                className="h-11"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium">Descrição Geral</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Descreva o produto..."
-                rows={4}
-                className="resize-none"
-              />
-            </div>
-
-            {/* Descrições Adicionais */}
-            <div className="space-y-3 border-t pt-4">
-              <div>
-                <Label className="text-sm font-medium">Descrições Adicionais (Opcional)</Label>
-                <p className="text-xs text-gray-500 mt-1">
-                  Ideal para conjuntos: adicione descrição específica para cada peça
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="space-y-2 lg:col-span-2">
+                <Label htmlFor="name" className="text-sm font-medium">Nome do Produto *</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Ex: Vestido Elegante de Festa"
+                  required
+                  className="h-11"
+                />
               </div>
 
-              <div className="space-y-3 bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300">
-                <div className="space-y-2">
-                  <Label htmlFor="descTitle" className="text-xs font-medium">Título da Seção</Label>
-                  <Input
-                    id="descTitle"
-                    value={newDescTitle}
-                    onChange={(e) => setNewDescTitle(e.target.value)}
-                    placeholder="Ex: DESCRIÇÃO DA BLUSA"
-                    className="h-9 text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="descContent" className="text-xs font-medium">Conteúdo</Label>
-                  <Textarea
-                    id="descContent"
-                    value={newDescContent}
-                    onChange={(e) => setNewDescContent(e.target.value)}
-                    placeholder="Descreva os detalhes..."
-                    rows={3}
-                    className="resize-none text-sm"
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleAddDescription}
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar Descrição
-                </Button>
+              <div className="space-y-2 lg:col-span-2">
+                <Label htmlFor="description" className="text-sm font-medium">Descrição Geral</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Descreva o produto, detalhes, características especiais..."
+                  rows={4}
+                  className="resize-none"
+                />
               </div>
 
-              {additionalDescriptions.length > 0 && (
-                <div className="space-y-3">
-                  {additionalDescriptions.map((desc, index) => (
-                    <div
-                      key={index}
-                      className="bg-white border-2 border-gray-200 rounded-lg p-4 space-y-2"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 space-y-1">
-                          <h4 className="font-semibold text-sm text-gray-900 uppercase">
-                            {desc.title}
-                          </h4>
-                          <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                            {desc.content}
-                          </p>
+              {/* Descrições Adicionais - Para Conjuntos */}
+              <div className="space-y-3 lg:col-span-2 border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-medium">Descrições Adicionais (Opcional)</Label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Ideal para conjuntos: adicione descrição específica para cada peça (ex: Blusa, Saia)
+                    </p>
+                  </div>
+                </div>
+
+                {/* Adicionar nova descrição */}
+                <div className="space-y-3 bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300">
+                  <div className="space-y-2">
+                    <Label htmlFor="descTitle" className="text-xs font-medium">Título da Seção</Label>
+                    <Input
+                      id="descTitle"
+                      value={newDescTitle}
+                      onChange={(e) => setNewDescTitle(e.target.value)}
+                      placeholder="Ex: DESCRIÇÃO DA BLUSA, DESCRIÇÃO DA SAIA..."
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="descContent" className="text-xs font-medium">Conteúdo</Label>
+                    <Textarea
+                      id="descContent"
+                      value={newDescContent}
+                      onChange={(e) => setNewDescContent(e.target.value)}
+                      placeholder="Descreva os detalhes desta peça específica..."
+                      rows={3}
+                      className="resize-none text-sm"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleAddDescription}
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Descrição
+                  </Button>
+                </div>
+
+                {/* Lista de descrições adicionadas */}
+                {additionalDescriptions.length > 0 && (
+                  <div className="space-y-3">
+                    {additionalDescriptions.map((desc, index) => (
+                      <div
+                        key={index}
+                        className="bg-white border-2 border-gray-200 rounded-lg p-4 space-y-2"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 space-y-1">
+                            <h4 className="font-semibold text-sm text-gray-900 uppercase">
+                              {desc.title}
+                            </h4>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                              {desc.content}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 flex-shrink-0 ml-2"
+                            onClick={() => handleRemoveDescription(index)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 flex-shrink-0 ml-2"
-                          onClick={() => handleRemoveDescription(index)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Categoria e Estação */}
+            {/* Categoria e Estação na mesma linha - 50% cada */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="categoryId" className="text-sm font-medium">Categoria *</Label>
-                <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
-                  <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories
-                      .filter(cat => !cat.slug.includes('/'))
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((category) => (
-                        <div key={category.id}>
-                          <SelectItem value={category.id} className="font-semibold">
-                            {category.name}
-                          </SelectItem>
-                          {categories
-                            .filter(sub => sub.slug.startsWith(`${category.slug}/`))
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((subcategory) => (
-                              <SelectItem key={subcategory.id} value={subcategory.id} className="ml-4 text-gray-700">
-                                └─ {subcategory.name}
-                              </SelectItem>
-                            ))}
-                        </div>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={formData.categoryId} onValueChange={(value) => setFormData({ ...formData, categoryId: value })}>
+                    <SelectTrigger className="h-11 border-2 border-gray-300 bg-white focus:border-black flex-1">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories
+                        .filter(cat => !cat.slug.includes('/'))
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((category) => (
+                          <div key={category.id}>
+                            <SelectItem value={category.id} className="font-semibold">
+                              {category.name}
+                            </SelectItem>
+                            {categories
+                              .filter(sub => sub.slug.startsWith(`${category.slug}/`))
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((subcategory) => (
+                                <SelectItem key={subcategory.id} value={subcategory.id} className="ml-4">
+                                  └─ {subcategory.name}
+                                </SelectItem>
+                              ))}
+                          </div>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -347,7 +531,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
               </div>
             </div>
 
-            {/* Marca e Material */}
+            {/* Marca e Material na mesma linha */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="brand" className="text-sm font-medium">Marca/Coleção</Label>
@@ -375,11 +559,10 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
             </div>
           </div>
 
-          {/* Preços e Promoções */}
+          {/* Seção: Preços e Promoções */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2">Preços e Promoções</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-sm font-medium">Preço Base *</Label>
                 <Input
@@ -393,10 +576,11 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                   required
                   className="h-11"
                 />
+                <p className="text-xs text-gray-500">Este é o preço sem desconto</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="stock" className="text-sm font-medium">Estoque</Label>
+                <Label htmlFor="stock" className="text-sm font-medium">Estoque Inicial</Label>
                 <Input
                   id="stock"
                   name="stock"
@@ -406,21 +590,11 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                   placeholder="0"
                   className="h-11"
                 />
-              </div>
-
-              <div className="space-y-2 flex items-end">
-                <div className="flex items-center gap-2 h-11">
-                  <Switch
-                    id="isActive"
-                    checked={formData.isActive}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                  />
-                  <Label htmlFor="isActive" className="text-sm cursor-pointer">Produto Ativo</Label>
-                </div>
+                <p className="text-xs text-gray-500">Estoque das variantes é gerenciado separadamente</p>
               </div>
             </div>
 
-            {/* Promoção */}
+            {/* Seção de Saldo/Promoção */}
             <div className="border-2 border-amber-200 rounded-lg p-4 space-y-4 bg-gradient-to-br from-amber-50 to-orange-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -460,6 +634,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                       onChange={(e) => {
                         const value = e.target.value;
                         const percentage = parseInt(value);
+                        // Validar que o desconto está entre 1 e 99
                         if (value === '' || (percentage >= 1 && percentage <= 99)) {
                           handleChange(e);
                         }
@@ -468,6 +643,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                       required={formData.isOnSale}
                       className="h-11"
                     />
+                    <p className="text-xs text-amber-700">Desconto de 1% a 99%</p>
                   </div>
                   {salePrice && formData.price && (
                     <div className="flex items-center">
@@ -497,20 +673,177 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
             </div>
           </div>
 
-          {/* Botões */}
-          <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
+          {/* Seção: Variantes (Tamanhos e Cores) */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">Variantes (Tamanhos e Cores) *</h3>
+
+            {/* Adicionar nova variante */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 space-y-3 hover:border-gray-400 transition-colors">
+              <Label className="text-sm font-medium">Adicionar Nova Variante</Label>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-gray-700">Tamanho *</Label>
+                  <div className="flex gap-2">
+                    <Select value={newVariant.size} onValueChange={(value) => setNewVariant({ ...newVariant, size: value })}>
+                      <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-black h-10">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sizes.map((size) => (
+                          <SelectItem key={size} value={size}>
+                            {size}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-gray-700">Cor *</Label>
+                  <Input
+                    placeholder="Ex: Preto, Branco, Azul Marinho..."
+                    value={newVariant.color}
+                    onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                    className="h-10"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-gray-700">Estoque (unidades)</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newVariant.stock}
+                    onChange={(e) => setNewVariant({ ...newVariant, stock: e.target.value })}
+                    className="h-10"
+                  />
+                </div>
+
+                <Button type="button" onClick={addVariant} className="h-10 bg-black hover:bg-gray-800 text-white font-medium">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar
+                </Button>
+              </div>
+            </div>
+
+            {/* Lista de variantes com imagens */}
+            {variants.length > 0 ? (
+              <Tabs value={activeVariantTab} onValueChange={setActiveVariantTab} className="w-full">
+                <TabsList className="w-full flex flex-wrap gap-2 bg-transparent h-auto p-0">
+                  {variants.map((variant, index) => (
+                    <TabsTrigger
+                      key={variant.id}
+                      value={index.toString()}
+                      className="px-4 py-2.5 rounded-lg font-medium transition-all
+                                                data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-lg
+                                                data-[state=inactive]:bg-white data-[state=inactive]:text-gray-700 data-[state=inactive]:hover:bg-gray-100
+                                                border-2 data-[state=active]:border-black data-[state=inactive]:border-gray-300"
+                    >
+                      <span className="text-sm">{variant.size}</span>
+                      <span className="mx-1.5">•</span>
+                      <span className="text-sm">{variant.color}</span>
+                      {variant.images.length > 0 && (
+                        <span className="ml-2 text-xs bg-green-500 text-white px-1.5 py-0.5 rounded-full">
+                          {variant.images.length}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                {variants.map((variant, index) => (
+                  <TabsContent key={variant.id} value={index.toString()} className="space-y-4 mt-4">
+                    <div className="border-2 border-gray-200 rounded-lg p-5 space-y-4 bg-white shadow-sm">
+                      <div className="flex items-center justify-between pb-3 border-b">
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">
+                            {variant.size} - {variant.color}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Estoque: {variant.stock} unidades
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeVariant(variant.id)}
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Remover
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Estoque desta variante</Label>
+                        <Input
+                          type="number"
+                          value={variant.stock}
+                          onChange={(e) => updateVariantStock(variant.id, parseInt(e.target.value) || 0)}
+                          min="0"
+                        />
+                      </div>
+
+                      <ImageUploader
+                        images={variant.images}
+                        onChange={(images) => updateVariantImages(variant.id, images)}
+                        maxImages={5}
+                        label={`Imagens - ${variant.size} ${variant.color}`}
+                      />
+                    </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            ) : (
+              <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                <div className="max-w-sm mx-auto space-y-3">
+                  <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
+                    <Tag className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h4 className="font-medium text-gray-700">Nenhuma variante adicionada</h4>
+                  <p className="text-sm text-gray-500">
+                    Adicione pelo menos uma combinação de tamanho e cor com suas respectivas imagens.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Seção: Configurações Finais */}
+          <div className="flex items-center justify-between border-t-2 pt-6">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                className="data-[state=checked]:bg-green-600"
+              />
+              <div>
+                <Label htmlFor="isActive" className="text-base font-semibold cursor-pointer">Produto Ativo</Label>
+                <p className="text-xs text-gray-500">Produto vis ível na loja</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Botões de Ação */}
+          <div className="flex justify-end gap-3 pt-6 border-t-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={loading}
+              className="px-6"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar Alterações'
-              )}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="px-8 bg-black hover:bg-gray-800 text-white font-semibold"
+            >
+              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {loading ? 'Atualizando...' : 'Atualizar Produto'}
             </Button>
           </div>
         </form>

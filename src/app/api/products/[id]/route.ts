@@ -77,6 +77,7 @@ export async function PUT(
       season,
       gender,
       images,
+      variants,
     } = data;
 
     // Calcular salePrice se estiver em promoção
@@ -122,8 +123,34 @@ export async function PUT(
         },
       });
 
-      // Atualizar imagens se fornecidas
-      if (images && Array.isArray(images)) {
+      // Atualizar variantes se fornecidas
+      if (variants && Array.isArray(variants)) {
+        // Deletar todas as variantes antigas (incluindo suas imagens)
+        await tx.productVariant.deleteMany({
+          where: { productId: id },
+        });
+
+        // Criar novas variantes
+        for (const variant of variants) {
+          await tx.productVariant.create({
+            data: {
+              productId: id,
+              size: variant.size,
+              color: variant.color,
+              stock: variant.stock,
+              images: {
+                create: variant.images.map((img: { url: string; order: number }) => ({
+                  url: img.url,
+                  order: img.order,
+                })),
+              },
+            },
+          });
+        }
+      }
+
+      // Atualizar imagens antigas (se fornecidas e não usando variantes)
+      if (images && Array.isArray(images) && (!variants || variants.length === 0)) {
         // Deletar imagens existentes
         await tx.productImage.deleteMany({
           where: { productId: id },

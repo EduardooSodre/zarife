@@ -811,17 +811,34 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
           </div>
 
           {/* Seção: Configurações Finais */}
-          <div className="flex items-center justify-between border-t-2 pt-6">
-            <div className="flex items-center gap-3">
-              <Switch
-                id="isActive"
-                checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                className="data-[state=checked]:bg-green-600"
-              />
-              <div>
-                <Label htmlFor="isActive" className="text-base font-semibold cursor-pointer">Produto Ativo</Label>
-                <p className="text-xs text-gray-500">Produto vis ível na loja</p>
+          <div className="space-y-4 border-t-2 pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  className="data-[state=checked]:bg-green-600"
+                />
+                <div>
+                  <Label htmlFor="isActive" className="text-base font-semibold cursor-pointer">Produto Ativo</Label>
+                  <p className="text-xs text-gray-500">Produto visível na loja</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="isFeatured"
+                  checked={formData.isFeatured}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
+                  className="data-[state=checked]:bg-yellow-600"
+                />
+                <div>
+                  <Label htmlFor="isFeatured" className="text-base font-semibold cursor-pointer">Produto Destaque</Label>
+                  <p className="text-xs text-gray-500">Exibir na página inicial e seções especiais</p>
+                </div>
               </div>
             </div>
           </div>

@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     const {
       name,
       description,
+      additionalDescriptions,
       price,
       oldPrice,
       stock,
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description,
+        ...(additionalDescriptions && { additionalDescriptions }),
         price: priceNum,
         oldPrice: oldPrice ? parseFloat(oldPrice) : null,
         stock: parseInt(stock) || 0,

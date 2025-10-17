@@ -20,6 +20,15 @@ export async function GET(
             order: "asc",
           },
         },
+        variants: {
+          include: {
+            images: {
+              orderBy: {
+                order: "asc",
+              },
+            },
+          },
+        },
       },
     });
 
@@ -106,7 +115,7 @@ export async function PUT(
         data: {
           name,
           description,
-          additionalDescriptions: additionalDescriptions || null,
+          ...(additionalDescriptions !== undefined && { additionalDescriptions }),
           price,
           oldPrice,
           stock,
@@ -132,22 +141,28 @@ export async function PUT(
 
         // Criar novas variantes
         for (const variant of variants) {
-          await tx.productVariant.create({
+          const createdVariant = await tx.productVariant.create({
             data: {
               productId: id,
               size: variant.size,
               color: variant.color,
               stock: variant.stock,
-              images: {
-                create: variant.images.map(
-                  (img: { url: string; order: number }) => ({
-                    url: img.url,
-                    order: img.order,
-                  })
-                ),
-              },
             },
           });
+
+          // Criar imagens da variante
+          if (variant.images && Array.isArray(variant.images) && variant.images.length > 0) {
+            await tx.productImage.createMany({
+              data: variant.images.map(
+                (img: { url: string; order: number }) => ({
+                  productId: id,
+                  productVariantId: createdVariant.id,
+                  url: img.url,
+                  order: img.order,
+                })
+              ),
+            });
+          }
         }
       }
 

@@ -115,7 +115,9 @@ export async function PUT(
         data: {
           name,
           description,
-          ...(additionalDescriptions !== undefined && { additionalDescriptions }),
+          ...(additionalDescriptions !== undefined && {
+            additionalDescriptions,
+          }),
           price,
           oldPrice,
           stock,
@@ -151,7 +153,11 @@ export async function PUT(
           });
 
           // Criar imagens da variante
-          if (variant.images && Array.isArray(variant.images) && variant.images.length > 0) {
+          if (
+            variant.images &&
+            Array.isArray(variant.images) &&
+            variant.images.length > 0
+          ) {
             await tx.productImage.createMany({
               data: variant.images.map(
                 (img: { url: string; order: number }) => ({

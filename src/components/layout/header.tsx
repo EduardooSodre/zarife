@@ -71,8 +71,6 @@ export default function Header() {
   const pathname = usePathname()
   const { user } = useUser()
 
-  // Verificar se estamos na home page
-  const isHomePage = pathname === '/'
   const { totalItems, setIsOpen } = useCart()
   const { favoritesCount } = useFavorites()
 
@@ -115,24 +113,31 @@ export default function Header() {
   // Controlar transparência do header baseado no scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (isHomePage) {
-        // Na home: Header transparente até finalizar a hero section (100vh - 2rem do top banner)
-        const heroHeight = window.innerHeight - 32 // 32px = 2rem
-        setIsScrolled(window.scrollY > heroHeight)
+      // Banner desaparece após 50px de scroll
+      setBannerHidden(window.scrollY > 50);
+      // Header só fica branco após o fim da hero na home
+      if (pathname === '/') {
+        const heroHeight = window.innerHeight - 32; // 32px = 2rem do banner
+        setIsScrolled(window.scrollY > heroHeight);
       } else {
-        // Em outras páginas: Header sempre visível 
-        setIsScrolled(true)
+        setIsScrolled(true);
       }
+    };
+
+    // Estado para o banner
+    setBannerHidden(window.scrollY > 50);
+    // Estado inicial do header
+    if (pathname === '/') {
+      const heroHeight = window.innerHeight - 32;
+      setIsScrolled(window.scrollY > heroHeight);
+    } else {
+      setIsScrolled(true);
     }
 
-    // Executar imediatamente para definir o estado inicial
-    handleScroll()
-
-    if (isHomePage) {
-      window.addEventListener('scroll', handleScroll)
-      return () => window.removeEventListener('scroll', handleScroll)
-    }
-  }, [isHomePage])
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [pathname]);
+  const [bannerHidden, setBannerHidden] = useState(false);
 
   // Fechar busca com ESC e ao clicar fora
   useEffect(() => {
@@ -197,17 +202,15 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Banner */}
-      <div className="bg-black text-white text-center py-1 fixed top-0 left-0 right-0 z-50">
+      {/* Top Banner - desaparece ao rolar */}
+      <div className={`bg-black text-white text-center py-1 fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${bannerHidden ? '-translate-y-full' : 'translate-y-0'}`}>
         <p className="text-xs uppercase tracking-widest">
           COMPRE ONLINE E NA NOSSA LOJA
         </p>
       </div>
 
       <header
-        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100' : 'bg-transparent'
-          }`}
-        style={{ top: isScrolled ? '0' : '2rem' }}
+        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100 top-0' : 'bg-transparent top-8'}`}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">

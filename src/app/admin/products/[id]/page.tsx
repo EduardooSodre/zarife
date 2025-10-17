@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Package, Star, Calendar, Tag, Palette, Ruler } from "lucide-react";
+import { calculateProductStock } from "@/lib/products";
 
 interface ProductPageProps {
   params: Promise<{
@@ -26,6 +27,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
     },
   });
   if (!product) notFound();
+
+  const totalStock = calculateProductStock(product);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -136,12 +139,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   </div>
                   <div>
                     <span className="block text-xs text-gray-500 mb-1">Stock</span>
-                    <span className={`text-base font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>{product.stock} {product.stock === 1 ? 'unidade' : 'unidades'}</span>
+                    <span className={`text-base font-semibold ${totalStock > 0 ? 'text-green-600' : 'text-red-600'}`}>{totalStock} {totalStock === 1 ? 'unidade' : 'unidades'}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {(product.material || product.brand || product.season || product.gender) && (
+              {(product.material || product.brand || product.season) && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -165,12 +168,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       <div>
                         <span className="block text-xs text-gray-500 mb-1">Temporada</span>
                         <span>{product.season}</span>
-                      </div>
-                    )}
-                    {product.gender && (
-                      <div>
-                        <span className="block text-xs text-gray-500 mb-1">Público</span>
-                        <span>{product.gender}</span>
                       </div>
                     )}
                   </CardContent>

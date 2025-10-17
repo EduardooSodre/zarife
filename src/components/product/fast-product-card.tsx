@@ -6,6 +6,7 @@ import { Heart } from "lucide-react";
 import { HomeAddToCartButton } from "@/components/cart/home-add-to-cart-button";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Decimal } from "@prisma/client/runtime/library";
+import { calculateProductStock } from "@/lib/products";
 
 interface FastProductCardProps {
   product: {
@@ -15,7 +16,7 @@ interface FastProductCardProps {
     oldPrice?: number | Decimal | null;
     images?: { url: string }[] | null;
     category?: { name: string; slug: string } | null;
-    stock: number;
+    variants?: { stock: number }[];
   };
   className?: string;
 }
@@ -26,6 +27,7 @@ export function FastProductCard({
 }: FastProductCardProps) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const isWishlisted = isFavorite(product.id);
+  const totalStock = calculateProductStock(product);
 
   const handleToggleFavorite = () => {
     if (isWishlisted) {
@@ -37,7 +39,7 @@ export function FastProductCard({
         price: Number(product.price),
         oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
         images: product.images || [],
-        stock: product.stock,
+        stock: totalStock,
         category: product.category || null,
         addedAt: new Date().toISOString(),
       });
@@ -100,7 +102,7 @@ export function FastProductCard({
             name: product.name,
             price: Number(product.price),
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
-            stock: product.stock,
+            stock: totalStock,
           }}
         />
       </div>

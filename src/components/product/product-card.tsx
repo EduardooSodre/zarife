@@ -3,6 +3,7 @@ import Image from "next/image";
 import { HomeAddToCartButton } from "@/components/cart/home-add-to-cart-button";
 import { MotionCard } from "@/components/animations/motion-wrapper";
 import { Decimal } from "@prisma/client/runtime/library";
+import { calculateProductStock } from "@/lib/products";
 
 interface ProductCardProps {
   product: {
@@ -12,7 +13,7 @@ interface ProductCardProps {
     oldPrice?: number | Decimal | null;
     images?: { url: string }[] | null;
     category?: { name: string; slug: string } | null;
-    stock: number;
+    variants?: { stock: number }[];
   };
   index?: number;
   delay?: number;
@@ -27,6 +28,7 @@ export function ProductCard({
 }: ProductCardProps) {
   // Delay muito menor para aparecer mais rápido
   const cardDelay = delay !== undefined ? delay : Math.min(index * 0.02, 0.3);
+  const totalStock = calculateProductStock(product);
 
   return (
     <MotionCard
@@ -74,7 +76,7 @@ export function ProductCard({
             name: product.name,
             price: Number(product.price),
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
-            stock: product.stock,
+            stock: totalStock,
           }}
         />
       </div>

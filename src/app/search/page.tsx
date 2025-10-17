@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { calculateProductStock } from "@/lib/products";
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -53,11 +54,17 @@ async function SearchResults({ query }: { query: string }) {
         orderBy: { order: "asc" },
         take: 1,
       },
+      variants: { select: { stock: true } },
     },
     orderBy: {
       createdAt: "desc",
     },
   });
+
+  const productsWithStock = products.map(product => ({
+    ...product,
+    totalStock: calculateProductStock(product)
+  }));
 
   return (
     <div className="space-y-6">
@@ -84,7 +91,7 @@ async function SearchResults({ query }: { query: string }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {productsWithStock.map((product) => (
             <Card key={product.id} className="border-0 shadow-sm hover:shadow-lg transition-shadow group">
               <CardContent className="p-0">
                 {/* Product Image */}
@@ -145,9 +152,9 @@ async function SearchResults({ query }: { query: string }) {
 
                   {/* Stock Status */}
                   <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span className={`text-xs ${product.stock > 0 ? 'text-green-700' : 'text-red-700'}`}>
-                      {product.stock > 0 ? 'Em stock' : 'Esgotado'}
+                    <div className={`w-2 h-2 rounded-full ${product.totalStock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <span className={`text-xs ${product.totalStock > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                      {product.totalStock > 0 ? 'Em stock' : 'Esgotado'}
                     </span>
                   </div>
 

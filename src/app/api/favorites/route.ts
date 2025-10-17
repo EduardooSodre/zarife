@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
+import { calculateProductStock } from '@/lib/products';
 
 export async function GET() {
   try {
@@ -27,6 +28,7 @@ export async function GET() {
           include: {
             images: true,
             category: true,
+            variants: { select: { stock: true } },
           }
         }
       },
@@ -39,7 +41,7 @@ export async function GET() {
       price: Number(fav.product.price),
       oldPrice: fav.product.oldPrice ? Number(fav.product.oldPrice) : null,
       images: fav.product.images,
-      stock: fav.product.stock,
+      stock: calculateProductStock(fav.product),
       category: fav.product.category,
       addedAt: fav.createdAt.toISOString(),
     }));

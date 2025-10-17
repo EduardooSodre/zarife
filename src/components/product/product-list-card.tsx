@@ -6,6 +6,7 @@ import { Heart } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { useFavorites } from "@/contexts/favorites-context";
 import { motion } from "framer-motion";
+import { calculateProductStock } from "@/lib/products";
 
 interface ProductListCardProps {
     product: {
@@ -17,9 +18,8 @@ interface ProductListCardProps {
         brand: string | null;
         material: string | null;
         season: string | null;
-        gender: string | null;
         images: { url: string }[];
-        stock: number;
+        variants?: { stock: number }[];
         category: {
             name: string;
             slug: string;
@@ -31,6 +31,7 @@ interface ProductListCardProps {
 export function ProductListCard({ product, className = "" }: ProductListCardProps) {
     const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
     const isWishlisted = isFavorite(product.id);
+    const totalStock = calculateProductStock(product);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -53,7 +54,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                 price: product.price,
                 oldPrice: product.oldPrice,
                 images: product.images,
-                stock: product.stock,
+                stock: totalStock,
                 category: product.category,
                 addedAt: new Date().toISOString(),
             });
@@ -93,7 +94,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                             )}
 
                             {/* Stock Badge */}
-                            {product.stock === 0 && (
+                            {totalStock === 0 && (
                                 <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs font-medium px-2 py-1">
                                     ESGOTADO
                                 </div>
@@ -156,10 +157,10 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                             </div>
                             
                             {/* Stock Info */}
-                            <span className={`text-xs ${product.stock > 0 ? 'text-green-600' : 'text-red-600'
+                            <span className={`text-xs ${totalStock > 0 ? 'text-green-600' : 'text-red-600'
                                 }`}>
-                                {product.stock > 0
-                                    ? `${product.stock} em estoque`
+                                {totalStock > 0
+                                    ? `${totalStock} em estoque`
                                     : 'Fora de estoque'
                                 }
                             </span>
@@ -174,7 +175,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                     price: product.price,
                                     image: product.images[0]?.url || '',
                                 }}
-                                disabled={product.stock === 0}
+                                disabled={totalStock === 0}
                                 className="w-full sm:w-auto min-w-[120px]"
                             />
                         </div>

@@ -80,12 +80,6 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
   if (brand) where.brand = { contains: brand, mode: 'insensitive' };
   if (material) where.material = { contains: material, mode: 'insensitive' };
   if (season) where.season = season;
-  if (gender) where.gender = gender;
-
-  // Filtro por estoque
-  if (inStock) {
-    where.stock = { gt: 0 };
-  }
 
   // Filtro por saldo
   if (onSale) {

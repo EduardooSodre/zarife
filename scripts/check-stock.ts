@@ -20,7 +20,10 @@ async function checkStock() {
 
   for (const product of products) {
     console.log(`\n📦 ${product.name}`);
-    console.log(`   Estoque principal: ${product.stock}`);
+    
+    // Calcular estoque total das variantes
+    const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+    console.log(`   Estoque total: ${totalStock}`);
 
     if (product.variants.length > 0) {
       console.log(`   Variantes:`);

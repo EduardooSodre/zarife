@@ -65,16 +65,6 @@ export async function POST(request: NextRequest) {
                 },
               },
             });
-          } else {
-            // Se não tem variante, atualizar estoque do produto principal
-            await prisma.product.update({
-              where: { id: item.productId },
-              data: {
-                stock: {
-                  decrement: item.quantity,
-                },
-              },
-            });
           }
         }
 

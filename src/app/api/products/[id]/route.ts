@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { deleteFromCloudinary } from '@/lib/upload';
+import { deleteFromCloudinary } from "@/lib/upload";
 import { checkAdminAuth } from "@/lib/auth";
 
 type ProductImageWithPublicId = {
@@ -144,17 +144,23 @@ export async function PUT(
       if (variants && Array.isArray(variants)) {
         // Basic validation: do not allow empty variants list
         if (variants.length === 0) {
-          throw new Error('At least one variant is required');
+          throw new Error("At least one variant is required");
         }
 
         // Validate each variant shape before proceeding
         for (const v of variants) {
-          const stockNum = typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock));
-          if ((v.size === undefined || v.size === null) && (v.color === undefined || v.color === null)) {
-            throw new Error('Each variant must have at least a size or a color');
+          const stockNum =
+            typeof v.stock === "number" ? v.stock : parseInt(String(v.stock));
+          if (
+            (v.size === undefined || v.size === null) &&
+            (v.color === undefined || v.color === null)
+          ) {
+            throw new Error(
+              "Each variant must have at least a size or a color"
+            );
           }
           if (isNaN(stockNum) || stockNum < 0) {
-            throw new Error('Variant stock must be a non-negative number');
+            throw new Error("Variant stock must be a non-negative number");
           }
         }
 
@@ -165,7 +171,10 @@ export async function PUT(
 
         // Criar novas variantes (normalizando stock e nulls)
         for (const variant of variants) {
-          const stockNum = typeof variant.stock === 'number' ? variant.stock : parseInt(String(variant.stock)) || 0;
+          const stockNum =
+            typeof variant.stock === "number"
+              ? variant.stock
+              : parseInt(String(variant.stock)) || 0;
           const createdVariant = await tx.productVariant.create({
             data: {
               productId: id,
@@ -181,15 +190,17 @@ export async function PUT(
             Array.isArray(variant.images) &&
             variant.images.length > 0
           ) {
-              await tx.productImage.createMany({
-                data: variant.images.map((img: { url: string; order: number; publicId?: string }) => ({
+            await tx.productImage.createMany({
+              data: variant.images.map(
+                (img: { url: string; order: number; publicId?: string }) => ({
                   productId: id,
                   productVariantId: createdVariant.id,
                   url: img.url,
                   publicId: img.publicId ?? null,
                   order: img.order,
-                })),
-              });
+                })
+              ),
+            });
           }
         }
       }
@@ -208,12 +219,14 @@ export async function PUT(
         // Criar novas imagens
         if (images.length > 0) {
           await tx.productImage.createMany({
-            data: images.map((img: { url: string; order: number; publicId?: string }) => ({
-              productId: id,
-              url: img.url,
-              publicId: img.publicId ?? null,
-              order: img.order,
-            })),
+            data: images.map(
+              (img: { url: string; order: number; publicId?: string }) => ({
+                productId: id,
+                url: img.url,
+                publicId: img.publicId ?? null,
+                order: img.order,
+              })
+            ),
           });
         }
       }
@@ -343,33 +356,53 @@ export async function DELETE(
     // Sem pedidos - permitir deleção permanente
     // Se force=true e produto está deletado, deletar permanentemente (remover imagens do Cloudinary primeiro)
     if (force && existingProduct.deletedAt) {
-      const images = await prisma.productImage.findMany({ where: { productId: id } }) as ProductImageWithPublicId[];
+      const images = (await prisma.productImage.findMany({
+        where: { productId: id },
+      })) as ProductImageWithPublicId[];
       for (const img of images) {
         try {
           if (img.publicId) await deleteFromCloudinary(img.publicId);
         } catch (err) {
-          console.error('Failed to delete image from Cloudinary for product', id, img.id, err);
+          console.error(
+            "Failed to delete image from Cloudinary for product",
+            id,
+            img.id,
+            err
+          );
         }
       }
 
       await prisma.product.delete({ where: { id: id } });
 
-      return NextResponse.json({ success: true, message: 'Produto deletado permanentemente' });
+      return NextResponse.json({
+        success: true,
+        message: "Produto deletado permanentemente",
+      });
     }
 
     // Se não tem pedidos e não está deletado, deletar permanentemente (remover imagens do Cloudinary primeiro)
-    const images = await prisma.productImage.findMany({ where: { productId: id } }) as ProductImageWithPublicId[];
+    const images = (await prisma.productImage.findMany({
+      where: { productId: id },
+    })) as ProductImageWithPublicId[];
     for (const img of images) {
       try {
         if (img.publicId) await deleteFromCloudinary(img.publicId);
       } catch (err) {
-        console.error('Failed to delete image from Cloudinary for product', id, img.id, err);
+        console.error(
+          "Failed to delete image from Cloudinary for product",
+          id,
+          img.id,
+          err
+        );
       }
     }
 
     await prisma.product.delete({ where: { id: id } });
 
-    return NextResponse.json({ success: true, message: 'Produto deletado com sucesso' });
+    return NextResponse.json({
+      success: true,
+      message: "Produto deletado com sucesso",
+    });
   } catch (error) {
     console.error("Erro ao deletar produto:", error);
     return NextResponse.json(

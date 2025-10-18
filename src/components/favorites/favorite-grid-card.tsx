@@ -51,9 +51,8 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
   };
 
   return (
-    <div className={`bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300 relative ${
-      isOutOfStock ? 'opacity-60' : ''
-    } ${className}`}>
+    <div className={`bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300 relative ${isOutOfStock ? 'opacity-60' : ''
+      } ${className}`}>
       <Link href={`/product/${product.id}`}>
         <div className="aspect-square bg-gray-200 overflow-hidden cursor-pointer">
           {product.images && product.images.length > 0 ? (
@@ -62,9 +61,8 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
               alt={product.name}
               width={300}
               height={300}
-              className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
-                isOutOfStock ? 'grayscale' : ''
-              }`}
+              className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${isOutOfStock ? 'grayscale' : ''
+                }`}
             />
           ) : (
             <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
@@ -101,9 +99,8 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
 
       <div className="p-2 md:p-4">
         <Link href={`/product/${product.id}`}>
-          <h3 className={`text-sm md:text-base font-medium mb-2 hover:text-black transition-colors cursor-pointer h-10 md:h-12 overflow-hidden ${
-            isOutOfStock ? 'text-gray-500' : 'text-gray-900'
-          }`}>
+          <h3 className={`text-sm md:text-base font-medium mb-2 hover:text-black transition-colors cursor-pointer h-10 md:h-12 overflow-hidden ${isOutOfStock ? 'text-gray-500' : 'text-gray-900'
+            }`}>
             {product.name}
           </h3>
         </Link>
@@ -115,9 +112,8 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
         )}
 
         <div className="flex items-center justify-between mb-2 md:mb-3">
-          <span className={`text-sm md:text-lg font-medium ${
-            isOutOfStock ? 'text-gray-500' : 'text-black'
-          }`}>
+          <span className={`text-sm md:text-lg font-medium ${isOutOfStock ? 'text-gray-500' : 'text-black'
+            }`}>
             {formatPrice(product.price)}
           </span>
           {product.oldPrice && !isOutOfStock && (
@@ -128,9 +124,8 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
         </div>
 
         {/* Stock Info */}
-        <p className={`text-xs mb-3 ${
-          product.stock > 0 ? 'text-green-600' : 'text-red-600'
-        }`}>
+        <p className={`text-xs mb-3 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
           {product.stock > 0
             ? `${product.stock} em estoque`
             : 'Fora de estoque'

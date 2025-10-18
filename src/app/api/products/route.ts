@@ -100,7 +100,11 @@ export async function POST(request: NextRequest) {
     // Validações de segurança
     if (!name || !price || !categoryId) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields: name, price and categoryId are required" },
+        {
+          success: false,
+          error:
+            "Missing required fields: name, price and categoryId are required",
+        },
         { status: 400 }
       );
     }
@@ -122,16 +126,26 @@ export async function POST(request: NextRequest) {
     }
     // Validate each variant has at least size or color and a numeric non-negative stock
     for (const v of variants) {
-      const stockNum = typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock))
-      if ((v.size === undefined || v.size === null) && (v.color === undefined || v.color === null)) {
+      const stockNum =
+        typeof v.stock === "number" ? v.stock : parseInt(String(v.stock));
+      if (
+        (v.size === undefined || v.size === null) &&
+        (v.color === undefined || v.color === null)
+      ) {
         return NextResponse.json(
-          { success: false, error: "Each variant must have at least a size or a color" },
+          {
+            success: false,
+            error: "Each variant must have at least a size or a color",
+          },
           { status: 400 }
         );
       }
       if (isNaN(stockNum) || stockNum < 0) {
         return NextResponse.json(
-          { success: false, error: "Variant stock must be a non-negative number" },
+          {
+            success: false,
+            error: "Variant stock must be a non-negative number",
+          },
           { status: 400 }
         );
       }
@@ -175,7 +189,10 @@ export async function POST(request: NextRequest) {
 
     // Criar variantes com imagens (usando valores validados e normalizados)
     for (const variant of variants) {
-      const stockNum = typeof variant.stock === 'number' ? variant.stock : parseInt(String(variant.stock)) || 0;
+      const stockNum =
+        typeof variant.stock === "number"
+          ? variant.stock
+          : parseInt(String(variant.stock)) || 0;
 
       const createdVariant = await prisma.productVariant.create({
         data: {
@@ -187,23 +204,52 @@ export async function POST(request: NextRequest) {
       });
 
       // Criar imagens da variante
-      if (variant.images && Array.isArray(variant.images) && variant.images.length > 0) {
-        const data: Array<{ productId: string; productVariantId: string; url: string; publicId?: string | null; order: number }> = variant.images.map((image: { url: string; order: number; publicId?: string }) => ({
-          productId: product.id,
-          productVariantId: createdVariant.id,
-          url: image.url,
-          publicId: image.publicId ?? null,
-          order: image.order,
-        }));
+      if (
+        variant.images &&
+        Array.isArray(variant.images) &&
+        variant.images.length > 0
+      ) {
+        const data: Array<{
+          productId: string;
+          productVariantId: string;
+          url: string;
+          publicId?: string | null;
+          order: number;
+        }> = variant.images.map(
+          (image: { url: string; order: number; publicId?: string }) => ({
+            productId: product.id,
+            productVariantId: createdVariant.id,
+            url: image.url,
+            publicId: image.publicId ?? null,
+            order: image.order,
+          })
+        );
 
         try {
           await prisma.productImage.createMany({ data });
         } catch (error) {
-          const msg = String(error || '');
+          const msg = String(error || "");
           // Fallback for environments where the DB schema/migration hasn't added publicId yet
-          if (msg.includes('Unknown argument `publicId`') || msg.includes('Unknown arg `publicId`') ) {
-            console.warn('DB does not have product_images.public_id column yet - retrying without publicId. Run prisma migrate to add it.');
-            const dataNoPublic = data.map(({ productId, productVariantId, url, order }: { productId: string; productVariantId: string; url: string; order: number }) => ({ productId, productVariantId, url, order }));
+          if (
+            msg.includes("Unknown argument `publicId`") ||
+            msg.includes("Unknown arg `publicId`")
+          ) {
+            console.warn(
+              "DB does not have product_images.public_id column yet - retrying without publicId. Run prisma migrate to add it."
+            );
+            const dataNoPublic = data.map(
+              ({
+                productId,
+                productVariantId,
+                url,
+                order,
+              }: {
+                productId: string;
+                productVariantId: string;
+                url: string;
+                order: number;
+              }) => ({ productId, productVariantId, url, order })
+            );
             await prisma.productImage.createMany({ data: dataNoPublic });
           } else {
             throw error;

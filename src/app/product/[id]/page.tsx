@@ -75,8 +75,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   });
 
   return (
-  <div className="min-h-screen bg-white">
-  <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-0">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-0">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
           <Link href="/" className="hover:text-black transition-colors">
@@ -98,7 +98,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </Link>
         </div>
 
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-2">
           {/* Product Images */}
           <div className="space-y-4">
             <ProductImageGallery images={product.images} productName={product.name} />

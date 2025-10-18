@@ -54,7 +54,7 @@ async function SearchResults({ query }: { query: string }) {
         orderBy: { order: "asc" },
         take: 1,
       },
-  variants: { select: { size: true, color: true, stock: true } },
+      variants: { select: { size: true, color: true, stock: true } },
     },
     orderBy: {
       createdAt: "desc",

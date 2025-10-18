@@ -26,7 +26,7 @@ export function AddToCartButton({ product, className = "", disabled = false }: A
     if (disabled) return
     // If a size/color is explicitly provided, try to find the matching variant and use its stock
     if (product.variants && product.variants.length > 0) {
-  const asNum = (s: number | string | undefined) => (typeof s === 'number' ? s : parseInt(String(s || '0')))
+      const asNum = (s: number | string | undefined) => (typeof s === 'number' ? s : parseInt(String(s || '0')))
 
       // If both provided, prefer exact match
       if (product.size || product.color) {

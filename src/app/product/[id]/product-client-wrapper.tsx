@@ -64,17 +64,17 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
   const isWishlisted = isFavorite(product.id)
 
   const handleVariantChange = useCallback((variant: { size?: string; color?: string; stock: number }) => {
-    try { console.debug('[ProductClientWrapper] handleVariantChange', variant) } catch {}
+    try { console.debug('[ProductClientWrapper] handleVariantChange', variant) } catch { }
     setSelectedVariant(variant)
   }, []) // Função estável que não muda entre renderizações
 
   // Se a lista de variantes mudar (por exemplo, novo produto carregado), recalcular seleção inicial
   React.useEffect(() => {
     const initial = chooseInitial()
-    try { console.debug('[ProductClientWrapper] variants changed, resetting selection to', initial) } catch {}
+    try { console.debug('[ProductClientWrapper] variants changed, resetting selection to', initial) } catch { }
     setSelectedVariant(initial)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variants.map(v => v.id).join(',' )])
+  }, [variants.map(v => v.id).join(',')])
 
   const handleToggleFavorite = () => {
     if (isWishlisted) {

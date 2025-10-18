@@ -66,7 +66,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
   // Se as variantes mudarem (conteúdo), recalcule a seleção inicial de forma controlada
   useEffect(() => {
     const { size, color } = findFirstAvailable()
-    try { console.debug('[ProductVariants] variants changed, reset selection if needed', { size, color }) } catch {}
+    try { console.debug('[ProductVariants] variants changed, reset selection if needed', { size, color }) } catch { }
     if (selectedSize !== size) setSelectedSize(size)
     if (selectedColor !== color) setSelectedColor(color)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,7 +109,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
         onVariantChange(payload)
       } catch (e) {
         // swallow to avoid breaking UI if parent throws
-        try { console.error('[ProductVariants] onVariantChange threw', e) } catch {}
+        try { console.error('[ProductVariants] onVariantChange threw', e) } catch { }
       }
     }
   }, [selectedSize, selectedColor, getCurrentVariant, onVariantChange])
@@ -147,7 +147,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
                   variant={isSelected ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
-                    try { console.debug('[ProductVariants] size click', { size, isAvailable, selectedColor }) } catch {}
+                    try { console.debug('[ProductVariants] size click', { size, isAvailable, selectedColor }) } catch { }
                     if (!isAvailable) return
                     // If current selectedColor doesn't have stock for this size, pick a color that does
                     const colorHasStock = selectedColor && normalizedVariants.some(v => v.size === size && v.color === selectedColor && v.stock > 0)
@@ -191,7 +191,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
                   variant={isSelected ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
-                    try { console.debug('[ProductVariants] color click', { color, isAvailable, selectedSize }) } catch {}
+                    try { console.debug('[ProductVariants] color click', { color, isAvailable, selectedSize }) } catch { }
                     if (!isAvailable) return
                     const sizeHasStock = selectedSize && normalizedVariants.some(v => v.color === color && v.size === selectedSize && v.stock > 0)
                     if (sizeHasStock) {

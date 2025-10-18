@@ -28,7 +28,7 @@ export async function GET() {
           include: {
             images: true,
             category: true,
-            variants: { select: { stock: true } },
+            variants: { select: { size: true, color: true, stock: true } },
           },
         },
       },
@@ -42,6 +42,11 @@ export async function GET() {
       oldPrice: fav.product.oldPrice ? Number(fav.product.oldPrice) : null,
       images: fav.product.images,
       stock: calculateProductStock(fav.product),
+      variants: (fav.product.variants || []).map(v => ({
+        size: v.size === null ? undefined : v.size,
+        color: v.color === null ? undefined : v.color,
+        stock: v.stock,
+      })),
       category: fav.product.category,
       addedAt: fav.createdAt.toISOString(),
     }));

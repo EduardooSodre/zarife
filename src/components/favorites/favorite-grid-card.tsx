@@ -13,6 +13,11 @@ interface FavoriteProduct {
   oldPrice: number | null;
   images: { url: string }[];
   stock: number;
+  variants?: {
+    size?: string | null;
+    color?: string | null;
+    stock: number;
+  }[];
   category: {
     name: string;
     slug: string;
@@ -138,6 +143,7 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
             name: product.name,
             price: product.price,
             image: product.images[0]?.url || '',
+            variants: product.variants || [],
           }}
           disabled={isOutOfStock}
           className="w-full"

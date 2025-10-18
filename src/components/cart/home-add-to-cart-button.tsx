@@ -1,6 +1,8 @@
 'use client';
 
+
 import { useCart } from '@/contexts/cart-context';
+import { calculateProductStock, hasStock } from '@/lib/products';
 
 interface HomeAddToCartButtonProps {
   product: {
@@ -9,12 +11,16 @@ interface HomeAddToCartButtonProps {
     price: number;
     image: string;
     stock?: number;
+    variants?: { stock: number }[];
   };
 }
 
+
 export function HomeAddToCartButton({ product }: HomeAddToCartButtonProps) {
   const { addItem, setIsOpen } = useCart();
-  const isOutOfStock = product.stock !== undefined && product.stock <= 0;
+  // Se houver variantes, considerar o estoque delas
+  const totalStock = product.variants ? calculateProductStock(product) : (product.stock ?? 0);
+  const isOutOfStock = product.variants ? !hasStock(product) : (product.stock !== undefined && product.stock <= 0);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,7 +32,7 @@ export function HomeAddToCartButton({ product }: HomeAddToCartButtonProps) {
       ...product,
       size: "Único",
       color: "Padrão",
-      maxStock: product.stock || 0
+      maxStock: totalStock
     });
 
     setIsOpen(true);

@@ -297,7 +297,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
               }
 
               const uploadData = await uploadResponse.json();
-              return { url: uploadData.url, order: image.order };
+              return { url: uploadData.url, publicId: uploadData.publicId, order: image.order };
             })
           );
 

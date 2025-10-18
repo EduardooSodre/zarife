@@ -120,6 +120,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
             slug: true,
           },
         },
+           variants: true,
       },
       orderBy,
       take: limit,
@@ -133,6 +134,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
     ...product,
     price: Number(product.price),
     oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+     variants: product.variants || [],
   }));
 
   const totalPages = Math.ceil(totalCount / limit);

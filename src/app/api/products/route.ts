@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
             orderBy: { order: "asc" },
             take: 1,
           },
+          variants: true,
         },
         orderBy: { createdAt: "desc" },
         skip,
@@ -99,17 +100,41 @@ export async function POST(request: NextRequest) {
     // Validações de segurança
     if (!name || !price || !categoryId) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields" },
+        { success: false, error: "Missing required fields: name, price and categoryId are required" },
         { status: 400 }
       );
     }
 
     const priceNum = parseFloat(price);
-    if (priceNum <= 0) {
+    if (isNaN(priceNum) || priceNum <= 0) {
       return NextResponse.json(
-        { success: false, error: "Price must be greater than zero" },
+        { success: false, error: "Price must be a number greater than zero" },
         { status: 400 }
       );
+    }
+
+    // Validate variants presence and shape to avoid creating generic products
+    if (!variants || !Array.isArray(variants) || variants.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "At least one variant is required" },
+        { status: 400 }
+      );
+    }
+    // Validate each variant has at least size or color and a numeric non-negative stock
+    for (const v of variants) {
+      const stockNum = typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock))
+      if ((v.size === undefined || v.size === null) && (v.color === undefined || v.color === null)) {
+        return NextResponse.json(
+          { success: false, error: "Each variant must have at least a size or a color" },
+          { status: 400 }
+        );
+      }
+      if (isNaN(stockNum) || stockNum < 0) {
+        return NextResponse.json(
+          { success: false, error: "Variant stock must be a non-negative number" },
+          { status: 400 }
+        );
+      }
     }
 
     // Validar porcentagem de desconto
@@ -148,30 +173,41 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Criar variantes com imagens
-    if (variants && Array.isArray(variants)) {
-      for (const variant of variants) {
-        const createdVariant = await prisma.productVariant.create({
-          data: {
-            productId: product.id,
-            size: variant.size,
-            color: variant.color,
-            stock: variant.stock,
-          },
-        });
+    // Criar variantes com imagens (usando valores validados e normalizados)
+    for (const variant of variants) {
+      const stockNum = typeof variant.stock === 'number' ? variant.stock : parseInt(String(variant.stock)) || 0;
 
-        // Criar imagens da variante
-        if (variant.images && Array.isArray(variant.images)) {
-          await prisma.productImage.createMany({
-            data: variant.images.map(
-              (image: { url: string; order: number }) => ({
-                productId: product.id,
-                productVariantId: createdVariant.id,
-                url: image.url,
-                order: image.order,
-              })
-            ),
-          });
+      const createdVariant = await prisma.productVariant.create({
+        data: {
+          productId: product.id,
+          size: variant.size ?? null,
+          color: variant.color ?? null,
+          stock: stockNum,
+        },
+      });
+
+      // Criar imagens da variante
+      if (variant.images && Array.isArray(variant.images) && variant.images.length > 0) {
+        const data: Array<{ productId: string; productVariantId: string; url: string; publicId?: string | null; order: number }> = variant.images.map((image: { url: string; order: number; publicId?: string }) => ({
+          productId: product.id,
+          productVariantId: createdVariant.id,
+          url: image.url,
+          publicId: image.publicId ?? null,
+          order: image.order,
+        }));
+
+        try {
+          await prisma.productImage.createMany({ data });
+        } catch (error) {
+          const msg = String(error || '');
+          // Fallback for environments where the DB schema/migration hasn't added publicId yet
+          if (msg.includes('Unknown argument `publicId`') || msg.includes('Unknown arg `publicId`') ) {
+            console.warn('DB does not have product_images.public_id column yet - retrying without publicId. Run prisma migrate to add it.');
+            const dataNoPublic = data.map(({ productId, productVariantId, url, order }: { productId: string; productVariantId: string; url: string; order: number }) => ({ productId, productVariantId, url, order }));
+            await prisma.productImage.createMany({ data: dataNoPublic });
+          } else {
+            throw error;
+          }
         }
       }
     }

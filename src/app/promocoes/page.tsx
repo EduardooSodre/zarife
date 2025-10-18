@@ -16,13 +16,20 @@ async function getPromotions() {
                 orderBy: { order: 'asc' },
                 take: 1,
             },
+            variants: true,
         },
         orderBy: {
             salePercentage: 'desc', // Maiores descontos primeiro
         },
     });
 
-    return products;
+    // Normalizar campos para os componentes cliente
+    return products.map(p => ({
+        ...p,
+        price: Number(p.price),
+        oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
+        variants: p.variants || [],
+    }));
 }
 
 export default async function PromocoesPage() {
@@ -64,7 +71,7 @@ export default async function PromocoesPage() {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {products.map((product) => (
-                                <ProductCard key={product.id} product={product} />
+                                <ProductCard key={product.id} product={{ ...product, variants: product.variants || [] }} />
                             ))}
                         </div>
                     </>

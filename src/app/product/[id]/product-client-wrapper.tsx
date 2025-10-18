@@ -31,11 +31,16 @@ interface ProductClientWrapperProps {
 }
 
 export default function ProductClientWrapper({ product, variants }: ProductClientWrapperProps) {
+  // Seleciona a primeira variação com estoque > 0, ou a primeira variação, ou o estoque do produto
+  const getInitialVariant = () => {
+    const available = variants.find(v => v.stock > 0)
+    return available || variants[0] || { stock: product.stock }
+  }
   const [selectedVariant, setSelectedVariant] = useState<{
     size?: string
     color?: string
     stock: number
-  }>({ stock: variants.length > 0 ? variants[0].stock : product.stock })
+  }>(getInitialVariant())
 
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites()
   const isWishlisted = isFavorite(product.id)
@@ -61,6 +66,23 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
     }
   }
 
+  // Debug visual: mostrar variantes recebidas quando ?debugVariants=1 na URL
+  let debugInfo: React.ReactNode = null
+  try {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('debugVariants') === '1') {
+        debugInfo = (
+          <pre className="text-xs bg-gray-100 p-2 rounded border text-left overflow-auto max-h-40">
+            {JSON.stringify({ variants, selectedVariant }, null, 2)}
+          </pre>
+        )
+      }
+    }
+  } catch {
+    // ignore
+  }
+
   return (
     <div className="space-y-6 pt-6">
       {/* Product Variants */}
@@ -73,6 +95,7 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
 
       {/* Actions */}
       <div className="space-y-4">
+        {debugInfo}
         {selectedVariant.stock <= 0 && (
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded text-sm text-center">
             Este produto está esgotado no momento.

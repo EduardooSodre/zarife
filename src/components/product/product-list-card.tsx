@@ -175,6 +175,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                     name: product.name,
                                     price: product.price,
                                     image: product.images[0]?.url || '',
+                                        variants: product.variants || [],
                                 }}
                                 disabled={totalStock === 0}
                                 className="w-full sm:w-auto min-w-[120px]"

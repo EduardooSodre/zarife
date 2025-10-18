@@ -54,7 +54,7 @@ async function SearchResults({ query }: { query: string }) {
         orderBy: { order: "asc" },
         take: 1,
       },
-      variants: { select: { stock: true } },
+  variants: { select: { size: true, color: true, stock: true } },
     },
     orderBy: {
       createdAt: "desc",
@@ -165,8 +165,10 @@ async function SearchResults({ query }: { query: string }) {
                       name: product.name,
                       price: Number(product.price),
                       image: product.images?.[0]?.url || '/placeholder-product.jpg',
-                      size: "Único",
-                      color: "Padrão"
+                      size: "nico",
+                      color: "Padro",
+                      maxStock: product.totalStock,
+                      variants: product.variants || [],
                     }}
                     className="w-full bg-black text-white py-2 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
                   />

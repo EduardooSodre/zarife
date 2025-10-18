@@ -1,12 +1,14 @@
 // utils/upload.ts
-export const uploadToCloudinary = async (file: File): Promise<string> => {
+export type UploadResult = { url: string; publicId?: string };
+
+export const uploadToCloudinary = async (file: File): Promise<UploadResult> => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'zarife');
   
   try {
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, 
       {
         method: 'POST',
         body: formData,
@@ -18,7 +20,7 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
     }
     
     const data = await response.json();
-    return data.secure_url;
+    return { url: data.secure_url, publicId: data.public_id };
   } catch (error) {
     console.error('Erro no upload:', error);
     throw error;
@@ -34,3 +36,38 @@ export const convertToBase64 = (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
+
+// Delete resource from Cloudinary by public id
+export const deleteFromCloudinary = async (publicId: string) => {
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  if (!apiKey || !apiSecret || !cloudName) {
+    console.warn('Cloudinary credentials not configured; skipping deletion');
+    return;
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const crypto = await import('crypto');
+  const stringToSign = `public_id=${publicId}&timestamp=${timestamp}`;
+  const signature = crypto.createHmac('sha1', apiSecret).update(stringToSign).digest('hex');
+
+  const form = new URLSearchParams();
+  form.append('public_id', publicId);
+  form.append('api_key', apiKey);
+  form.append('timestamp', String(timestamp));
+  form.append('signature', signature);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
+    method: 'POST',
+    body: form,
+  });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    console.error('Failed to delete Cloudinary resource:', txt);
+  }
+  return;
+};
+

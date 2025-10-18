@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { calculateProductStock } from "@/lib/products";
 import Link from "next/link";
-import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProductCard } from "@/components/product/product-card";
 import { ArrowLeft } from "lucide-react";
 import ProductImageGallery from "./product-image-gallery";
 import ProductClientWrapper from "./product-client-wrapper";
@@ -69,6 +68,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         orderBy: { order: "asc" },
         take: 1,
       },
+      category: true,
+      variants: true,
     },
     take: 4,
   });
@@ -107,11 +108,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="space-y-6">
             {/* Category Badge */}
             <div>
-              <Link href={`/category/${product.category.slug}`}>
-                <Badge variant="outline" className="mb-4 cursor-pointer hover:bg-gray-50">
+              <Badge asChild variant="outline" className="mb-4 cursor-pointer hover:bg-gray-50">
+                <Link href={`/category/${product.category.slug}`}>
                   {product.category.name}
-                </Badge>
-              </Link>
+                </Link>
+              </Badge>
             </div>
 
             {/* Product Name */}
@@ -226,37 +227,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="w-24 h-px bg-black mx-auto"></div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <Link key={relatedProduct.id} href={`/product/${relatedProduct.id}`} className="group">
-                  <Card className="border-0 shadow-sm hover:shadow-lg transition-shadow">
-                    <CardContent className="p-0">
-                      <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                        {relatedProduct.images && relatedProduct.images.length > 0 ? (
-                          <Image
-                            src={relatedProduct.images[0].url}
-                            alt={relatedProduct.name}
-                            width={300}
-                            height={300}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="text-sm">Sem imagem</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">
-                          {relatedProduct.name}
-                        </h3>
-                        <p className="text-lg font-medium text-black">
-                          €{Number(relatedProduct.price).toFixed(2)}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <ProductCard
+                  key={relatedProduct.id}
+                  product={{
+                    id: relatedProduct.id,
+                    name: relatedProduct.name,
+                    price: Number(relatedProduct.price),
+                    oldPrice: relatedProduct.oldPrice ? Number(relatedProduct.oldPrice) : null,
+                    images: relatedProduct.images?.map(img => ({ url: img.url })) || [],
+                    category: relatedProduct.category ? {
+                      name: relatedProduct.category.name,
+                      slug: relatedProduct.category.slug
+                    } : null,
+                    variants: relatedProduct.variants || [],
+                  }}
+                />
               ))}
             </div>
           </section>

@@ -77,6 +77,7 @@ export function ProductCard({
             price: Number(product.price),
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
             stock: totalStock,
+            variants: product.variants || [],
           }}
         />
       </div>

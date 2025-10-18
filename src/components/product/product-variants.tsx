@@ -17,45 +17,83 @@ interface ProductVariantsProps {
   className?: string
 }
 
+
 export function ProductVariants({ variants, onVariantChange, className }: ProductVariantsProps) {
-  // Calcular valores iniciais apenas uma vez
-  const initialSizes = useMemo(() =>
-    [...new Set(variants.map(v => v.size).filter(Boolean))] as string[],
-    [variants]
-  )
+  // Extrair tamanhos e cores únicos
+  const sizes = useMemo(() => [...new Set(variants.map(v => v.size).filter(Boolean))] as string[], [variants])
+  const colors = useMemo(() => [...new Set(variants.map(v => v.color).filter(Boolean))] as string[], [variants])
 
-  const initialColors = useMemo(() =>
-    [...new Set(variants.map(v => v.color).filter(Boolean))] as string[],
-    [variants]
-  )
+  // Função para encontrar a primeira combinação com estoque
+  const findFirstAvailable = useCallback(() => {
+    for (const size of sizes) {
+      for (const color of colors) {
+        const v = variants.find(v => v.size === size && v.color === color && v.stock > 0)
+        if (v) return { size, color }
+      }
+    }
+    // fallback: só tamanho
+    for (const size of sizes) {
+      const v = variants.find(v => v.size === size && v.stock > 0)
+      if (v) return { size, color: '' }
+    }
+    // fallback: só cor
+    for (const color of colors) {
+      const v = variants.find(v => v.color === color && v.stock > 0)
+      if (v) return { size: '', color }
+    }
+    // fallback: primeira variação
+    if (variants.length > 0) {
+      return { size: variants[0].size || '', color: variants[0].color || '' }
+    }
+    return { size: '', color: '' }
+  }, [sizes, colors, variants])
 
-  const [selectedSize, setSelectedSize] = useState<string>(() => initialSizes[0] || '')
-  const [selectedColor, setSelectedColor] = useState<string>(() => initialColors[0] || '')
+  // Estado controlado
+  const [selectedSize, setSelectedSize] = useState<string>('')
+  const [selectedColor, setSelectedColor] = useState<string>('')
 
-  // Extract unique sizes and colors from variants usando useMemo
-  const sizes = useMemo(() =>
-    [...new Set(variants.map(v => v.size).filter(Boolean))] as string[],
-    [variants]
-  )
+  // Inicializar seleção na primeira combinação disponível
+  useEffect(() => {
+    const { size, color } = findFirstAvailable()
+    setSelectedSize(size)
+    setSelectedColor(color)
+  }, [findFirstAvailable])
 
-  const colors = useMemo(() =>
-    [...new Set(variants.map(v => v.color).filter(Boolean))] as string[],
-    [variants]
-  )
+  // Atualizar seleção de cor ao trocar tamanho, se não houver estoque para a cor atual
+  useEffect(() => {
+    if (!selectedSize) return
+    const hasStock = variants.some(v => v.size === selectedSize && (!selectedColor || v.color === selectedColor) && v.stock > 0)
+    if (!hasStock) {
+      // Seleciona a primeira cor disponível para o tamanho
+      const available = colors.find(color => variants.some(v => v.size === selectedSize && v.color === color && v.stock > 0))
+      if (available) setSelectedColor(available)
+    }
+  }, [selectedSize, selectedColor, colors, variants])
 
-  // Get current variant stock
+  // Atualizar seleção de tamanho ao trocar cor, se não houver estoque para o tamanho atual
+  useEffect(() => {
+    if (!selectedColor) return
+    const hasStock = variants.some(v => v.color === selectedColor && (!selectedSize || v.size === selectedSize) && v.stock > 0)
+    if (!hasStock) {
+      // Seleciona o primeiro tamanho disponível para a cor
+      const available = sizes.find(size => variants.some(v => v.size === size && v.color === selectedColor && v.stock > 0))
+      if (available) setSelectedSize(available)
+    }
+  }, [selectedColor, selectedSize, sizes, variants])
+
+  // Função para pegar a variante atual
   const getCurrentVariant = useCallback(() => {
     if (selectedSize && selectedColor) {
       return variants.find(v => v.size === selectedSize && v.color === selectedColor)
     } else if (selectedSize) {
-      return variants.find(v => v.size === selectedSize && !v.color)
+      return variants.find(v => v.size === selectedSize)
     } else if (selectedColor) {
-      return variants.find(v => v.color === selectedColor && !v.size)
+      return variants.find(v => v.color === selectedColor)
     }
     return variants[0] || null
   }, [selectedSize, selectedColor, variants])
 
-  // Update parent component when selection changes
+  // Atualizar parent
   useEffect(() => {
     const currentVariant = getCurrentVariant()
     if (currentVariant) {
@@ -67,6 +105,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
     }
   }, [selectedSize, selectedColor, getCurrentVariant, onVariantChange])
 
+  // Checar se botão deve estar habilitado
   const isVariantAvailable = (type: 'size' | 'color', value: string) => {
     if (type === 'size') {
       if (selectedColor) {

@@ -29,6 +29,7 @@ export default async function Home() {
           slug: true,
         },
       },
+      variants: true,
     },
     take: 8,
     orderBy: {

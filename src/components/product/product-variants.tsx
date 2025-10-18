@@ -19,34 +19,44 @@ interface ProductVariantsProps {
 
 
 export function ProductVariants({ variants, onVariantChange, className }: ProductVariantsProps) {
-  // Extrair tamanhos e cores únicos
-  const sizes = useMemo(() => [...new Set(variants.map(v => v.size).filter(Boolean))] as string[], [variants])
-  const colors = useMemo(() => [...new Set(variants.map(v => v.color).filter(Boolean))] as string[], [variants])
+  // Normalizar variantes (trim, null/undefined -> undefined)
+  const normalizedVariants = useMemo(() => {
+    return variants.map(v => ({
+      id: v.id,
+      size: v.size ? String(v.size).trim() : undefined,
+      color: v.color ? String(v.color).trim() : undefined,
+      stock: typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock) || '0')
+    }))
+  }, [variants])
+
+  // Extrair tamanhos e cores únicos a partir das variantes normalizadas
+  const sizes = useMemo(() => [...new Set(normalizedVariants.map(v => v.size).filter(Boolean))] as string[], [normalizedVariants])
+  const colors = useMemo(() => [...new Set(normalizedVariants.map(v => v.color).filter(Boolean))] as string[], [normalizedVariants])
 
   // Função para encontrar a primeira combinação com estoque
   const findFirstAvailable = useCallback(() => {
     for (const size of sizes) {
       for (const color of colors) {
-        const v = variants.find(v => v.size === size && v.color === color && v.stock > 0)
+        const v = normalizedVariants.find(v => v.size === size && v.color === color && v.stock > 0)
         if (v) return { size, color }
       }
     }
     // fallback: só tamanho
     for (const size of sizes) {
-      const v = variants.find(v => v.size === size && v.stock > 0)
+      const v = normalizedVariants.find(v => v.size === size && v.stock > 0)
       if (v) return { size, color: '' }
     }
     // fallback: só cor
     for (const color of colors) {
-      const v = variants.find(v => v.color === color && v.stock > 0)
+      const v = normalizedVariants.find(v => v.color === color && v.stock > 0)
       if (v) return { size: '', color }
     }
     // fallback: primeira variação
-    if (variants.length > 0) {
-      return { size: variants[0].size || '', color: variants[0].color || '' }
+    if (normalizedVariants.length > 0) {
+      return { size: normalizedVariants[0].size || '', color: normalizedVariants[0].color || '' }
     }
     return { size: '', color: '' }
-  }, [sizes, colors, variants])
+  }, [sizes, colors, normalizedVariants])
 
   // Estado controlado
   const [selectedSize, setSelectedSize] = useState<string>('')
@@ -62,36 +72,36 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
   // Atualizar seleção de cor ao trocar tamanho, se não houver estoque para a cor atual
   useEffect(() => {
     if (!selectedSize) return
-    const hasStock = variants.some(v => v.size === selectedSize && (!selectedColor || v.color === selectedColor) && v.stock > 0)
+  const hasStock = normalizedVariants.some(v => v.size === selectedSize && (!selectedColor || v.color === selectedColor) && v.stock > 0)
     if (!hasStock) {
       // Seleciona a primeira cor disponível para o tamanho
-      const available = colors.find(color => variants.some(v => v.size === selectedSize && v.color === color && v.stock > 0))
+      const available = colors.find(color => normalizedVariants.some(v => v.size === selectedSize && v.color === color && v.stock > 0))
       if (available) setSelectedColor(available)
     }
-  }, [selectedSize, selectedColor, colors, variants])
+  }, [selectedSize, selectedColor, colors, normalizedVariants])
 
   // Atualizar seleção de tamanho ao trocar cor, se não houver estoque para o tamanho atual
   useEffect(() => {
     if (!selectedColor) return
-    const hasStock = variants.some(v => v.color === selectedColor && (!selectedSize || v.size === selectedSize) && v.stock > 0)
+    const hasStock = normalizedVariants.some(v => v.color === selectedColor && (!selectedSize || v.size === selectedSize) && v.stock > 0)
     if (!hasStock) {
       // Seleciona o primeiro tamanho disponível para a cor
-      const available = sizes.find(size => variants.some(v => v.size === size && v.color === selectedColor && v.stock > 0))
+      const available = sizes.find(size => normalizedVariants.some(v => v.size === size && v.color === selectedColor && v.stock > 0))
       if (available) setSelectedSize(available)
     }
-  }, [selectedColor, selectedSize, sizes, variants])
+  }, [selectedColor, selectedSize, sizes, normalizedVariants])
 
   // Função para pegar a variante atual
   const getCurrentVariant = useCallback(() => {
     if (selectedSize && selectedColor) {
-      return variants.find(v => v.size === selectedSize && v.color === selectedColor)
+      return normalizedVariants.find(v => v.size === selectedSize && v.color === selectedColor)
     } else if (selectedSize) {
-      return variants.find(v => v.size === selectedSize)
+      return normalizedVariants.find(v => v.size === selectedSize)
     } else if (selectedColor) {
-      return variants.find(v => v.color === selectedColor)
+      return normalizedVariants.find(v => v.color === selectedColor)
     }
-    return variants[0] || null
-  }, [selectedSize, selectedColor, variants])
+    return normalizedVariants[0] || null
+  }, [selectedSize, selectedColor, normalizedVariants])
 
   // Atualizar parent
   useEffect(() => {
@@ -109,14 +119,14 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
   const isVariantAvailable = (type: 'size' | 'color', value: string) => {
     if (type === 'size') {
       if (selectedColor) {
-        return variants.some(v => v.size === value && v.color === selectedColor && v.stock > 0)
+        return normalizedVariants.some(v => v.size === value && v.color === selectedColor && v.stock > 0)
       }
-      return variants.some(v => v.size === value && v.stock > 0)
+      return normalizedVariants.some(v => v.size === value && v.stock > 0)
     } else {
       if (selectedSize) {
-        return variants.some(v => v.color === value && v.size === selectedSize && v.stock > 0)
+        return normalizedVariants.some(v => v.color === value && v.size === selectedSize && v.stock > 0)
       }
-      return variants.some(v => v.color === value && v.stock > 0)
+      return normalizedVariants.some(v => v.color === value && v.stock > 0)
     }
   }
 

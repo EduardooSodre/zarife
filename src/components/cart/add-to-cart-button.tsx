@@ -24,6 +24,18 @@ export function AddToCartButton({ product, className = "", disabled = false }: A
 
   const handleAddToCart = () => {
     if (disabled) return
+    // If variants are provided but no specific size/color, pick first in-stock variant
+    if ((product.variants && product.variants.length > 0) && !product.size && !product.color) {
+      const firstAvailable = product.variants.find(v => (typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock) || '0')) > 0)
+      if (firstAvailable) {
+        type PV = { size?: string | null; color?: string | null; stock: number }
+        const fv = firstAvailable as unknown as PV
+        addItem({ ...product, size: fv.size ?? undefined, color: fv.color ?? undefined, maxStock: fv.stock })
+        setIsOpen(true)
+        return
+      }
+    }
+
     addItem(product)
     setIsOpen(true)
   }

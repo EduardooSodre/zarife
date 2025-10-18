@@ -28,11 +28,31 @@ export function HomeAddToCartButton({ product }: HomeAddToCartButtonProps) {
 
     if (isOutOfStock) return;
 
+    // If variants exist, pick the first in-stock variant to create a variant-specific cart item
+    if (product.variants && product.variants.length > 0) {
+      const firstAvailable = product.variants.find(
+        (v) => (typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock) || '0')) > 0
+      );
+      if (firstAvailable) {
+        type PV = { size?: string | null; color?: string | null; stock: number };
+        const fv = firstAvailable as unknown as PV;
+        addItem({
+          ...product,
+          size: fv.size ?? undefined,
+          color: fv.color ?? undefined,
+          maxStock: fv.stock ?? totalStock,
+        });
+        setIsOpen(true);
+        return;
+      }
+    }
+
+    // Fallback for simple products without variants
     addItem({
       ...product,
       size: "Único",
       color: "Padrão",
-      maxStock: totalStock
+      maxStock: totalStock,
     });
 
     setIsOpen(true);

@@ -44,52 +44,37 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
     // fallback: só tamanho
     for (const size of sizes) {
       const v = normalizedVariants.find(v => v.size === size && v.stock > 0)
-      if (v) return { size, color: '' }
+      if (v) return { size, color: undefined }
     }
     // fallback: só cor
     for (const color of colors) {
       const v = normalizedVariants.find(v => v.color === color && v.stock > 0)
-      if (v) return { size: '', color }
+      if (v) return { size: undefined, color }
     }
     // fallback: primeira variação
     if (normalizedVariants.length > 0) {
-      return { size: normalizedVariants[0].size || '', color: normalizedVariants[0].color || '' }
+      return { size: normalizedVariants[0].size || undefined, color: normalizedVariants[0].color || undefined }
     }
-    return { size: '', color: '' }
+    return { size: undefined, color: undefined }
   }, [sizes, colors, normalizedVariants])
 
-  // Estado controlado
-  const [selectedSize, setSelectedSize] = useState<string>('')
-  const [selectedColor, setSelectedColor] = useState<string>('')
+  // Estado controlado: inicialize a seleção com a primeira combinação disponível
+  const initial = findFirstAvailable()
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(initial.size)
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(initial.color)
 
-  // Inicializar seleção na primeira combinação disponível
+  // Se as variantes mudarem (conteúdo), recalcule a seleção inicial de forma controlada
   useEffect(() => {
     const { size, color } = findFirstAvailable()
-    setSelectedSize(size)
-    setSelectedColor(color)
-  }, [findFirstAvailable])
+    try { console.debug('[ProductVariants] variants changed, reset selection if needed', { size, color }) } catch {}
+    if (selectedSize !== size) setSelectedSize(size)
+    if (selectedColor !== color) setSelectedColor(color)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [normalizedVariants.map(v => v.id).join(','), sizes.join(','), colors.join(',')])
 
-  // Atualizar seleção de cor ao trocar tamanho, se não houver estoque para a cor atual
-  useEffect(() => {
-    if (!selectedSize) return
-    const hasStock = normalizedVariants.some(v => v.size === selectedSize && (!selectedColor || v.color === selectedColor) && v.stock > 0)
-    if (!hasStock) {
-      // Seleciona a primeira cor disponível para o tamanho
-      const available = colors.find(color => normalizedVariants.some(v => v.size === selectedSize && v.color === color && v.stock > 0))
-      if (available) setSelectedColor(available)
-    }
-  }, [selectedSize, selectedColor, colors, normalizedVariants])
-
-  // Atualizar seleção de tamanho ao trocar cor, se não houver estoque para o tamanho atual
-  useEffect(() => {
-    if (!selectedColor) return
-    const hasStock = normalizedVariants.some(v => v.color === selectedColor && (!selectedSize || v.size === selectedSize) && v.stock > 0)
-    if (!hasStock) {
-      // Seleciona o primeiro tamanho disponível para a cor
-      const available = sizes.find(size => normalizedVariants.some(v => v.size === size && v.color === selectedColor && v.stock > 0))
-      if (available) setSelectedSize(available)
-    }
-  }, [selectedColor, selectedSize, sizes, normalizedVariants])
+  // NOTE: We deliberately avoid cross-updating selectedSize/selectedColor in effects
+  // because that can create toggling loops. Instead, clicks will update both
+  // dimensions atomically to a coherent in-stock combination when needed.
 
   // Função para pegar a variante atual
   const getCurrentVariant = useCallback(() => {
@@ -104,30 +89,39 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
   }, [selectedSize, selectedColor, normalizedVariants])
 
   // Atualizar parent
+  // Report variant change to parent but avoid calling onVariantChange repeatedly if nothing changed
+  const lastReportedRef = React.useRef<{ size?: string; color?: string; stock?: number } | null>(null)
   useEffect(() => {
     const currentVariant = getCurrentVariant()
-    if (currentVariant) {
-      onVariantChange({
-        size: selectedSize || undefined,
-        color: selectedColor || undefined,
-        stock: currentVariant.stock
-      })
+    if (!currentVariant) return
+
+    const payload = {
+      size: selectedSize || undefined,
+      color: selectedColor || undefined,
+      stock: currentVariant.stock
+    }
+
+    const last = lastReportedRef.current
+    const changed = !last || last.size !== payload.size || last.color !== payload.color || last.stock !== payload.stock
+    if (changed) {
+      lastReportedRef.current = payload
+      try {
+        onVariantChange(payload)
+      } catch (e) {
+        // swallow to avoid breaking UI if parent throws
+        try { console.error('[ProductVariants] onVariantChange threw', e) } catch {}
+      }
     }
   }, [selectedSize, selectedColor, getCurrentVariant, onVariantChange])
 
   // Checar se botão deve estar habilitado
   const isVariantAvailable = (type: 'size' | 'color', value: string) => {
+    // Enable a size/color button if there exists any variant with that size/color and stock > 0.
+    // Clicking will then update the other dimension to a matching value if needed.
     if (type === 'size') {
-      if (selectedColor) {
-        return normalizedVariants.some(v => v.size === value && v.color === selectedColor && v.stock > 0)
-      }
       return normalizedVariants.some(v => v.size === value && v.stock > 0)
-    } else {
-      if (selectedSize) {
-        return normalizedVariants.some(v => v.color === value && v.size === selectedSize && v.stock > 0)
-      }
-      return normalizedVariants.some(v => v.color === value && v.stock > 0)
     }
+    return normalizedVariants.some(v => v.color === value && v.stock > 0)
   }
 
   if (variants.length === 0) {
@@ -152,7 +146,19 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
                   key={size}
                   variant={isSelected ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => {
+                    try { console.debug('[ProductVariants] size click', { size, isAvailable, selectedColor }) } catch {}
+                    if (!isAvailable) return
+                    // If current selectedColor doesn't have stock for this size, pick a color that does
+                    const colorHasStock = selectedColor && normalizedVariants.some(v => v.size === size && v.color === selectedColor && v.stock > 0)
+                    if (colorHasStock) {
+                      setSelectedSize(size)
+                    } else {
+                      const availableColor = colors.find(c => normalizedVariants.some(v => v.size === size && v.color === c && v.stock > 0))
+                      setSelectedSize(size)
+                      setSelectedColor(availableColor)
+                    }
+                  }}
                   disabled={!isAvailable}
                   className={cn(
                     "min-w-[2.5rem] h-10 rounded-none",
@@ -184,7 +190,18 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
                   key={color}
                   variant={isSelected ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => {
+                    try { console.debug('[ProductVariants] color click', { color, isAvailable, selectedSize }) } catch {}
+                    if (!isAvailable) return
+                    const sizeHasStock = selectedSize && normalizedVariants.some(v => v.color === color && v.size === selectedSize && v.stock > 0)
+                    if (sizeHasStock) {
+                      setSelectedColor(color)
+                    } else {
+                      const availableSize = sizes.find(s => normalizedVariants.some(v => v.color === color && v.size === s && v.stock > 0))
+                      setSelectedColor(color)
+                      setSelectedSize(availableSize)
+                    }
+                  }}
                   disabled={!isAvailable}
                   className={cn(
                     "min-w-[4rem] h-10 capitalize rounded-none",

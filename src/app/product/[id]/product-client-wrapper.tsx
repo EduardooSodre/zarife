@@ -31,23 +31,50 @@ interface ProductClientWrapperProps {
 }
 
 export default function ProductClientWrapper({ product, variants }: ProductClientWrapperProps) {
-  // Seleciona a primeira variação com estoque > 0, ou a primeira variação, ou o estoque do produto
-  const getInitialVariant = () => {
-    const available = variants.find(v => v.stock > 0)
-    return available || variants[0] || { stock: product.stock }
+  // Normalizar variantes e escolher uma variação inicial coerente com a UI de seleção
+  const normalizedVariants = variants.map(v => ({
+    id: v.id,
+    size: v.size ? String(v.size).trim() : undefined,
+    color: v.color ? String(v.color).trim() : undefined,
+    stock: typeof v.stock === 'number' ? v.stock : parseInt(String(v.stock) || '0')
+  }))
+
+  const chooseInitial = () => {
+    // Preferir combinação size+color em stock, depois size, depois color, depois qualquer com stock
+    const both = normalizedVariants.find(v => v.stock > 0 && v.size && v.color)
+    if (both) return { size: both.size, color: both.color, stock: both.stock }
+    const onlySize = normalizedVariants.find(v => v.stock > 0 && v.size)
+    if (onlySize) return { size: onlySize.size, color: onlySize.color, stock: onlySize.stock }
+    const onlyColor = normalizedVariants.find(v => v.stock > 0 && v.color)
+    if (onlyColor) return { size: onlyColor.size, color: onlyColor.color, stock: onlyColor.stock }
+    const any = normalizedVariants.find(v => v.stock > 0)
+    if (any) return { size: any.size, color: any.color, stock: any.stock }
+    // Fallbacks
+    if (normalizedVariants.length > 0) return { size: normalizedVariants[0].size, color: normalizedVariants[0].color, stock: normalizedVariants[0].stock }
+    return { stock: product.stock }
   }
+
   const [selectedVariant, setSelectedVariant] = useState<{
     size?: string
     color?: string
     stock: number
-  }>(getInitialVariant())
+  }>(chooseInitial())
 
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites()
   const isWishlisted = isFavorite(product.id)
 
   const handleVariantChange = useCallback((variant: { size?: string; color?: string; stock: number }) => {
+    try { console.debug('[ProductClientWrapper] handleVariantChange', variant) } catch {}
     setSelectedVariant(variant)
   }, []) // Função estável que não muda entre renderizações
+
+  // Se a lista de variantes mudar (por exemplo, novo produto carregado), recalcular seleção inicial
+  React.useEffect(() => {
+    const initial = chooseInitial()
+    try { console.debug('[ProductClientWrapper] variants changed, resetting selection to', initial) } catch {}
+    setSelectedVariant(initial)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variants.map(v => v.id).join(',' )])
 
   const handleToggleFavorite = () => {
     if (isWishlisted) {

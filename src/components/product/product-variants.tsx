@@ -72,7 +72,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
   // Atualizar seleção de cor ao trocar tamanho, se não houver estoque para a cor atual
   useEffect(() => {
     if (!selectedSize) return
-  const hasStock = normalizedVariants.some(v => v.size === selectedSize && (!selectedColor || v.color === selectedColor) && v.stock > 0)
+    const hasStock = normalizedVariants.some(v => v.size === selectedSize && (!selectedColor || v.color === selectedColor) && v.stock > 0)
     if (!hasStock) {
       // Seleciona a primeira cor disponível para o tamanho
       const available = colors.find(color => normalizedVariants.some(v => v.size === selectedSize && v.color === color && v.stock > 0))

@@ -5,6 +5,7 @@ import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 import { ProductVariants } from "@/components/product/product-variants"
 import { useFavorites } from "@/contexts/favorites-context"
 import { Button } from "@/components/ui/button"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { Heart, Share2 } from "lucide-react"
 
 interface ProductVariant {
@@ -28,9 +29,11 @@ interface ProductClientWrapperProps {
     } | null
   }
   variants: ProductVariant[]
+  description?: string | null
+  additionalDescriptions?: Array<{ title: string; content: string }>
 }
 
-export default function ProductClientWrapper({ product, variants }: ProductClientWrapperProps) {
+export default function ProductClientWrapper({ product, variants, description, additionalDescriptions }: ProductClientWrapperProps) {
   // Normalizar variantes e escolher uma variação inicial coerente com a UI de seleção
   const normalizedVariants = variants.map(v => ({
     id: v.id,
@@ -158,6 +161,35 @@ export default function ProductClientWrapper({ product, variants }: ProductClien
           </Button>
         </div>
       </div>
-    </div>
+
+      {/* Mobile-only descriptions accordion placed below favorite/share */}
+      <div className="md:hidden">
+        <Accordion type="single" collapsible>
+          {description && (
+            <AccordionItem value="description-mobile">
+              <AccordionTrigger>Descrição</AccordionTrigger>
+              <AccordionContent>
+                <div className="prose prose-gray max-w-none">
+                  {description.split('\n').map((line, idx) => (
+                    <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {additionalDescriptions && additionalDescriptions.map((desc, index) => (
+            <AccordionItem key={index} value={`additional-mobile-${index}`}>
+              <AccordionTrigger>{desc.title}</AccordionTrigger>
+              <AccordionContent>
+                {desc.content.split('\n').map((line, idx) => (
+                  <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+      </div>
   )
 }

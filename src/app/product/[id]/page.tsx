@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/product/product-card";
 import { ArrowLeft } from "lucide-react";
 import ProductImageGallery from "./product-image-gallery";
 import ProductClientWrapper from "./product-client-wrapper";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 
 interface ProductPageProps {
   params: Promise<{
@@ -103,30 +104,36 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="space-y-4">
             <ProductImageGallery images={product.images} productName={product.name} />
 
-            {/* Description (moved below images) */}
-            {product.description && (
-              <div className="prose prose-gray max-w-none mt-4">
-                {product.description.split('\n').map((line, idx) => (
-                  <p key={idx} className="text-gray-700 leading-relaxed">
-                    {line}
-                  </p>
-                ))}
-              </div>
-            )}
+            {/* Descriptions as Accordion (desktop visible) */}
+            <div className="mt-4 hidden md:block">
+              <Accordion type="single" collapsible>
+                {product.description && (
+                  <AccordionItem value="description">
+                    <AccordionTrigger>Descrição</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="prose prose-gray max-w-none">
+                        {product.description.split('\n').map((line, idx) => (
+                          <p key={idx} className="text-gray-700 leading-relaxed">
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
 
-            {/* Additional Descriptions (moved below images) */}
-            {additionalDescriptions.length > 0 && (
-              <div className="space-y-4 border-t border-gray-200 pt-6">
-                {additionalDescriptions.map((desc, index) => (
-                  <div key={index} className="space-y-2">
-                    <h3 className="font-semibold text-gray-900">{desc.title}</h3>
-                    {desc.content.split('\n').map((line, idx) => (
-                      <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
-                    ))}
-                  </div>
+                {additionalDescriptions.length > 0 && additionalDescriptions.map((desc, index) => (
+                  <AccordionItem key={index} value={`additional-${index}`}>
+                    <AccordionTrigger>{desc.title}</AccordionTrigger>
+                    <AccordionContent>
+                      {desc.content.split('\n').map((line, idx) => (
+                        <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
-              </div>
-            )}
+              </Accordion>
+            </div>
           </div>
 
           {/* Product Details */}
@@ -214,6 +221,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   color: v.color === null ? undefined : v.color,
                 }))
               }
+              description={product.description}
+              additionalDescriptions={additionalDescriptions}
             />
           </div>
         </div>

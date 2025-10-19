@@ -1510,7 +1510,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                         const normalized = newColorName.trim();
                                         if (!normalized) return;
                                         if (!availableColors.includes(normalized)) {
-                                            setAvailableColors([...availableColors, normalized].sort((a,b)=>a.localeCompare(b)));
+                                            setAvailableColors([...availableColors, normalized].sort((a, b) => a.localeCompare(b)));
                                         }
                                         setNewVariant({ ...newVariant, color: normalized });
                                         setNewColorName('');
@@ -1536,7 +1536,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                 const normalized = newColorName.trim();
                                 if (!normalized) return alert('Nome da cor obrigatório');
                                 if (!availableColors.includes(normalized)) {
-                                    setAvailableColors([...availableColors, normalized].sort((a,b)=>a.localeCompare(b)));
+                                    setAvailableColors([...availableColors, normalized].sort((a, b) => a.localeCompare(b)));
                                 }
                                 setNewVariant({ ...newVariant, color: normalized });
                                 setNewColorName('');

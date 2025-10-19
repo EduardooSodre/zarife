@@ -58,11 +58,15 @@ export async function POST(request: NextRequest) {
     // Debug: log a minimal summary (avoid PII) to help tracking 400 causes
     try {
       const itemsSummary = (body.items || []).map((it: unknown) => {
-        if (!it || typeof it !== 'object') return null
-        const o = it as Record<string, unknown>
-        return { productId: String(o.productId || ''), quantity: Number(o.quantity || 0), variant: o.variant || {} }
-      })
-      console.debug('[orders] incoming order items:', itemsSummary)
+        if (!it || typeof it !== "object") return null;
+        const o = it as Record<string, unknown>;
+        return {
+          productId: String(o.productId || ""),
+          quantity: Number(o.quantity || 0),
+          variant: o.variant || {},
+        };
+      });
+      console.debug("[orders] incoming order items:", itemsSummary);
     } catch {
       // ignore logging errors
     }
@@ -105,10 +109,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (products.length !== productIds.length) {
-      const foundIds = products.map(p => p.id)
-      const missing = productIds.filter(id => !foundIds.includes(id))
+      const foundIds = products.map((p) => p.id);
+      const missing = productIds.filter((id) => !foundIds.includes(id));
       return NextResponse.json(
-        { error: `Alguns produtos não foram encontrados ou estão inativos: ${missing.join(', ')}` },
+        {
+          error: `Alguns produtos não foram encontrados ou estão inativos: ${missing.join(
+            ", "
+          )}`,
+        },
         { status: 400 }
       );
     }
@@ -129,10 +137,14 @@ export async function POST(request: NextRequest) {
       ) {
         // Match variant by the dimensions provided in the order (size and/or color).
         const variant = product.variants.find((v) => {
-          const sizeMatches = item.variant.size ? v.size === item.variant.size : true
-          const colorMatches = item.variant.color ? v.color === item.variant.color : true
-          return sizeMatches && colorMatches
-        })
+          const sizeMatches = item.variant.size
+            ? v.size === item.variant.size
+            : true;
+          const colorMatches = item.variant.color
+            ? v.color === item.variant.color
+            : true;
+          return sizeMatches && colorMatches;
+        });
 
         if (!variant) {
           return NextResponse.json(
@@ -140,7 +152,7 @@ export async function POST(request: NextRequest) {
               error: `Variante não encontrada para o produto ${product.name}`,
             },
             { status: 400 }
-          )
+          );
         }
 
         if ((variant.stock ?? 0) < item.quantity) {
@@ -149,7 +161,7 @@ export async function POST(request: NextRequest) {
               error: `Estoque insuficiente para ${product.name}`,
             },
             { status: 400 }
-          )
+          );
         }
       }
     }

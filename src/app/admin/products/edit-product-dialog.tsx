@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Switch } from "@/components/ui/switch";
-import { Plus, Loader2, Tag, X, Trash2, Edit } from "lucide-react";
+import { Plus, Loader2, Tag, X, Trash2, Edit, FolderPlus } from "lucide-react";
 import { ImageUploader } from "@/components/admin/image-uploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
@@ -97,6 +98,9 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     color: '',
     stock: '0'
   });
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [showNewColorDialog, setShowNewColorDialog] = useState(false);
+  const [newColorName, setNewColorName] = useState('');
 
   useEffect(() => {
     if (!open) return;
@@ -119,6 +123,16 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
         if (sizesResponse.ok) {
           const sizesData = await sizesResponse.json();
           setSizes(sizesData.data.map((s: { name: string }) => s.name));
+        }
+
+        try {
+          const colorsResponse = await fetch('/api/colors');
+          if (colorsResponse.ok) {
+            const colorsData = await colorsResponse.json();
+            setAvailableColors(colorsData.data || []);
+          }
+        } catch (err) {
+          console.error('Erro ao buscar cores:', err);
         }
 
         const productResponse = await fetch(`/api/products/${product.id}`);
@@ -353,7 +367,8 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="h-8 px-2 cursor-pointer">
           <Edit className="w-4 h-4" />
@@ -682,15 +697,43 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium text-gray-700">Cor *</Label>
-                  <Input
-                    placeholder="Ex: Preto, Branco, Azul Marinho..."
-                    value={newVariant.color}
-                    onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
-                    className="h-10"
-                  />
+      <div className="space-y-2">
+        <Label className="text-xs font-medium text-gray-700">Cor *</Label>
+        <div className="flex gap-2">
+          <Select value={newVariant.color} onValueChange={(value) => setNewVariant({ ...newVariant, color: value })}>
+            <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-black h-10">
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableColors.map((color) => (
+                <div key={color} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-100 rounded group">
+                  <SelectItem value={color} className="flex-1 cursor-pointer border-0">
+                    {color}
+                  </SelectItem>
                 </div>
+              ))}
+            </SelectContent>
+          </Select>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 flex-shrink-0 border-2 border-gray-300 hover:border-black hover:bg-gray-50"
+                  onClick={() => setShowNewColorDialog(true)}
+                >
+                  <FolderPlus className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Criar nova cor</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs font-medium text-gray-700">Estoque (unidades)</Label>
@@ -849,5 +892,65 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
         </form>
       </DialogContent>
     </Dialog>
-  );
+
+      {/* Dialog para criar nova cor */}
+      <Dialog open={showNewColorDialog} onOpenChange={setShowNewColorDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nova Cor</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newColorName">Nome da Cor *</Label>
+              <Input
+                id="newColorName"
+                value={newColorName}
+                onChange={(e) => setNewColorName(e.target.value)}
+                placeholder="Ex: Verde Claro, Azul Marinho..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const normalized = newColorName.trim();
+                    if (!normalized) return;
+                    if (!availableColors.includes(normalized)) {
+                      setAvailableColors([...availableColors, normalized].sort((a,b)=>a.localeCompare(b)));
+                    }
+                    setNewVariant({ ...newVariant, color: normalized });
+                    setNewColorName('');
+                    setShowNewColorDialog(false);
+                  }
+                }}
+              />
+              <p className="text-xs text-gray-500">O nome será salvo como está (considere padronizar MAIÚSCULAS/minúsculas).</p>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowNewColorDialog(false);
+                  setNewColorName('');
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="button" onClick={() => {
+                const normalized = newColorName.trim();
+                if (!normalized) return alert('Nome da cor obrigatório');
+                if (!availableColors.includes(normalized)) {
+                  setAvailableColors([...availableColors, normalized].sort((a,b)=>a.localeCompare(b)));
+                }
+                setNewVariant({ ...newVariant, color: normalized });
+                setNewColorName('');
+                setShowNewColorDialog(false);
+              }}>
+                Criar Cor
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+    );
 }

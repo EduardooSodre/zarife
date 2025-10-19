@@ -159,7 +159,21 @@ export default function CheckoutPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Erro ao processar pedido')
+        // Try to read server-provided error message and show it to the user
+        let errBody: unknown = null
+        try {
+          errBody = await response.json()
+        } catch {
+          // ignore parse errors
+        }
+        function extractError(x: unknown): string | null {
+          if (!x || typeof x !== 'object') return null
+          const o = x as Record<string, unknown>
+          if (typeof o.error === 'string') return o.error
+          return null
+        }
+        const msg = extractError(errBody) || 'Erro ao processar pedido'
+        throw new Error(msg)
       }
 
       const order = await response.json()

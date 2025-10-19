@@ -55,6 +55,18 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Debug: log a minimal summary (avoid PII) to help tracking 400 causes
+    try {
+      const itemsSummary = (body.items || []).map((it: unknown) => {
+        if (!it || typeof it !== 'object') return null
+        const o = it as Record<string, unknown>
+        return { productId: String(o.productId || ''), quantity: Number(o.quantity || 0), variant: o.variant || {} }
+      })
+      console.debug('[orders] incoming order items:', itemsSummary)
+    } catch {
+      // ignore logging errors
+    }
+
     const {
       items,
       customer,
@@ -93,8 +105,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (products.length !== productIds.length) {
+      const foundIds = products.map(p => p.id)
+      const missing = productIds.filter(id => !foundIds.includes(id))
       return NextResponse.json(
-        { error: "Alguns produtos não foram encontrados" },
+        { error: `Alguns produtos não foram encontrados ou estão inativos: ${missing.join(', ')}` },
         { status: 400 }
       );
     }
@@ -103,7 +117,7 @@ export async function POST(request: NextRequest) {
       const product = products.find((p) => p.id === item.productId);
       if (!product) {
         return NextResponse.json(
-          { error: "Produto ${item.productId} não encontrado" },
+          { error: `Produto ${item.productId} não encontrado` },
           { status: 400 }
         );
       }
@@ -113,24 +127,29 @@ export async function POST(request: NextRequest) {
         product.variants.length > 0 &&
         (item.variant.size || item.variant.color)
       ) {
-        const variant = product.variants.find(
-          (v) => v.size === item.variant.size && v.color === item.variant.color
-        );
+        // Match variant by the dimensions provided in the order (size and/or color).
+        const variant = product.variants.find((v) => {
+          const sizeMatches = item.variant.size ? v.size === item.variant.size : true
+          const colorMatches = item.variant.color ? v.color === item.variant.color : true
+          return sizeMatches && colorMatches
+        })
+
         if (!variant) {
           return NextResponse.json(
             {
-              error: "Variante não encontrada para o produto ${product.name}",
+              error: `Variante não encontrada para o produto ${product.name}`,
             },
             { status: 400 }
-          );
+          )
         }
-        if (variant.stock < item.quantity) {
+
+        if ((variant.stock ?? 0) < item.quantity) {
           return NextResponse.json(
             {
-              error: "Estoque insuficiente para ${product.name}",
+              error: `Estoque insuficiente para ${product.name}`,
             },
             { status: 400 }
-          );
+          )
         }
       }
     }

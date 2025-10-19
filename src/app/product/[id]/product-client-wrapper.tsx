@@ -190,6 +190,6 @@ export default function ProductClientWrapper({ product, variants, description, a
           ))}
         </Accordion>
       </div>
-      </div>
+    </div>
   )
 }

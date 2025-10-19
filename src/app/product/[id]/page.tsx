@@ -99,9 +99,34 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-2">
-          {/* Product Images */}
+          {/* Product Images + Descriptions (moved descriptions below images) */}
           <div className="space-y-4">
             <ProductImageGallery images={product.images} productName={product.name} />
+
+            {/* Description (moved below images) */}
+            {product.description && (
+              <div className="prose prose-gray max-w-none mt-4">
+                {product.description.split('\n').map((line, idx) => (
+                  <p key={idx} className="text-gray-700 leading-relaxed">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {/* Additional Descriptions (moved below images) */}
+            {additionalDescriptions.length > 0 && (
+              <div className="space-y-4 border-t border-gray-200 pt-6">
+                {additionalDescriptions.map((desc, index) => (
+                  <div key={index} className="space-y-2">
+                    <h3 className="font-semibold text-gray-900">{desc.title}</h3>
+                    {desc.content.split('\n').map((line, idx) => (
+                      <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Details */}
@@ -154,30 +179,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
               )}
             </div>
 
-            {/* Description */}
-            {product.description && (
-              <div className="prose prose-gray max-w-none">
-                {product.description.split('\n').map((line, idx) => (
-                  <p key={idx} className="text-gray-700 leading-relaxed">
-                    {line}
-                  </p>
-                ))}
-              </div>
-            )}
-
-            {/* Additional Descriptions */}
-            {additionalDescriptions.length > 0 && (
-              <div className="space-y-4 border-t border-gray-200 pt-6">
-                {additionalDescriptions.map((desc, index) => (
-                  <div key={index} className="space-y-2">
-                    <h3 className="font-semibold text-gray-900">{desc.title}</h3>
-                    {desc.content.split('\n').map((line, idx) => (
-                      <p key={idx} className="text-gray-700 leading-relaxed">{line}</p>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
 
             {/* Product Details */}
             <div className="space-y-4">

@@ -229,7 +229,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="py-16 border-t border-gray-200">
+          <section className="py-28 ">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-light text-black mb-4 tracking-wider">
                 PRODUTOS RELACIONADOS

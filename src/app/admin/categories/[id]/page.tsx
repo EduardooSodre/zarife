@@ -342,7 +342,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                                 variant={product.stock > 0 ? 'default' : 'destructive'}
                                 className="text-xs"
                               >
-                                {product.stock > 0 ? `${product.stock} em stock` : 'Esgotado'}
+                                {product.stock > 0 ? `${product.stock} em estoque` : 'Esgotado'}
                               </Badge>
                             </div>
                           </div>

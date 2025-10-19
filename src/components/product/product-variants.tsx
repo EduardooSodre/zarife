@@ -226,7 +226,7 @@ export function ProductVariants({ variants, onVariantChange, className }: Produc
               <div className={`w-3 h-3 rounded-full ${currentVariant.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <span className={`text-sm font-medium ${currentVariant.stock > 0 ? 'text-green-700' : 'text-red-700'}`}>
                 {currentVariant.stock > 0
-                  ? `${currentVariant.stock} em stock`
+                  ? `${currentVariant.stock} em estoque`
                   : 'Esgotado'
                 }
               </span>

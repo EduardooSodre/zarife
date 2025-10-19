@@ -233,7 +233,7 @@ export default function AdminProductsPage() {
                         <div className="flex items-center">
                             <div className="h-2 w-2 bg-green-500 rounded-full mr-2 sm:mr-3"></div>
                             <div>
-                                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Em Stock</p>
+                                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Em Estoque</p>
                                 <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => calculateProductStock(p) > 0).length}</p>
                             </div>
                         </div>
@@ -242,7 +242,7 @@ export default function AdminProductsPage() {
                         <div className="flex items-center">
                             <div className="h-2 w-2 bg-red-500 rounded-full mr-2 sm:mr-3"></div>
                             <div>
-                                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Sem Stock</p>
+                                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Sem Estoque</p>
                                 <p className="text-lg sm:text-2xl font-light text-primary">{filteredProducts.filter(p => calculateProductStock(p) === 0).length}</p>
                             </div>
                         </div>
@@ -292,9 +292,9 @@ export default function AdminProductsPage() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Todos os estados</SelectItem>
-                                        <SelectItem value="in-stock">Em Stock</SelectItem>
-                                        <SelectItem value="out-of-stock">Sem Stock</SelectItem>
-                                        <SelectItem value="low-stock">Stock Baixo</SelectItem>
+                                        <SelectItem value="in-stock">Em Estoque</SelectItem>
+                                        <SelectItem value="out-of-stock">Sem Estoque</SelectItem>
+                                        <SelectItem value="low-stock">Estoque Baixo</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -329,11 +329,11 @@ export default function AdminProductsPage() {
                                     )}
                                     {selectedStockStatus && (
                                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
-                                            Stock: {selectedStockStatus === 'in-stock' ? 'Em Stock' : selectedStockStatus === 'out-of-stock' ? 'Sem Stock' : 'Stock Baixo'}
+                                            Estoque: {selectedStockStatus === 'in-stock' ? 'Em Estoque' : selectedStockStatus === 'out-of-stock' ? 'Sem Estoque' : 'Estoque Baixo'}
                                             <button
                                                 onClick={() => setSelectedStockStatus('')}
                                                 className="hover:bg-primary/20 rounded-full p-0.5"
-                                                aria-label="Remover filtro de stock"
+                                                aria-label="Remover filtro de estoque"
                                             >
                                                 <X className="w-3 h-3" />
                                             </button>
@@ -413,7 +413,7 @@ export default function AdminProductsPage() {
                                                         ? "bg-green-100 text-green-800"
                                                         : "bg-red-100 text-red-800"
                                                         }`}>
-                                                        {stock > 0 ? `${stock} em stock` : "Esgotado"}
+                                                        {stock > 0 ? `${stock} em estoque` : "Esgotado"}
                                                     </span>
                                                 );
                                             })()}

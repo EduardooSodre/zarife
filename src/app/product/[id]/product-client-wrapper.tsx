@@ -31,9 +31,11 @@ interface ProductClientWrapperProps {
   variants: ProductVariant[]
   description?: string | null
   additionalDescriptions?: Array<{ title: string; content: string }>
+  material?: string | null
+  season?: string | null
 }
 
-export default function ProductClientWrapper({ product, variants, description, additionalDescriptions }: ProductClientWrapperProps) {
+export default function ProductClientWrapper({ product, variants, description, additionalDescriptions, material, season }: ProductClientWrapperProps) {
   // Normalizar variantes e escolher uma variação inicial coerente com a UI de seleção
   const normalizedVariants = variants.map(v => ({
     id: v.id,
@@ -162,8 +164,22 @@ export default function ProductClientWrapper({ product, variants, description, a
         </div>
       </div>
 
-      {/* Mobile-only descriptions accordion placed below favorite/share */}
-      <div className="md:hidden">
+      {/* Mobile-only details + descriptions accordion placed below favorite/share */}
+      <div className="md:hidden space-y-4">
+        {/* Material and Season (mobile) */}
+        {material && (
+          <div className="flex items-start">
+            <span className="font-medium text-gray-900 w-28 text-sm md:text-base">Material:</span>
+            <span className="text-gray-700 text-sm md:text-base">{material}</span>
+          </div>
+        )}
+        {season && (
+          <div className="flex items-start">
+            <span className="font-medium text-gray-900 w-28 text-sm md:text-base">Temporada:</span>
+            <span className="text-gray-700 text-sm md:text-base">{season}</span>
+          </div>
+        )}
+
         <Accordion type="single" collapsible>
           {description && (
             <AccordionItem value="description-mobile">

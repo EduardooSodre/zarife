@@ -149,7 +149,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Product Name */}
             <div>
-              <h1 className="text-3xl lg:text-4xl font-light text-black mb-2 tracking-wide">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-light text-black mb-2 tracking-wide">
                 {product.name}
               </h1>
               {product.brand && (
@@ -169,36 +169,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
               )}
             </div>
 
-            {/* Stock Status */}
-            <div className="flex items-center space-x-2">
-              {totalStock > 0 ? (
-                <>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600">
-                    {totalStock <= 5 ? `Apenas ${totalStock} em estoque` : 'Em estoque'}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-sm text-red-600">Esgotado</span>
-                </>
-              )}
-            </div>
 
 
-            {/* Product Details */}
-            <div className="space-y-4">
+
+            {/* Product Details (desktop/tablet) - hide on small screens so mobile shows after actions */}
+            <div className="space-y-4 hidden md:block">
               {product.material && (
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-900 w-24">Material:</span>
-                  <span className="text-gray-700">{product.material}</span>
+                <div className="flex items-center gap-4">
+                  <span className="font-medium text-gray-900 w-24 text-sm md:text-base lg:text-lg">Material:</span>
+                  <span className="text-gray-700 text-sm md:text-base">{product.material}</span>
                 </div>
               )}
               {product.season && (
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-900 w-24">Temporada:</span>
-                  <span className="text-gray-700">{product.season}</span>
+                <div className="flex items-center gap-4">
+                  <span className="font-medium text-gray-900 w-24 text-sm md:text-base lg:text-lg">Temporada:</span>
+                  <span className="text-gray-700 text-sm md:text-base">{product.season}</span>
                 </div>
               )}
             </div>
@@ -223,6 +208,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
               }
               description={product.description}
               additionalDescriptions={additionalDescriptions}
+              material={product.material}
+              season={product.season}
             />
           </div>
         </div>

@@ -92,6 +92,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <button
               key={image.id}
               onClick={() => goToImage(index)}
+              title={`Selecionar imagem ${index + 1} de ${images.length}`}
               className={`relative w-20 h-20 bg-gray-100 overflow-hidden flex-shrink-0 border-2 transition-colors ${index === currentImageIndex
                 ? 'border-black'
                 : 'border-transparent hover:border-gray-300'

@@ -485,18 +485,18 @@ export default function Header() {
 
                 {/* User Authentication */}
                 <SignedOut>
-                  <SignInButton>
-                    <Tooltip>
+                  <Tooltip>
+                    <SignInButton>
                       <TooltipTrigger asChild>
                         <button className="p-2 text-gray-900 hover:text-gray-600 hover:bg-gray-100/50 rounded-lg transition-colors cursor-pointer" aria-label="Entrar">
                           <User className="w-5 h-5" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Iniciar sessão</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </SignInButton>
+                    </SignInButton>
+                    <TooltipContent>
+                      <p>Iniciar sessão</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </SignedOut>
 
                 <SignedIn>

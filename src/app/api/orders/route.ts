@@ -136,7 +136,8 @@ export async function POST(request: NextRequest) {
         (item.variant.size || item.variant.color)
       ) {
         // Normalize helper
-  const normalize = (s?: string | null) => (s || "").toString().trim().toLowerCase();
+        const normalize = (s?: string | null) =>
+          (s || "").toString().trim().toLowerCase();
 
         // Match variant by the dimensions provided in the order (size and/or color).
         const variant = product.variants.find((v) => {
@@ -157,7 +158,12 @@ export async function POST(request: NextRequest) {
               size: v.size?.toString().trim(),
               color: v.color?.toString().trim(),
             }));
-            console.debug(`[orders] variant not found for product ${product.id} (${product.name}). requested:`, item.variant, 'available:', available);
+            console.debug(
+              `[orders] variant not found for product ${product.id} (${product.name}). requested:`,
+              item.variant,
+              "available:",
+              available
+            );
           } catch {
             // ignore
           }

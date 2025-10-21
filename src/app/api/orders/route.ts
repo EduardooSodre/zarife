@@ -135,18 +135,33 @@ export async function POST(request: NextRequest) {
         product.variants.length > 0 &&
         (item.variant.size || item.variant.color)
       ) {
+        // Normalize helper
+  const normalize = (s?: string | null) => (s || "").toString().trim().toLowerCase();
+
         // Match variant by the dimensions provided in the order (size and/or color).
         const variant = product.variants.find((v) => {
           const sizeMatches = item.variant.size
-            ? v.size === item.variant.size
+            ? normalize(v.size) === normalize(item.variant.size)
             : true;
           const colorMatches = item.variant.color
-            ? v.color === item.variant.color
+            ? normalize(v.color) === normalize(item.variant.color)
             : true;
           return sizeMatches && colorMatches;
         });
 
         if (!variant) {
+          // Improve debug information to diagnose mismatches (don't log PII)
+          try {
+            const available = product.variants.map((v) => ({
+              id: v.id,
+              size: v.size?.toString().trim(),
+              color: v.color?.toString().trim(),
+            }));
+            console.debug(`[orders] variant not found for product ${product.id} (${product.name}). requested:`, item.variant, 'available:', available);
+          } catch {
+            // ignore
+          }
+
           return NextResponse.json(
             {
               error: `Variante não encontrada para o produto ${product.name}`,

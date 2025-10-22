@@ -4,16 +4,17 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/contexts/cart-context'
 import { useUser } from '@clerk/nextjs'
-import { Button } from '@/components/ui/button'
+// Button component not used here; using plain buttons with branding
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, CreditCard, Truck, MapPin } from 'lucide-react'
+import { ArrowLeft, Truck, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Button } from '@/components/ui/button'
 
 interface CheckoutForm {
   // Dados pessoais
@@ -31,7 +32,7 @@ interface CheckoutForm {
   complement?: string
 
   // Método de pagamento
-  paymentMethod: 'credit' | 'debit' | 'mbway' | 'multibanco' | 'transfer'
+  // paymentMethod removed: payment provider is chosen at finalização (Stripe / PayPal)
 
   // Observações
   notes?: string
@@ -53,7 +54,6 @@ export default function CheckoutPage() {
     state: '',
     country: 'Portugal',
     complement: '',
-    paymentMethod: 'credit',
     notes: ''
   })
 
@@ -101,17 +101,13 @@ export default function CheckoutPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
+  // createOrder: validates form and creates the order on the server
+  const createOrder = async () => {
+    if (!validateForm()) return null
 
     setIsSubmitting(true)
 
     try {
-      // Preparar dados do pedido
       const orderData = {
         items: items.map(item => {
           const variant: Record<string, string> = {};
@@ -139,7 +135,7 @@ export default function CheckoutPage() {
           complement: form.complement
         },
         payment: {
-          method: form.paymentMethod
+          method: 'pending'
         },
         amounts: {
           subtotal: totalPrice,
@@ -149,62 +145,84 @@ export default function CheckoutPage() {
         notes: form.notes
       }
 
-      // Enviar pedido para API
       const response = await fetch('/api/orders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
       })
 
       if (!response.ok) {
-        // Try to read server-provided error message and show it to the user
         let errBody: unknown = null
-        try {
-          errBody = await response.json()
-        } catch {
-          // ignore parse errors
+        try { errBody = await response.json() } catch { }
+        let msg = 'Erro ao processar pedido'
+        if (errBody && typeof errBody === 'object' && errBody !== null) {
+          const body = errBody as Record<string, unknown>
+          if ('error' in body && typeof body.error === 'string') {
+            msg = body.error
+          } else if ('message' in body && typeof body.message === 'string') {
+            msg = body.message
+          }
         }
-        function extractError(x: unknown): string | null {
-          if (!x || typeof x !== 'object') return null
-          const o = x as Record<string, unknown>
-          if (typeof o.error === 'string') return o.error
-          return null
-        }
-        const msg = extractError(errBody) || 'Erro ao processar pedido'
         throw new Error(msg)
       }
 
       const order = await response.json()
+      return order
+    } catch (err) {
+      console.error('Erro ao criar pedido:', err)
+      alert('Erro ao criar pedido. ' + (err instanceof Error ? err.message : ''))
+      setIsSubmitting(false)
+      return null
+    }
+  }
 
-      // Criar sessão Stripe
-      const stripeRes = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: order.id,
-          items: items.map(item => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity
-          })),
-          customerEmail: form.email
+  // handlePayment: creates order and redirects to selected provider
+  const handlePayment = async (provider: 'stripe' | 'paypal') => {
+    const order = await createOrder()
+    if (!order) return
+
+    try {
+      if (provider === 'stripe') {
+        const stripeRes = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.id,
+            items: items.map(item => ({ name: item.name, price: item.price, quantity: item.quantity })),
+            customerEmail: form.email
+          })
         })
-      })
-      const stripeData = await stripeRes.json()
-      if (stripeData.url) {
-        clearCart()
-        setOrderFinished(true)
-        window.location.href = stripeData.url
-        return
+        const stripeData = await stripeRes.json()
+        if (stripeData.url) {
+          clearCart()
+          setOrderFinished(true)
+          window.location.href = stripeData.url
+          return
+        }
+        throw new Error('Erro ao criar sessão Stripe')
       } else {
-        throw new Error('Erro ao criar sessão de pagamento')
+        // PayPal: backend endpoint expected at /api/paypal/checkout (to be implemented)
+        const paypalRes = await fetch('/api/paypal/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.id,
+            items: items.map(item => ({ name: item.name, price: item.price, quantity: item.quantity })),
+            customerEmail: form.email
+          })
+        })
+        const paypalData = await paypalRes.json()
+        if (paypalData.url) {
+          clearCart()
+          setOrderFinished(true)
+          window.location.href = paypalData.url
+          return
+        }
+        throw new Error('Erro ao criar sessão PayPal')
       }
-
-    } catch (error) {
-      console.error('Erro no checkout:', error)
-      alert('Erro ao processar pedido. Tente novamente.')
+    } catch (err) {
+      console.error('Erro ao iniciar pagamento:', err)
+      alert('Erro ao iniciar pagamento. Tente novamente.')
     } finally {
       setIsSubmitting(false)
     }
@@ -227,7 +245,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Formulário de Checkout */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form className="space-y-8">
               {/* Dados Pessoais */}
               <Card>
                 <CardHeader>
@@ -372,29 +390,7 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Método de Pagamento */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    Método de Pagamento
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Select value={form.paymentMethod} onValueChange={(value: 'credit' | 'debit' | 'mbway' | 'multibanco' | 'transfer') => handleInputChange('paymentMethod', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="credit">Cartão de Crédito</SelectItem>
-                      <SelectItem value="debit">Cartão de Débito</SelectItem>
-                      <SelectItem value="mbway">MB WAY</SelectItem>
-                      <SelectItem value="multibanco">Multibanco</SelectItem>
-                      <SelectItem value="transfer">Transferência Bancária</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
+              {/* Método de Pagamento removido: escolha do provedor (Stripe / PayPal) na finalização */}
 
               {/* Observações */}
               <Card>
@@ -474,13 +470,33 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="w-full bg-primary hover:bg-primary/90 text-white py-3 uppercase tracking-widest"
-                >
-                  {isSubmitting ? 'Processando...' : 'Finalizar Pedido'}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => handlePayment('stripe')}
+                    disabled={isSubmitting}
+                    variant="outline"
+                    size="default"
+                    className="w-full flex items-center justify-center gap-3 text-gray-900 border-2 border-[#6772e5] hover:bg-gray-50 "
+                  >
+                    <span className="flex-shrink-0 flex items-center max-h-5">
+                      <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={56} height={14} className="object-contain max-h-5" />
+                    </span>
+                    <span className="text-sm font-medium">{isSubmitting ? 'Processando...' : 'Pagar com Stripe'}</span>
+                  </Button>
+
+                  <Button
+                    onClick={() => handlePayment('paypal')}
+                    disabled={isSubmitting}
+                    variant="outline"
+                    size="default"
+                    className="w-full flex items-center justify-center gap-3 text-gray-900 border-2 border-[#003087] hover:bg-gray-50"
+                  >
+                    <span className="flex-shrink-0 flex items-center max-h-5">
+                      <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={56} height={14} className="object-contain max-h-5" />
+                    </span>
+                    <span className="text-sm font-medium">{isSubmitting ? 'Processando...' : 'Pagar com PayPal'}</span>
+                  </Button>
+                </div>
 
                 <p className="text-xs text-gray-500 text-center">
                   Ao finalizar, concorda com os nossos termos e condições.

@@ -38,6 +38,16 @@ interface CheckoutForm {
   notes?: string
 }
 
+interface OrderResponse {
+  id: string
+  [key: string]: unknown
+}
+
+interface PaymentSession {
+  url?: string
+  [key: string]: unknown
+}
+
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart()
   const { user } = useUser()
@@ -59,6 +69,7 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderFinished, setOrderFinished] = useState(false)
+  const [processingProvider, setProcessingProvider] = useState<'stripe' | 'paypal' | null>(null)
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
 
   // Cálculos
@@ -102,10 +113,8 @@ export default function CheckoutPage() {
   }
 
   // createOrder: validates form and creates the order on the server
-  const createOrder = async () => {
+  const createOrder = async (): Promise<OrderResponse | null> => {
     if (!validateForm()) return null
-
-    setIsSubmitting(true)
 
     try {
       const orderData = {
@@ -152,79 +161,97 @@ export default function CheckoutPage() {
       })
 
       if (!response.ok) {
-        let errBody: unknown = null
-        try { errBody = await response.json() } catch { }
-        let msg = 'Erro ao processar pedido'
-        if (errBody && typeof errBody === 'object' && errBody !== null) {
+        // Try to parse JSON error, but server may return HTML (error page)
+        const ct = response.headers.get('content-type') || ''
+        if (ct.includes('application/json')) {
+          const errBody = await response.json()
           const body = errBody as Record<string, unknown>
-          if ('error' in body && typeof body.error === 'string') {
-            msg = body.error
-          } else if ('message' in body && typeof body.message === 'string') {
-            msg = body.message
-          }
+          const msg = (body && typeof body === 'object' && (body.error || body.message)) ? (body.error || body.message) as string : 'Erro ao processar pedido'
+          throw new Error(msg)
+        } else {
+          const text = await response.text()
+          console.error('Non-JSON error response from /api/orders:', text)
+          throw new Error('Resposta inválida do servidor ao criar pedido')
         }
-        throw new Error(msg)
       }
 
-      const order = await response.json()
+      const ct = response.headers.get('content-type') || ''
+      let order: OrderResponse | null = null
+      if (ct.includes('application/json')) {
+        order = await response.json() as OrderResponse
+      } else {
+        const text = await response.text()
+        console.error('Non-JSON response from /api/orders (expected JSON):', text)
+        throw new Error('Resposta inválida do servidor ao criar pedido')
+      }
       return order
     } catch (err) {
       console.error('Erro ao criar pedido:', err)
       alert('Erro ao criar pedido. ' + (err instanceof Error ? err.message : ''))
-      setIsSubmitting(false)
       return null
     }
   }
 
   // handlePayment: creates order and redirects to selected provider
   const handlePayment = async (provider: 'stripe' | 'paypal') => {
+    setProcessingProvider(provider)
+    setIsSubmitting(true)
     const order = await createOrder()
-    if (!order) return
+    if (!order) {
+      setIsSubmitting(false)
+      setProcessingProvider(null)
+      return
+    }
 
     try {
-      if (provider === 'stripe') {
-        const stripeRes = await fetch('/api/stripe/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: order.id,
-            items: items.map(item => ({ name: item.name, price: item.price, quantity: item.quantity })),
-            customerEmail: form.email
-          })
+      const endpoint = provider === 'stripe' ? '/api/stripe/checkout' : '/api/paypal/checkout'
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          items: items.map(item => ({ name: item.name, price: item.price, quantity: item.quantity })),
+          customerEmail: form.email
         })
-        const stripeData = await stripeRes.json()
-        if (stripeData.url) {
-          clearCart()
-          setOrderFinished(true)
-          window.location.href = stripeData.url
-          return
+      })
+
+      if (!res.ok) {
+        const ct = res.headers.get('content-type') || ''
+        if (ct.includes('application/json')) {
+          const body = await res.json()
+          const msg = (body && typeof body === 'object' && (body.error || body.message)) ? (body.error || body.message) as string : 'Erro ao iniciar pagamento'
+          throw new Error(msg)
+        } else {
+          const text = await res.text()
+          console.error(`Non-JSON error response from ${endpoint}:`, text)
+          throw new Error('Resposta inválida do servidor ao iniciar pagamento')
         }
-        throw new Error('Erro ao criar sessão Stripe')
-      } else {
-        // PayPal: backend endpoint expected at /api/paypal/checkout (to be implemented)
-        const paypalRes = await fetch('/api/paypal/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: order.id,
-            items: items.map(item => ({ name: item.name, price: item.price, quantity: item.quantity })),
-            customerEmail: form.email
-          })
-        })
-        const paypalData = await paypalRes.json()
-        if (paypalData.url) {
-          clearCart()
-          setOrderFinished(true)
-          window.location.href = paypalData.url
-          return
-        }
-        throw new Error('Erro ao criar sessão PayPal')
       }
+
+      const ct2 = res.headers.get('content-type') || ''
+      let data: PaymentSession | null = null
+      if (ct2.includes('application/json')) {
+        data = await res.json() as PaymentSession
+      } else {
+        const text = await res.text()
+        console.error(`Non-JSON response from ${endpoint} (expected JSON):`, text)
+        throw new Error('Resposta inválida do servidor ao iniciar pagamento')
+      }
+
+      if (data && data.url) {
+        clearCart()
+        setOrderFinished(true)
+        window.location.href = data.url
+        return
+      }
+
+      throw new Error('Erro ao criar sessão de pagamento')
     } catch (err) {
       console.error('Erro ao iniciar pagamento:', err)
-      alert('Erro ao iniciar pagamento. Tente novamente.')
+      alert('Erro ao iniciar pagamento. Tente novamente. ' + (err instanceof Error ? err.message : ''))
     } finally {
       setIsSubmitting(false)
+      setProcessingProvider(null)
     }
   }
 
@@ -481,7 +508,7 @@ export default function CheckoutPage() {
                     <span className="flex-shrink-0 flex items-center max-h-5">
                       <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={56} height={14} className="object-contain max-h-5" />
                     </span>
-                    <span className="text-sm font-medium">{isSubmitting ? 'Processando...' : 'Pagar com Stripe'}</span>
+                    <span className="text-sm font-medium">{isSubmitting && processingProvider === 'stripe' ? 'Processando...' : 'Pagar com Stripe'}</span>
                   </Button>
 
                   <Button
@@ -494,7 +521,7 @@ export default function CheckoutPage() {
                     <span className="flex-shrink-0 flex items-center max-h-5">
                       <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={56} height={14} className="object-contain max-h-5" />
                     </span>
-                    <span className="text-sm font-medium">{isSubmitting ? 'Processando...' : 'Pagar com PayPal'}</span>
+                    <span className="text-sm font-medium">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</span>
                   </Button>
                 </div>
 

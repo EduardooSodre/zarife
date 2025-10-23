@@ -63,127 +63,108 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`group bg-white border border-gray-200 hover:shadow-lg transition-all duration-300 ${className}`}
-        >
-            <div className="flex flex-col sm:flex-row gap-4 p-4">
-                {/* Product Image and Description */}
-                <div className="relative flex-shrink-0 w-full sm:w-32 md:w-40 lg:w-48 flex flex-col items-stretch">
-                    <Link href={`/product/${product.id}`}>
-                        <div className="relative w-full aspect-square sm:aspect-[4/5] overflow-hidden bg-gray-50">
-                            {product.images && product.images.length > 0 ? (
-                                <Image
-                                    src={product.images[0].url}
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                    <span className="text-gray-400 text-sm">Sem imagem</span>
-                                </div>
-                            )}
-
-                            {/* Discount Badge */}
-                            {discountPercentage && (
-                                <div className="absolute top-2 left-2 bg-black text-white text-xs font-medium px-2 py-1">
-                                    -{discountPercentage}%
-                                </div>
-                            )}
-
-                            {/* Stock Badge */}
-                            {totalStock === 0 && (
-                                <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs font-medium px-2 py-1">
-                                    ESGOTADO
-                                </div>
-                            )}
-                        </div>
-                    </Link>
-
-                    {/* Description - Always visible, below image */}
-                    {product.description && (
-                        <div className="mt-2 px-1">
-                            <p className="text-xs text-gray-600 line-clamp-2">{product.description}</p>
-                        </div>
-                    )}
-
-                    {/* Wishlist Button */}
-                    <button
-                        onClick={handleToggleFavorite}
-                        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1 transition-all duration-200 z-10 cursor-pointer group"
-                        title={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                        aria-label={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                    >
-                        <Heart
-                            className={`h-5 w-5 transition-all duration-200 drop-shadow-sm ${isWishlisted
-                                ? 'fill-red-500 text-red-500 scale-110'
-                                : 'text-white hover:text-red-500 hover:fill-red-500 hover:scale-110 group-hover:drop-shadow-md'
-                                }`}
-                        />
-                    </button>
-                </div>
-
-                {/* Product Info */}
-                <div className="flex-1 flex flex-col justify-between min-h-0">
-                    <div className="space-y-2">
-                        {/* Category */}
-                        {product.category && (
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">
-                                {product.category.name}
-                            </span>
-                        )}
-
-                        {/* Product Name */}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`group bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-300 ${className} relative overflow-hidden`}
+            >
+                <div className="flex flex-col md:flex-row gap-4 p-4 items-stretch">
+                    {/* Image column */}
+                    <div className="flex-shrink-0 w-full md:w-40 lg:w-48">
                         <Link href={`/product/${product.id}`}>
-                            <h3 className="text-base md:text-lg font-medium text-gray-900 hover:text-black transition-colors duration-200 line-clamp-2">
-                                {product.name}
-                            </h3>
+                            <div className="relative w-full aspect-[4/5] overflow-hidden rounded-md bg-gray-50">
+                                {product.images && product.images.length > 0 ? (
+                                    <Image
+                                        src={product.images[0].url}
+                                        alt={product.name}
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <span className="text-gray-400 text-sm">Sem imagem</span>
+                                    </div>
+                                )}
+
+                                {discountPercentage && (
+                                    <div className="absolute top-2 left-2 bg-black text-white text-xs font-medium px-2 py-1 rounded">
+                                        -{discountPercentage}%
+                                    </div>
+                                )}
+                            </div>
                         </Link>
                     </div>
 
-                    {/* Price and Actions */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                                <span className="text-lg font-medium text-black">
-                                    {formatPrice(product.price)}
-                                </span>
-                                {product.oldPrice && (
-                                    <span className="text-sm text-gray-500 line-through">
-                                        {formatPrice(product.oldPrice)}
-                                    </span>
-                                )}
-                            </div>
+                    {/* Content column */}
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                        <div>
+                            <div className="flex items-start justify-between">
+                                <div className="space-y-1 pr-4">
+                                    {product.category && (
+                                        <span className="text-xs text-gray-500 uppercase tracking-wide">
+                                            {product.category.name}
+                                        </span>
+                                    )}
 
-                            {/* Stock Info */}
-                            <span className={`text-xs ${totalStock > 0 ? 'text-green-600' : 'text-red-600'
-                                }`}>
-                                {totalStock > 0
-                                    ? `${totalStock} em estoque`
-                                    : 'Fora de estoque'
-                                }
-                            </span>
+                                    <Link href={`/product/${product.id}`}>
+                                        <h3 className="text-lg font-semibold text-gray-900 hover:text-black transition-colors duration-200 line-clamp-2">
+                                            {product.name}
+                                        </h3>
+                                    </Link>
+
+                                    {product.description && (
+                                        <p className="text-sm text-gray-600 mt-1 line-clamp-3">{product.description}</p>
+                                    )}
+                                </div>
+
+                                {/* Wishlist button in card corner */}
+                                <div className="flex-shrink-0 ml-2">
+                                    <button
+                                        onClick={handleToggleFavorite}
+                                        className="p-2 rounded-full bg-white border shadow-sm hover:shadow-md transition-shadow text-gray-600"
+                                        title={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                        aria-label={isWishlisted ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                    >
+                                        <Heart className={`h-5 w-5 ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-gray-500'}`} />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Add to Cart */}
-                        <div className="flex-shrink-0">
-                            <AddToCartButton
-                                product={{
-                                    id: product.id,
-                                    name: product.name,
-                                    price: product.price,
-                                    image: product.images[0]?.url || '',
-                                    variants: product.variants || [],
-                                }}
-                                disabled={totalStock === 0}
-                                className="w-full sm:w-auto min-w-[120px]"
-                            />
+                        <div className="mt-4 flex items-end justify-between gap-4">
+                            <div>
+                                <div className="flex items-baseline gap-3">
+                                    <span className="text-xl font-bold text-gray-900">
+                                        {formatPrice(product.price)}
+                                    </span>
+                                    {product.oldPrice && (
+                                        <span className="text-sm text-gray-500 line-through">
+                                            {formatPrice(product.oldPrice)}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className={`text-sm mt-1 ${totalStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {totalStock > 0 ? `${totalStock} em estoque` : 'Fora de estoque'}
+                                </div>
+                            </div>
+
+                            <div className="flex-shrink-0">
+                                <AddToCartButton
+                                    product={{
+                                        id: product.id,
+                                        name: product.name,
+                                        price: product.price,
+                                        image: product.images[0]?.url || '',
+                                        variants: product.variants || [],
+                                    }}
+                                    disabled={totalStock === 0}
+                                    className="min-w-[140px]"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </motion.div>
+            </motion.div>
     );
 }

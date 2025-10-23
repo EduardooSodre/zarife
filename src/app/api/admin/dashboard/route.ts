@@ -20,7 +20,7 @@ export async function GET() {
     }
 
     // Get dashboard stats
-    const [totalProducts, totalOrders, totalUsers, recentOrders] =
+    const [totalProducts, totalOrders, totalUsers, recentOrdersRaw, revenueByMethod] =
       await Promise.all([
         prisma.product.count(),
         prisma.order.count(),
@@ -37,13 +37,36 @@ export async function GET() {
           orderBy: { createdAt: "desc" },
           take: 5,
         }),
+        // Aggregate revenue grouped by payment method (only for completed/paid orders)
+        prisma.order.groupBy({
+          by: ['paymentMethod'],
+          _sum: { total: true },
+        }),
       ]);
 
-    // Calculate revenue
-    const revenue = recentOrders.reduce(
-      (sum, order) => sum + Number(order.total),
-      0
-    );
+    // Convert recent orders Decimal fields to plain numbers
+    const recentOrders = recentOrdersRaw.map(o => ({
+      ...o,
+      total: Number(o.total),
+      subtotal: Number(o.subtotal),
+      shipping: Number(o.shipping),
+      discount: o.discount ? Number(o.discount) : 0,
+      createdAt: o.createdAt.toISOString(),
+      updatedAt: o.updatedAt.toISOString(),
+      items: o.items.map(item => ({
+        ...item,
+        price: Number(item.price),
+      })),
+    }));
+
+    // Build revenueByPaymentMethod object with numbers
+    const revenueByPaymentMethod: Record<string, number> = {};
+    for (const row of revenueByMethod) {
+      const method = row.paymentMethod || 'unknown';
+      revenueByPaymentMethod[method] = Number(row._sum.total || 0);
+    }
+
+    const revenue = Object.values(revenueByPaymentMethod).reduce((s, v) => s + v, 0);
 
     return NextResponse.json({
       totalProducts,
@@ -51,6 +74,7 @@ export async function GET() {
       totalUsers,
       recentOrders,
       revenue,
+      revenueByPaymentMethod,
     });
   } catch (error) {
     console.error("Erro ao buscar dados do dashboard:", error);

@@ -39,15 +39,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
-        <body className={`${playfair.className} antialiased`}>
+    <html lang="pt-pt" className={`${inter.variable} ${playfair.variable}`}>
+      <body className={`${playfair.className} antialiased`}>
+        <ClerkProvider>
           <LayoutWrapper>
             {children}
           </LayoutWrapper>
           <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

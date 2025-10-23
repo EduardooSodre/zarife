@@ -66,15 +66,16 @@ export function FavoritesContent() {
     <div className="min-h-screen bg-gray-50 pt-20 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-light text-black mb-2 tracking-wider">
             Meus Favoritos
           </h1>
+          <div className="w-24 h-px bg-black mb-3"></div>
           <p className="text-gray-600">
             {favorites.length} {favorites.length === 1 ? 'produto salvo' : 'produtos salvos'}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {favorites.map((product) => (
             <FavoriteGridCard key={product.id} product={product} />
           ))}

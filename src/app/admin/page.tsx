@@ -112,6 +112,7 @@ export default function AdminDashboard() {
   }
 
   const { totalProducts, totalOrders, totalUsers, revenue, recentOrders } = data;
+  const revenueByPaymentMethod: Record<string, number> = (data as unknown as { revenueByPaymentMethod?: Record<string, number> }).revenueByPaymentMethod || {};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -138,6 +139,15 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-semibold text-gray-900">
                     €{revenue.toFixed(2)}
                   </p>
+                  {/* Breakdown */}
+                  <div className="mt-2 text-xs text-gray-500 space-y-1">
+                    {Object.entries(revenueByPaymentMethod).map(([method, amount]) => (
+                      <div key={method} className="flex justify-between">
+                        <span className="capitalize">{method}</span>
+                        <span>€{amount.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="p-3 rounded-lg bg-gray-50">
                   <Euro className="h-5 w-5 text-gray-600" />

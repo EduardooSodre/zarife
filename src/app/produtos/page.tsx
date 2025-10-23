@@ -134,6 +134,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
     ...product,
     price: Number(product.price),
     oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+    salePrice: product.salePrice ? Number(product.salePrice) : null,
     variants: product.variants || [],
   }));
 

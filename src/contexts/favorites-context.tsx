@@ -42,7 +42,32 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         const response = await fetch('/api/favorites');
         if (response.ok) {
           const data = await response.json();
-          setFavorites(data.favorites || []);
+          const rawFavorites = data.favorites || [];
+
+          // Refresh each favorite with the latest product data (stock/variants)
+          const refreshed = await Promise.all(
+            rawFavorites.map(async (fRaw: unknown) => {
+              const f = fRaw as Record<string, unknown>;
+              try {
+                const res = await fetch(`/api/products/${f.id}`);
+                if (!res.ok) return f;
+                const latest = await res.json();
+                return {
+                  ...f,
+                  price: latest.price ?? f.price,
+                  oldPrice: latest.oldPrice ?? f.oldPrice,
+                  images: latest.images ?? f.images,
+                  variants: latest.variants ?? f.variants,
+                  stock: typeof latest.stock === 'number' ? latest.stock : f.stock,
+                };
+              } catch (err) {
+                console.warn('Failed to refresh favorite', f.id, err);
+                return f;
+              }
+            })
+          );
+
+          setFavorites(refreshed);
         }
       } catch (error) {
         console.error('Error loading favorites:', error);

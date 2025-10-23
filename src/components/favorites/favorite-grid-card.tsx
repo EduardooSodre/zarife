@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/contexts/favorites-context";
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { HomeAddToCartButton } from "@/components/cart/home-add-to-cart-button";
 
 interface FavoriteProduct {
   id: string;
@@ -34,9 +34,9 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
   const { removeFromFavorites } = useFavorites();
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat('pt-PT', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'EUR'
     }).format(price);
   };
 
@@ -44,15 +44,17 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : null;
 
-  const isOutOfStock = product.stock === 0;
+  // Only treat product as out of stock when it has variants (real SKU-level stock).
+  // Some products without variants are considered always available in the catalogue.
+  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+  const isOutOfStock = hasVariants ? product.stock === 0 : false;
 
   const handleRemoveFromFavorites = () => {
     removeFromFavorites(product.id);
   };
 
   return (
-    <div className={`bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300 relative ${isOutOfStock ? 'opacity-60' : ''
-      } ${className}`}>
+    <div className={`bg-white border border-gray-200 group hover:shadow-lg transition-all duration-300 relative ${isOutOfStock ? 'opacity-60' : ''} ${className}`}>
       <Link href={`/product/${product.id}`}>
         <div className="aspect-square bg-gray-200 overflow-hidden cursor-pointer">
           {product.images && product.images.length > 0 ? (
@@ -97,7 +99,7 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
         <Heart className="h-5 w-5 fill-red-500 text-red-500 hover:scale-110 transition-all duration-200 drop-shadow-sm" />
       </button>
 
-      <div className="p-2 md:p-4">
+  <div className="p-3 md:p-4">
         <Link href={`/product/${product.id}`}>
           <h3 className={`text-sm md:text-base font-medium mb-2 hover:text-black transition-colors cursor-pointer h-10 md:h-12 overflow-hidden ${isOutOfStock ? 'text-gray-500' : 'text-gray-900'
             }`}>
@@ -112,7 +114,7 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
         )}
 
         <div className="flex items-center justify-between mb-2 md:mb-3">
-          <span className={`text-sm md:text-lg font-medium ${isOutOfStock ? 'text-gray-500' : 'text-black'
+          <span className={`text-base md:text-lg font-semibold ${isOutOfStock ? 'text-gray-500' : 'text-black'
             }`}>
             {formatPrice(product.price)}
           </span>
@@ -123,25 +125,15 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
           )}
         </div>
 
-        {/* Stock Info */}
-        <p className={`text-xs mb-3 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'
-          }`}>
-          {product.stock > 0
-            ? `${product.stock} em estoque`
-            : 'Fora de estoque'
-          }
-        </p>
-
-        <AddToCartButton
+        <HomeAddToCartButton
           product={{
             id: product.id,
             name: product.name,
             price: product.price,
-            image: product.images[0]?.url || '',
+            image: product.images[0]?.url || '/placeholder-product.jpg',
+            stock: product.stock,
             variants: product.variants || [],
           }}
-          disabled={isOutOfStock}
-          className="w-full"
         />
       </div>
     </div>

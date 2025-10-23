@@ -70,6 +70,8 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderFinished, setOrderFinished] = useState(false)
   const [processingProvider, setProcessingProvider] = useState<'stripe' | 'paypal' | null>(null)
+  // allow 'multibanco' processing state
+  const [processingProviderMulti, setProcessingProviderMulti] = useState<'multibanco' | null>(null)
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
 
   // Cálculos
@@ -252,6 +254,56 @@ export default function CheckoutPage() {
     } finally {
       setIsSubmitting(false)
       setProcessingProvider(null)
+    }
+  }
+
+  // Multibanco handler: creates order then calls our /api/paypal/multibanco endpoint
+  const handleMultibanco = async () => {
+    setProcessingProviderMulti('multibanco')
+    setIsSubmitting(true)
+
+    const order = await createOrder()
+    if (!order) {
+      setIsSubmitting(false)
+      setProcessingProviderMulti(null)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/paypal/multibanco', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, fullName: `${form.firstName} ${form.lastName}` })
+      })
+
+      if (!res.ok) {
+        const ct = res.headers.get('content-type') || ''
+        if (ct.includes('application/json')) {
+          const body = await res.json()
+          const msg = (body && typeof body === 'object' && (body.error || body.message)) ? (body.error || body.message) as string : 'Erro ao iniciar Multibanco'
+          throw new Error(msg)
+        } else {
+          const text = await res.text()
+          console.error('Non-JSON error response from /api/paypal/multibanco:', text)
+          throw new Error('Resposta inválida do servidor ao iniciar Multibanco')
+        }
+      }
+
+      const data = await res.json()
+      if (data && data.redirectUrl) {
+        clearCart()
+        setOrderFinished(true)
+        window.location.href = data.redirectUrl
+        return
+      }
+
+      throw new Error('Erro ao iniciar Multibanco')
+    } catch (err) {
+      console.error('Erro ao iniciar Multibanco:', err)
+      alert('Erro ao iniciar Multibanco. Tente novamente. ' + (err instanceof Error ? err.message : ''))
+    } finally {
+      setIsSubmitting(false)
+      setProcessingProviderMulti(null)
     }
   }
 
@@ -522,6 +574,19 @@ export default function CheckoutPage() {
                       <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={56} height={14} className="object-contain max-h-5" />
                     </span>
                     <span className="text-sm font-medium">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</span>
+                  </Button>
+                  
+                  <Button
+                    onClick={() => handleMultibanco()}
+                    disabled={isSubmitting}
+                    variant="outline"
+                    size="default"
+                    className="w-full flex items-center justify-center gap-3 text-gray-900 border-2 border-[#0a6a2f] hover:bg-gray-50"
+                  >
+                    <span className="flex-shrink-0 flex items-center max-h-5">
+                      <Image src="/payment-logos/multibanco.png" alt="Multibanco" width={56} height={14} className="object-contain max-h-5" />
+                    </span>
+                    <span className="text-sm font-medium">{isSubmitting && processingProviderMulti === 'multibanco' ? 'Processando...' : 'Pagar com Multibanco'}</span>
                   </Button>
                 </div>
 

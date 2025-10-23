@@ -141,6 +141,7 @@ model Order {
   // Pagamento
   paymentMethod   String @map("payment_method")
   stripePaymentId String? @map("stripe_payment_id")
+  paypalOrderId    String? @map("paypal_order_id")
   couponCode      String? @map("coupon_code")
   
   // Rastreamento

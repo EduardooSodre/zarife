@@ -549,44 +549,59 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex flex-col gap-4 items-stretch">
+                  {/* Stripe */}
                   <Button
                     onClick={() => handlePayment('stripe')}
                     disabled={isSubmitting}
-                    variant="outline"
+                    variant="ghost"
                     size="default"
-                    className="w-full flex items-center justify-center gap-3 text-gray-900 border-2 border-[#6772e5] hover:bg-gray-50 "
+                    className="w-full h-full flex flex-row items-center justify-start gap-4 text-gray-900 bg-white border rounded-lg p-4 min-h-[64px] shadow-sm hover:shadow-md transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    aria-label="Pagar com Stripe"
                   >
-                    <span className="flex-shrink-0 flex items-center max-h-5">
-                      <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={56} height={14} className="object-contain max-h-5" />
-                    </span>
-                    <span className="text-sm font-medium">{isSubmitting && processingProvider === 'stripe' ? 'Processando...' : 'Pagar com Stripe'}</span>
+                    <div className="flex-shrink-0 w-14 h-8 flex items-center justify-center">
+                      <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={56} height={24} className="object-contain" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold">{isSubmitting && processingProvider === 'stripe' ? 'Processando...' : 'Pagar com Stripe'}</div>
+                      <div className="text-xs text-gray-500">Cartão de crédito</div>
+                    </div>
                   </Button>
 
+                  {/* PayPal */}
                   <Button
                     onClick={() => handlePayment('paypal')}
                     disabled={isSubmitting}
-                    variant="outline"
+                    variant="ghost"
                     size="default"
-                    className="w-full flex items-center justify-center gap-3 text-gray-900 border-2 border-[#003087] hover:bg-gray-50"
+                    className="w-full h-full flex flex-row items-center justify-start gap-4 text-gray-900 bg-white border rounded-lg p-4 min-h-[64px] shadow-sm hover:shadow-md transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    aria-label="Pagar com PayPal"
                   >
-                    <span className="flex-shrink-0 flex items-center max-h-5">
-                      <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={56} height={14} className="object-contain max-h-5" />
-                    </span>
-                    <span className="text-sm font-medium">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</span>
+                    <div className="flex-shrink-0 w-14 h-8 flex items-center justify-center">
+                      <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={56} height={24} className="object-contain" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</div>
+                      <div className="text-xs text-gray-500">Checkout seguro</div>
+                    </div>
                   </Button>
 
+                  {/* Multibanco */}
                   <Button
                     onClick={() => handleMultibanco()}
                     disabled={isSubmitting}
-                    variant="outline"
+                    variant="ghost"
                     size="default"
-                    className="w-full flex items-center justify-center gap-3 text-gray-900 border-2 border-[#0a6a2f] hover:bg-gray-50"
+                    className="w-full h-full flex flex-row items-center justify-start gap-4 text-gray-900 bg-white border rounded-lg p-4 min-h-[64px] shadow-sm hover:shadow-md transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    aria-label="Pagar com Multibanco"
                   >
-                    <span className="flex-shrink-0 flex items-center max-h-5">
-                      <Image src="/payment-logos/multibanco.png" alt="Multibanco" width={56} height={14} className="object-contain max-h-5" />
-                    </span>
-                    <span className="text-sm font-medium">{isSubmitting && processingProviderMulti === 'multibanco' ? 'Processando...' : 'Pagar com Multibanco'}</span>
+                    <div className="flex-shrink-0 w-14 h-8 flex items-center justify-center">
+                      <Image src="/multibanco-logos/multiBanco.webp" alt="Multibanco" width={56} height={24} className="object-contain" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold">{isSubmitting && processingProviderMulti === 'multibanco' ? 'Processando...' : 'Pagar com Multibanco'}</div>
+                      <div className="text-xs text-gray-500">Pagamento por referência</div>
+                    </div>
                   </Button>
                 </div>
 

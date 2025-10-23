@@ -575,7 +575,7 @@ export default function CheckoutPage() {
                     </span>
                     <span className="text-sm font-medium">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</span>
                   </Button>
-                  
+
                   <Button
                     onClick={() => handleMultibanco()}
                     disabled={isSubmitting}

@@ -47,6 +47,8 @@ function CheckoutSuccessContent() {
 
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const provider = searchParams.get('provider');
+  const token = searchParams.get('token') || searchParams.get('paymentId') || searchParams.get('PayerID');
   const [order, setOrder] = useState<OrderType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -69,6 +71,37 @@ function CheckoutSuccessContent() {
         setIsLoading(false)
       })
   }, [orderId])
+
+  // If returned from PayPal with provider=paypal and token, attempt server-side capture
+  useEffect(() => {
+    if (!orderId || !provider || provider !== 'paypal' || !token) return;
+    // Call capture endpoint once (idempotent)
+    (async () => {
+      try {
+        const res = await fetch('/api/paypal/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, token })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          console.error('PayPal capture failed on success page', json);
+          // reload order to reflect any webhook changes
+          const r = await fetch(`/api/orders/${orderId}`);
+          const d = await r.json();
+          if (d && !d.error) setOrder(d);
+          return;
+        }
+
+        // Capture succeeded (or already paid) - reload order state
+        const r2 = await fetch(`/api/orders/${orderId}`);
+        const d2 = await r2.json();
+        if (d2 && !d2.error) setOrder(d2);
+      } catch (e) {
+        console.error('Error calling capture endpoint', e);
+      }
+    })()
+  }, [orderId, provider, token])
 
   if (isLoading) {
     return (

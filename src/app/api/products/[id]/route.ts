@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deleteFromCloudinary } from "@/lib/upload";
 import { checkAdminAuth } from "@/lib/auth";
-import { calculateProductStock } from '@/lib/products'
+import { calculateProductStock } from "@/lib/products";
 
 type ProductImageWithPublicId = {
   id: string;
@@ -51,16 +51,18 @@ export async function GET(
     }
 
     // Compute stock and normalize prices to numbers for public consumers
-  const stock = calculateProductStock(product as unknown as { variants?: { stock: number }[] });
+    const stock = calculateProductStock(
+      product as unknown as { variants?: { stock: number }[] }
+    );
 
     const normalized = {
       ...product,
       price: Number(product.price),
       oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
       salePrice: product.salePrice ? Number(product.salePrice) : null,
-      variants: (product.variants || []).map(v => ({
+      variants: (product.variants || []).map((v) => ({
         ...v,
-        stock: v.stock
+        stock: v.stock,
       })),
       stock,
     };

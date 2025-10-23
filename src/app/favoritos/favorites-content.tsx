@@ -75,7 +75,7 @@ export function FavoritesContent() {
           </p>
         </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {favorites.map((product) => (
             <FavoriteGridCard key={product.id} product={product} />
           ))}

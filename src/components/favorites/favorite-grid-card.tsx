@@ -99,7 +99,7 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
         <Heart className="h-5 w-5 fill-red-500 text-red-500 hover:scale-110 transition-all duration-200 drop-shadow-sm" />
       </button>
 
-  <div className="p-3 md:p-4">
+      <div className="p-3 md:p-4">
         <Link href={`/product/${product.id}`}>
           <h3 className={`text-sm md:text-base font-medium mb-2 hover:text-black transition-colors cursor-pointer h-10 md:h-12 overflow-hidden ${isOutOfStock ? 'text-gray-500' : 'text-gray-900'
             }`}>

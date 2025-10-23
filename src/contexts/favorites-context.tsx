@@ -37,7 +37,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadFavorites = async () => {
       if (!user) return;
-      
+
       try {
         const response = await fetch('/api/favorites');
         if (response.ok) {

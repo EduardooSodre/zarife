@@ -982,51 +982,51 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                 </div>
               </div>
 
-            {/* Coleção: switch colocado abaixo de Produto Destaque conforme solicitado */}
-            <div className="mt-3">
-              <div className="flex items-center gap-3">
-                <Switch id="collectionEnabled" checked={collectionEnabled} onCheckedChange={(checked) => {
-                  setCollectionEnabled(checked as boolean);
-                  if (!checked) setFormData(prev => ({ ...prev, collectionId: '' }));
-                }} />
-                <div>
-                  <Label className="text-base font-semibold cursor-pointer">Coleção (opcional)</Label>
-                  <p className="text-xs text-gray-500">Associar a uma coleção personalizada</p>
+              {/* Coleção: switch colocado abaixo de Produto Destaque conforme solicitado */}
+              <div className="mt-3">
+                <div className="flex items-center gap-3">
+                  <Switch id="collectionEnabled" checked={collectionEnabled} onCheckedChange={(checked) => {
+                    setCollectionEnabled(checked as boolean);
+                    if (!checked) setFormData(prev => ({ ...prev, collectionId: '' }));
+                  }} />
+                  <div>
+                    <Label className="text-base font-semibold cursor-pointer">Coleção (opcional)</Label>
+                    <p className="text-xs text-gray-500">Associar a uma coleção personalizada</p>
+                  </div>
                 </div>
+                {collectionEnabled && (
+                  <div className="mt-2 flex gap-2 items-center">
+                    <Select value={formData.collectionId} onValueChange={(value) => setFormData({ ...formData, collectionId: value === 'none' ? '' : value })}>
+                      <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
+                        <SelectValue placeholder="Selecione uma coleção" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhuma</SelectItem>
+                        {collections.map((col) => (
+                          <SelectItem key={col.id} value={col.id}>{col.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button type="button" variant="outline" size="icon" className="h-11 w-11" onClick={() => setShowNewCollectionDialog(true)}>
+                            <FolderPlus className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Criar nova coleção</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
               </div>
-              {collectionEnabled && (
-                <div className="mt-2 flex gap-2 items-center">
-                  <Select value={formData.collectionId} onValueChange={(value) => setFormData({ ...formData, collectionId: value === 'none' ? '' : value })}>
-                    <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
-                      <SelectValue placeholder="Selecione uma coleção" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Nenhuma</SelectItem>
-                      {collections.map((col) => (
-                        <SelectItem key={col.id} value={col.id}>{col.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button type="button" variant="outline" size="icon" className="h-11 w-11" onClick={() => setShowNewCollectionDialog(true)}>
-                          <FolderPlus className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Criar nova coleção</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              )}
-            </div>
 
-                {/* Coleção e Promoção - colocadas aqui junto aos switches */}
-                <div className="mt-3">
-                  <p className="text-xs text-gray-500">Promoções são gerenciadas via o switch &quot;Produto em Promoção&quot; e o percentual de desconto.</p>
-                </div>
+              {/* Coleção e Promoção - colocadas aqui junto aos switches */}
+              <div className="mt-3">
+                <p className="text-xs text-gray-500">Promoções são gerenciadas via o switch &quot;Produto em Promoção&quot; e o percentual de desconto.</p>
+              </div>
             </div>
 
             {/* Botões de Ação */}

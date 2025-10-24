@@ -23,32 +23,47 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, discountType, value, startAt, endAt } = body;
     if (!name || !discountType || value === undefined || value === null) {
-      return NextResponse.json({ success: false, error: 'Missing fields' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Missing fields" },
+        { status: 400 }
+      );
     }
 
     // create slug
-    const slug = (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const slug = (name || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
-    const created = await (prisma as any).promotion.create({
-      data: {
-        name: name.trim(),
-        slug,
-        isActive: true,
-        discountType,
-        value: value,
-        startAt: startAt ? new Date(startAt) : null,
-        endAt: endAt ? new Date(endAt) : null,
-      },
-    }).catch((err: any) => {
-      console.error('Error creating promotion', err);
-      return null;
-    });
+    const created = await (prisma as any).promotion
+      .create({
+        data: {
+          name: name.trim(),
+          slug,
+          isActive: true,
+          discountType,
+          value: value,
+          startAt: startAt ? new Date(startAt) : null,
+          endAt: endAt ? new Date(endAt) : null,
+        },
+      })
+      .catch((err: any) => {
+        console.error("Error creating promotion", err);
+        return null;
+      });
 
-    if (!created) return NextResponse.json({ success: false, error: 'Failed to create' }, { status: 500 });
+    if (!created)
+      return NextResponse.json(
+        { success: false, error: "Failed to create" },
+        { status: 500 }
+      );
 
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   } catch (error) {
-    console.error('Error in promotions POST', error);
-    return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
+    console.error("Error in promotions POST", error);
+    return NextResponse.json(
+      { success: false, error: "Internal error" },
+      { status: 500 }
+    );
   }
 }

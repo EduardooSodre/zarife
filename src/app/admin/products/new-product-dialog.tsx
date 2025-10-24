@@ -1556,43 +1556,43 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                 </DialogContent>
             </Dialog>
 
-                {/* Dialog para criar nova coleção */}
-                <Dialog open={showNewCollectionDialog} onOpenChange={setShowNewCollectionDialog}>
-                    <DialogContent className="max-w-md">
-                        <DialogHeader>
-                            <DialogTitle>Nova Coleção</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="newCollectionName">Nome *</Label>
-                                <Input
-                                    id="newCollectionName"
-                                    value={newCollectionForm.name}
-                                    onChange={(e) => setNewCollectionForm({ ...newCollectionForm, name: e.target.value })}
-                                    placeholder="Ex: Nova Coleção, Coleção Inverno..."
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="newCollectionDescription">Descrição</Label>
-                                <Textarea
-                                    id="newCollectionDescription"
-                                    value={newCollectionForm.description}
-                                    onChange={(e) => setNewCollectionForm({ ...newCollectionForm, description: e.target.value })}
-                                    placeholder="Descrição (opcional)"
-                                    rows={3}
-                                />
-                            </div>
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Button type="button" variant="outline" onClick={() => { setShowNewCollectionDialog(false); setNewCollectionForm({ name: '', description: '' }); }}>
-                                    Cancelar
-                                </Button>
-                                <Button type="button" onClick={handleCreateCollection}>
-                                    Criar Coleção
-                                </Button>
-                            </div>
+            {/* Dialog para criar nova coleção */}
+            <Dialog open={showNewCollectionDialog} onOpenChange={setShowNewCollectionDialog}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Nova Coleção</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="newCollectionName">Nome *</Label>
+                            <Input
+                                id="newCollectionName"
+                                value={newCollectionForm.name}
+                                onChange={(e) => setNewCollectionForm({ ...newCollectionForm, name: e.target.value })}
+                                placeholder="Ex: Nova Coleção, Coleção Inverno..."
+                            />
                         </div>
-                    </DialogContent>
-                </Dialog>
+                        <div className="space-y-2">
+                            <Label htmlFor="newCollectionDescription">Descrição</Label>
+                            <Textarea
+                                id="newCollectionDescription"
+                                value={newCollectionForm.description}
+                                onChange={(e) => setNewCollectionForm({ ...newCollectionForm, description: e.target.value })}
+                                placeholder="Descrição (opcional)"
+                                rows={3}
+                            />
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2">
+                            <Button type="button" variant="outline" onClick={() => { setShowNewCollectionDialog(false); setNewCollectionForm({ name: '', description: '' }); }}>
+                                Cancelar
+                            </Button>
+                            <Button type="button" onClick={handleCreateCollection}>
+                                Criar Coleção
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {/* Dialog para criar nova estação */}
             <Dialog open={showNewSeasonDialog} onOpenChange={setShowNewSeasonDialog}>

@@ -14,6 +14,7 @@ type ProductPreview = {
   variants?: { stock: number }[];
   price: number;
   oldPrice?: number | null;
+  salePrice?: number | null;
 };
 
 type Promotion = {
@@ -134,14 +135,22 @@ export default async function Home() {
     for (const prod of promo.products) {
       if (!productMap.has(prod.id)) {
         // Normalize minimal fields expected by ProductCard
+        // Determine effective price for display: prefer product.salePrice when present
+        const rawPrice = typeof prod.price === 'number' ? prod.price : Number(prod.price);
+        const rawSale = prod.salePrice !== undefined && prod.salePrice !== null ? Number(prod.salePrice) : null;
+        const hasSale = rawSale !== null && !isNaN(rawSale) && rawSale < rawPrice;
         productMap.set(prod.id, {
           id: prod.id,
           name: prod.name,
           images: prod.images || [],
           category: prod.category || null,
           variants: prod.variants || [],
-          price: typeof prod.price === 'number' ? prod.price : Number(prod.price),
-          oldPrice: prod.oldPrice ? Number(prod.oldPrice) : null,
+          // Price shown in card should be the effective price (salePrice when on sale)
+          price: hasSale ? rawSale! : rawPrice,
+          // Old price (struck-through) should be the original price when there's a sale
+          oldPrice: hasSale ? rawPrice : (prod.oldPrice ? Number(prod.oldPrice) : null),
+          // preserve salePrice for downstream components
+          salePrice: hasSale ? rawSale : null,
         });
       }
     }

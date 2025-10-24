@@ -11,6 +11,8 @@ interface ProductCardProps {
     name: string;
     price: number | Decimal;
     oldPrice?: number | Decimal | null;
+    salePrice?: number | Decimal | null;
+    salePercentage?: number | null;
     images?: { url: string }[] | null;
     category?: { name: string; slug: string } | null;
     variants?: { stock: number }[];
@@ -65,20 +67,31 @@ export function ProductCard({
           </p>
         )}
         <div className="flex items-center justify-between mb-2 md:mb-3">
-          <span className="text-sm md:text-lg font-medium text-black">€{Number(product.price).toFixed(2)}</span>
-          {product.oldPrice && Number(product.oldPrice) > Number(product.price) && (
-            <span className="text-xs md:text-sm text-gray-500 line-through">€{Number(product.oldPrice).toFixed(2)}</span>
+          {/* If product has a salePrice, show it as the main price and original price struck-through */}
+          {product.salePrice && Number(product.salePrice) < Number(product.price) ? (
+            <>
+              <span className="text-sm md:text-lg font-medium text-black">€{Number(product.salePrice).toFixed(2)}</span>
+              <span className="text-xs md:text-sm text-gray-500 line-through">€{Number(product.price).toFixed(2)}</span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm md:text-lg font-medium text-black">€{Number(product.price).toFixed(2)}</span>
+              {product.oldPrice && Number(product.oldPrice) > Number(product.price) && (
+                <span className="text-xs md:text-sm text-gray-500 line-through">€{Number(product.oldPrice).toFixed(2)}</span>
+              )}
+            </>
           )}
         </div>
         <HomeAddToCartButton
-          product={{
-            id: product.id,
-            name: product.name,
-            price: Number(product.price),
-            image: product.images?.[0]?.url || '/placeholder-product.jpg',
-            stock: totalStock,
-            variants: product.variants || [],
-          }}
+            product={{
+              id: product.id,
+              name: product.name,
+              // Pass the effective price to cart (salePrice if present)
+              price: Number(product.salePrice && Number(product.salePrice) < Number(product.price) ? product.salePrice : product.price),
+              image: product.images?.[0]?.url || '/placeholder-product.jpg',
+              stock: totalStock,
+              variants: product.variants || [],
+            }}
         />
       </div>
     </MotionCard>

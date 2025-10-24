@@ -55,21 +55,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Debug: log a minimal summary (avoid PII) to help tracking 400 causes
-    try {
-      const itemsSummary = (body.items || []).map((it: unknown) => {
-        if (!it || typeof it !== "object") return null;
-        const o = it as Record<string, unknown>;
-        return {
-          productId: String(o.productId || ""),
-          quantity: Number(o.quantity || 0),
-          variant: o.variant || {},
-        };
-      });
-      console.debug("[orders] incoming order items:", itemsSummary);
-    } catch {
-      // ignore logging errors
-    }
+    // NOTE: We compute all amounts server-side below for security. Do not trust client-submitted prices/amounts.
 
     const {
       items,
@@ -98,18 +84,27 @@ export async function POST(request: NextRequest) {
       ...new Set(items.map((item: OrderItem) => item.productId)),
     ];
 
-    const products = await prisma.product.findMany({
+    // Use any-typed prisma client here to accommodate generated client shape differences
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db: any = prisma as any;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const products: any[] = await db.product.findMany({
       where: {
         id: { in: productIds },
         isActive: true,
       },
       include: {
         variants: true,
+        promotions: {
+          where: { isActive: true },
+        },
       },
     });
 
     if (products.length !== productIds.length) {
-      const foundIds = products.map((p) => p.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const foundIds = products.map((p: any) => p.id);
       const missing = productIds.filter((id) => !foundIds.includes(id));
       return NextResponse.json(
         {
@@ -121,8 +116,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // We'll compute server-side pricing to prevent tampering.
+    let serverSubtotal = 0;
+
     for (const item of items) {
-      const product = products.find((p) => p.id === item.productId);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const product = products.find((p: any) => p.id === item.productId);
       if (!product) {
         return NextResponse.json(
           { error: `Produto ${item.productId} não encontrado` },
@@ -140,7 +139,8 @@ export async function POST(request: NextRequest) {
           (s || "").toString().trim().toLowerCase();
 
         // Match variant by the dimensions provided in the order (size and/or color).
-        const variant = product.variants.find((v) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const variant = (product.variants as any[]).find((v: any) => {
           const sizeMatches = item.variant.size
             ? normalize(v.size) === normalize(item.variant.size)
             : true;
@@ -150,23 +150,9 @@ export async function POST(request: NextRequest) {
           return sizeMatches && colorMatches;
         });
 
-        if (!variant) {
+  if (!variant) {
           // Improve debug information to diagnose mismatches (don't log PII)
-          try {
-            const available = product.variants.map((v) => ({
-              id: v.id,
-              size: v.size?.toString().trim(),
-              color: v.color?.toString().trim(),
-            }));
-            console.debug(
-              `[orders] variant not found for product ${product.id} (${product.name}). requested:`,
-              item.variant,
-              "available:",
-              available
-            );
-          } catch {
-            // ignore
-          }
+          // Do not log variant internals in production - return generic error
 
           return NextResponse.json(
             {
@@ -186,6 +172,60 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+    // Compute per-item price and accumulate subtotal
+    for (const item of items) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const product = products.find((p: any) => p.id === item.productId)!;
+
+      // Determine effective base price (product.price is original)
+      const basePrice = Number(product.price);
+
+      // Look for active percent promotions attached to the product
+      const promoPercents: number[] = [];
+      try {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prodAny = product as any;
+        if (prodAny.promotions && Array.isArray(prodAny.promotions)) {
+          for (const promo of prodAny.promotions) {
+            if (promo.discountType === 'PERCENT' && promo.value != null) {
+              let nv = Number(promo.value);
+              if (!isNaN(nv)) {
+                if (nv > 0 && nv <= 1) nv = nv * 100;
+                promoPercents.push(Math.round(nv));
+              }
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      // Choose the highest promotion percent if any (safe for customer)
+      let appliedPercent: number | null = null;
+      if (promoPercents.length > 0) {
+        appliedPercent = Math.max(...promoPercents);
+      } else if (product.isOnSale && product.salePercentage) {
+        appliedPercent = Number(product.salePercentage);
+      }
+
+      let itemUnitPrice = basePrice;
+      if (appliedPercent && appliedPercent >= 1) {
+        const discounted = basePrice * (1 - appliedPercent / 100);
+        itemUnitPrice = Math.round(discounted * 100) / 100;
+      }
+
+      const qty = Number(item.quantity) || 1;
+      serverSubtotal += itemUnitPrice * qty;
+
+      // Create order item with server-validated price
+      // We'll create order after computing totals
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (item as any).__serverPrice = itemUnitPrice;
+    }
+
+    // Validate/normalize shipping amount provided by client (allow override but sanitize)
+    const shippingAmount = Number(amounts.shipping) >= 0 ? Number(amounts.shipping) : 0;
+    const serverTotal = Math.round((serverSubtotal + shippingAmount) * 100) / 100;
 
     const order = await prisma.order.create({
       data: {
@@ -200,21 +240,23 @@ export async function POST(request: NextRequest) {
         shippingState: shipping.state,
         shippingCountry: shipping.country,
         shippingComplement: shipping.complement,
-        subtotal: Number(amounts.subtotal),
-        shipping: Number(amounts.shipping),
-        total: Number(amounts.total),
+        subtotal: Number(serverSubtotal),
+        shipping: Number(shippingAmount),
+        total: Number(serverTotal),
         paymentMethod: payment.method,
         notes: notes || "",
       },
     });
 
     for (const item of items) {
-      await prisma.orderItem.create({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const serverPrice = Number((item as any).__serverPrice);
+      await db.orderItem.create({
         data: {
           orderId: order.id,
           productId: item.productId,
           quantity: Number(item.quantity),
-          price: Number(item.price),
+          price: serverPrice,
           size: item.variant.size,
           color: item.variant.color,
         },

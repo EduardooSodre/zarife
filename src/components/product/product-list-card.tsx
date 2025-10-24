@@ -15,6 +15,7 @@ interface ProductListCardProps {
         description: string | null;
         price: number;
         oldPrice: number | null;
+        salePrice?: number | null;
         brand: string | null;
         material: string | null;
         season: string | null;
@@ -40,8 +41,11 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
         }).format(price);
     };
 
-    const discountPercentage = product.oldPrice
-        ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+    // Prefer salePrice for UI and calculations when present and valid
+    const effectivePrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
+    const effectiveOldPrice = product.salePrice && product.salePrice < product.price ? product.price : product.oldPrice;
+    const discountPercentage = effectiveOldPrice
+        ? Math.round(((effectiveOldPrice - effectivePrice) / effectiveOldPrice) * 100)
         : null;
 
     const handleToggleFavorite = () => {
@@ -51,8 +55,9 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
             addToFavorites({
                 id: product.id,
                 name: product.name,
-                price: product.price,
-                oldPrice: product.oldPrice,
+                price: effectivePrice,
+                oldPrice: effectiveOldPrice,
+                salePrice: product.salePrice ?? null,
                 images: product.images,
                 stock: totalStock,
                 category: product.category,
@@ -135,11 +140,11 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                         <div>
                             <div className="flex items-baseline gap-3">
                                 <span className="text-xl font-bold text-gray-900">
-                                    {formatPrice(product.price)}
+                                    {formatPrice(effectivePrice)}
                                 </span>
-                                {product.oldPrice && (
+                                {effectiveOldPrice && (
                                     <span className="text-sm text-gray-500 line-through">
-                                        {formatPrice(product.oldPrice)}
+                                        {formatPrice(effectiveOldPrice)}
                                     </span>
                                 )}
                             </div>
@@ -154,7 +159,7 @@ export function ProductListCard({ product, className = "" }: ProductListCardProp
                                 product={{
                                     id: product.id,
                                     name: product.name,
-                                    price: product.price,
+                                    price: effectivePrice,
                                     image: product.images[0]?.url || '',
                                     variants: product.variants || [],
                                 }}

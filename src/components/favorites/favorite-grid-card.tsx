@@ -11,6 +11,7 @@ interface FavoriteProduct {
   name: string;
   price: number;
   oldPrice: number | null;
+  salePrice?: number | null;
   images: { url: string }[];
   stock: number;
   variants?: {
@@ -40,8 +41,10 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
     }).format(price);
   };
 
-  const discountPercentage = product.oldPrice
-    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+  const effectivePrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
+  const effectiveOldPrice = product.salePrice && product.salePrice < product.price ? product.price : product.oldPrice;
+  const discountPercentage = effectiveOldPrice
+    ? Math.round(((effectiveOldPrice - effectivePrice) / effectiveOldPrice) * 100)
     : null;
 
   // Only treat product as out of stock when it has variants (real SKU-level stock).
@@ -116,11 +119,11 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
         <div className="flex items-center justify-between mb-2 md:mb-3">
           <span className={`text-base md:text-lg font-semibold ${isOutOfStock ? 'text-gray-500' : 'text-black'
             }`}>
-            {formatPrice(product.price)}
+            {formatPrice(effectivePrice)}
           </span>
-          {product.oldPrice && !isOutOfStock && (
+          {effectiveOldPrice && !isOutOfStock && (
             <span className="text-xs md:text-sm text-gray-500 line-through">
-              {formatPrice(product.oldPrice)}
+              {formatPrice(effectiveOldPrice)}
             </span>
           )}
         </div>
@@ -129,7 +132,7 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
           product={{
             id: product.id,
             name: product.name,
-            price: product.price,
+            price: effectivePrice,
             image: product.images[0]?.url || '/placeholder-product.jpg',
             stock: product.stock,
             variants: product.variants || [],

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PageTransition } from "@/components/animations/page-effects";
 import { FastProductCard } from "@/components/product/fast-product-card";
+import { calculateProductStock } from '@/lib/products';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -29,6 +30,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             orderBy: { order: "asc" },
             take: 1,
           },
+          variants: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -44,10 +46,30 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   // Converter Decimal para number para evitar erro de serialização
   const serializedCategory = {
     ...category,
-    products: category.products.map(product => ({
-      ...product,
+    products: category.products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      additionalDescriptions: product.additionalDescriptions,
       price: Number(product.price),
       oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+      salePrice: product.salePrice !== undefined && product.salePrice !== null ? Number(product.salePrice) : null,
+      salePercentage: product.salePercentage !== undefined && product.salePercentage !== null ? Number(product.salePercentage) : null,
+      categoryId: product.categoryId,
+      isFeatured: product.isFeatured,
+      isActive: product.isActive,
+      isOnSale: product.isOnSale,
+      material: product.material,
+      brand: product.brand,
+      season: product.season,
+      deletedAt: product.deletedAt ? product.deletedAt.toISOString() : null,
+      images: (product.images || []).map((img) => ({ id: img.id, url: img.url, publicId: img.publicId ?? null, order: img.order })),
+      variants: (product.variants || []).map((v) => ({ id: v.id, size: v.size ?? undefined, color: v.color ?? undefined, stock: v.stock })),
+      // compute stock server-side and pass primitive
+      stock: calculateProductStock(product as { variants?: { stock: number }[] }),
+      // convert dates to strings to avoid non-serializable Date objects
+      createdAt: product.createdAt ? product.createdAt.toISOString() : null,
+      updatedAt: product.updatedAt ? product.updatedAt.toISOString() : null,
     }))
   };
 

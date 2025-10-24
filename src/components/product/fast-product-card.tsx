@@ -14,6 +14,7 @@ interface FastProductCardProps {
     name: string;
     price: number | Decimal;
     oldPrice?: number | Decimal | null;
+    salePrice?: number | Decimal | null;
     images?: { url: string }[] | null;
     category?: { name: string; slug: string } | null;
     variants?: { stock: number }[];
@@ -36,8 +37,9 @@ export function FastProductCard({
       addToFavorites({
         id: product.id,
         name: product.name,
-        price: Number(product.price),
-        oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
+        price: product.salePrice && Number(product.salePrice) < Number(product.price) ? Number(product.salePrice) : Number(product.price),
+        oldPrice: product.salePrice && Number(product.salePrice) < Number(product.price) ? Number(product.price) : (product.oldPrice ? Number(product.oldPrice) : null),
+        salePrice: product.salePrice ? Number(product.salePrice) : null,
         images: product.images || [],
         stock: totalStock,
         category: product.category || null,
@@ -91,16 +93,25 @@ export function FastProductCard({
           </p>
         )}
         <div className="flex items-center justify-between mb-2 md:mb-3">
-          <span className="text-sm md:text-lg font-medium text-black">€{Number(product.price).toFixed(2)}</span>
-          {product.oldPrice && Number(product.oldPrice) > Number(product.price) && (
-            <span className="text-xs md:text-sm text-gray-500 line-through">€{Number(product.oldPrice).toFixed(2)}</span>
+          {product.salePrice && Number(product.salePrice) < Number(product.price) ? (
+            <>
+              <span className="text-sm md:text-lg font-medium text-black">€{Number(product.salePrice).toFixed(2)}</span>
+              <span className="text-xs md:text-sm text-gray-500 line-through">€{Number(product.price).toFixed(2)}</span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm md:text-lg font-medium text-black">€{Number(product.price).toFixed(2)}</span>
+              {product.oldPrice && Number(product.oldPrice) > Number(product.price) && (
+                <span className="text-xs md:text-sm text-gray-500 line-through">€{Number(product.oldPrice).toFixed(2)}</span>
+              )}
+            </>
           )}
         </div>
         <HomeAddToCartButton
           product={{
             id: product.id,
             name: product.name,
-            price: Number(product.price),
+            price: Number(product.salePrice && Number(product.salePrice) < Number(product.price) ? product.salePrice : product.price),
             image: product.images?.[0]?.url || '/placeholder-product.jpg',
             stock: totalStock,
             variants: product.variants || [],

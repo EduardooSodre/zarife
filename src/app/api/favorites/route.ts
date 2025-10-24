@@ -40,6 +40,7 @@ export async function GET() {
       name: fav.product.name,
       price: Number(fav.product.price),
       oldPrice: fav.product.oldPrice ? Number(fav.product.oldPrice) : null,
+      salePrice: fav.product.salePrice ? Number(fav.product.salePrice) : null,
       images: fav.product.images,
       stock: calculateProductStock(fav.product),
       variants: (fav.product.variants || []).map((v) => ({

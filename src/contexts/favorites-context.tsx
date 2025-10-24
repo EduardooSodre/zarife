@@ -8,6 +8,7 @@ interface FavoriteProduct {
   name: string;
   price: number;
   oldPrice: number | null;
+  salePrice?: number | null;
   images: { url: string }[];
   stock: number;
   category: {
@@ -56,6 +57,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                   ...f,
                   price: latest.price ?? f.price,
                   oldPrice: latest.oldPrice ?? f.oldPrice,
+                  salePrice: latest.salePrice ?? f.salePrice ?? null,
                   images: latest.images ?? f.images,
                   variants: latest.variants ?? f.variants,
                   stock: typeof latest.stock === 'number' ? latest.stock : f.stock,

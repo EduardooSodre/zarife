@@ -61,6 +61,13 @@ interface Product {
   variants?: VariantData[];
 }
 
+interface Promotion {
+  id: string;
+  name: string;
+  discountType?: string;
+  value?: number | string;
+}
+
 interface EditProductDialogProps {
   product: Product;
   onUpdated?: () => void;
@@ -73,7 +80,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   const [seasons, setSeasons] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
   const [collections, setCollections] = useState<Array<{ id: string; name: string }>>([]);
-  const [promotions, setPromotions] = useState<Array<{ id: string; name: string }>>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [showNewCollectionDialog, setShowNewCollectionDialog] = useState(false);
   const [newCollectionForm, setNewCollectionForm] = useState({ name: '', description: '' });
   const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
@@ -203,7 +210,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
       if (isNaN(pct)) return;
 
       // check currently loaded promotions first
-      const already = promotions.find((p: any) => {
+      const already = promotions.find((p: Promotion) => {
         try { return p.discountType === 'PERCENT' && Number(p.value) === pct; } catch { return false; }
       });
 
@@ -214,14 +221,14 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
 
       try {
         const resp = await fetch('/api/promotions');
-        let promos = [];
+        let promos: Promotion[] = [];
         if (resp.ok) {
           const data = await resp.json();
           promos = data.data || [];
           setPromotions(promos);
         }
 
-        const found = promos.find((p: any) => {
+        const found = promos.find((p: Promotion) => {
           try { return (p.discountType === 'PERCENT') && Number(p.value) === pct; } catch { return false; }
         });
 

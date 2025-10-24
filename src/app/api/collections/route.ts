@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Retornar coleções ativas para uso em forms/admin
     const collections = await (prisma as any).collection

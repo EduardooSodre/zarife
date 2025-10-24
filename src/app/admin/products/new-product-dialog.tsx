@@ -43,6 +43,13 @@ interface NewProductDialogProps {
     buttonClassName?: string;
 }
 
+interface Promotion {
+    id: string;
+    name: string;
+    discountType?: string;
+    value?: number | string;
+}
+
 export function NewProductDialog({ onCreated, buttonText = "Novo Produto", buttonClassName }: NewProductDialogProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -50,7 +57,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     const [seasons, setSeasons] = useState<string[]>(['Primavera', 'Verão', 'Outono', 'Inverno', 'Atemporal']);
     const [sizes, setSizes] = useState<string[]>(['XS', 'S', 'M', 'L', 'XL', 'XXL']);
     const [collections, setCollections] = useState<Array<{ id: string; name: string }>>([]);
-    const [promotions, setPromotions] = useState<Array<{ id: string; name: string }>>([]);
+    const [promotions, setPromotions] = useState<Promotion[]>([]);
     const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
     const [showNewCategoryDialog, setShowNewCategoryDialog] = useState(false);
     const [showNewSeasonDialog, setShowNewSeasonDialog] = useState(false);
@@ -172,15 +179,24 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
             if (isNaN(pct)) return;
 
             try {
+                // first check already-loaded promotions
+                const already = promotions.find((p: Promotion) => {
+                    try { return p.discountType === 'PERCENT' && Number(p.value) === pct; } catch { return false; }
+                });
+                if (already) {
+                    setFormData((prev) => ({ ...prev, promotionId: already.id }));
+                    return;
+                }
+
                 const resp = await fetch('/api/promotions');
-                let promos: any[] = [];
+                let promos: Promotion[] = [];
                 if (resp.ok) {
                     const data = await resp.json();
                     promos = data.data || [];
                     setPromotions(promos);
                 }
 
-                const found = promos.find((p) => {
+                const found = promos.find((p: Promotion) => {
                     try { return p.discountType === 'PERCENT' && Number(p.value) === pct; } catch { return false; }
                 });
 
@@ -207,7 +223,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         };
 
         ensurePromotion();
-    }, [formData.isOnSale, formData.salePercentage, open]);
+    }, [formData.isOnSale, formData.salePercentage, open, promotions]);
 
     // Calcular preço com desconto
     const calculateSalePrice = () => {

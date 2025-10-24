@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Retornar promoções ativas
     const promotions = await (prisma as any).promotion

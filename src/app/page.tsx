@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
@@ -56,7 +57,7 @@ export default async function Home() {
       orderBy: { createdAt: 'desc' },
       take: 4,
     });
-  } catch (err) {
+  } catch {
     // If promotions model doesn't exist yet (no migration), ignore
     promotions = [];
   }

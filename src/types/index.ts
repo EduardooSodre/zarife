@@ -32,6 +32,8 @@ export interface Product {
   category?: Category;
   images?: ProductImage[];
   variants?: ProductVariant[];
+  collections?: Array<{ id: string; name: string }>;
+  promotions?: Array<{ id: string; name: string; discountType?: string; value?: number }>;
 }
 
 export interface ProductImage {

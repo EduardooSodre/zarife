@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deleteFromCloudinary } from "@/lib/upload";
@@ -20,28 +21,31 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-    const product = await prisma.product.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        category: true,
-        images: {
-          orderBy: {
-            order: "asc",
-          },
+    let product;
+    try {
+      // Try to include collections/promotions if the schema supports it
+      product = await (prisma as any).product.findUnique({
+        where: { id },
+        include: {
+          category: true,
+          images: { orderBy: { order: "asc" } },
+          variants: { include: { images: { orderBy: { order: "asc" } } } },
+          collections: true,
+          promotions: true,
         },
-        variants: {
-          include: {
-            images: {
-              orderBy: {
-                order: "asc",
-              },
-            },
-          },
+      });
+    } catch (err) {
+      // Fallback for environments where migrations/types aren't applied yet
+      console.warn("Could not include collections/promotions on product GET, falling back:", err);
+      product = await prisma.product.findUnique({
+        where: { id },
+        include: {
+          category: true,
+          images: { orderBy: { order: "asc" } },
+          variants: { include: { images: { orderBy: { order: "asc" } } } },
         },
-      },
-    });
+      });
+    }
 
     if (!product) {
       return NextResponse.json(
@@ -55,15 +59,16 @@ export async function GET(
       product as unknown as { variants?: { stock: number }[] }
     );
 
+    const p: any = product as any;
+
     const normalized = {
-      ...product,
-      price: Number(product.price),
-      oldPrice: product.oldPrice ? Number(product.oldPrice) : null,
-      salePrice: product.salePrice ? Number(product.salePrice) : null,
-      variants: (product.variants || []).map((v) => ({
-        ...v,
-        stock: v.stock,
-      })),
+      ...p,
+      price: Number(p.price),
+      oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
+      salePrice: p.salePrice ? Number(p.salePrice) : null,
+      variants: (p.variants || []).map((v: any) => ({ ...v, stock: v.stock })),
+      collections: p.collections ? p.collections.map((c: any) => ({ id: c.id, name: c.name })) : [],
+      promotions: p.promotions ? p.promotions.map((pr: any) => ({ id: pr.id, name: pr.name, discountType: pr.discountType, value: pr.value })) : [],
       stock,
     };
 

@@ -207,7 +207,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         };
 
         ensurePromotion();
-        }, [formData.isOnSale, formData.salePercentage, open]);
+    }, [formData.isOnSale, formData.salePercentage, open]);
 
     // Calcular preço com desconto
     const calculateSalePrice = () => {

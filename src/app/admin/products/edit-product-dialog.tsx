@@ -72,6 +72,8 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   const [categories, setCategories] = useState<Category[]>([]);
   const [seasons, setSeasons] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
+  const [collections, setCollections] = useState<Array<{id: string; name: string}>>([]);
+  const [promotions, setPromotions] = useState<Array<{id: string; name: string}>>([]);
   const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
 
   const [additionalDescriptions, setAdditionalDescriptions] = useState<Array<{ title: string; content: string }>>([]);
@@ -90,6 +92,8 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     material: product.material || '',
     brand: product.brand || '',
     season: product.season || '',
+    collectionId: '',
+    promotionId: '',
   });
 
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -133,6 +137,24 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
           }
         } catch (err) {
           console.error('Erro ao buscar cores:', err);
+        }
+
+        // Buscar coleções e promoções
+        try {
+          const [colsResp, promosResp] = await Promise.all([
+            fetch('/api/collections'),
+            fetch('/api/promotions'),
+          ]);
+          if (colsResp.ok) {
+            const data = await colsResp.json();
+            setCollections(data.data || []);
+          }
+          if (promosResp.ok) {
+            const data = await promosResp.json();
+            setPromotions(data.data || []);
+          }
+        } catch (err) {
+          console.error('Erro ao buscar coleções/promos:', err);
         }
 
         const productResponse = await fetch(`/api/products/${product.id}`);
@@ -569,6 +591,36 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Seleção de promoção - opcional */}
+            <div className="mt-3">
+              <Label className="text-sm font-medium">Promoção (opcional)</Label>
+              <Select value={formData.promotionId} onValueChange={(value) => setFormData({ ...formData, promotionId: value === 'none' ? '' : value })}>
+                <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
+                  <SelectValue placeholder="Nenhuma" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  {promotions.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="mt-3">
+              <Label htmlFor="collectionId" className="text-sm font-medium">Coleção (opcional)</Label>
+              <Select value={formData.collectionId} onValueChange={(value) => setFormData({ ...formData, collectionId: value === 'none' ? '' : value })}>
+                <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
+                  <SelectValue placeholder="Nenhuma" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  {collections.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Seção: Preços e Promoções */}

@@ -78,6 +78,8 @@ model Product {
   orderItems OrderItem[]
   variants   ProductVariant[]
   favorites  Favorite[]
+  collections Collection[]
+  promotions  Promotion[]
 
   @@index([isOnSale])
   @@index([deletedAt])
@@ -236,4 +238,38 @@ model Size {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("sizes")
+}
+
+// Coleções customizadas (ex: "Nova Coleção", "Coleção Inverno")
+model Collection {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  isActive  Boolean   @default(true) @map("is_active")
+
+  products  Product[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("collections")
+}
+
+// Promoções (ex: SALDOS 20%) - podem ser associadas a produtos
+model Promotion {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  isActive     Boolean   @default(true) @map("is_active")
+  discountType DiscountType?
+  value        Decimal?
+  startAt      DateTime?
+  endAt        DateTime?
+
+  products     Product[]
+
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("promotions")
 }

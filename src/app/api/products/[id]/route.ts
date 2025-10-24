@@ -113,6 +113,8 @@ export async function PUT(
       season,
       images,
       variants,
+      collectionId,
+      promotionId,
     } = data;
 
     // Calcular salePrice se estiver em promoção
@@ -247,6 +249,34 @@ export async function PUT(
             ),
           });
         }
+      }
+
+      // Atualizar relações de coleção/promoção se fornecidas
+      try {
+        if (collectionId !== undefined) {
+          // set association (single collection) - override existing
+          await (tx as any).product.update({
+            where: { id },
+            data: {
+              collections: collectionId
+                ? { set: [{ id: collectionId }] }
+                : { set: [] },
+            },
+          });
+        }
+        if (promotionId !== undefined) {
+          await (tx as any).product.update({
+            where: { id },
+            data: {
+              promotions: promotionId
+                ? { set: [{ id: promotionId }] }
+                : { set: [] },
+            },
+          });
+        }
+      } catch (err) {
+        // ignore relation update errors if prisma client/migration not present
+        console.warn("Could not update collections/promotions relation", err);
       }
 
       return product;

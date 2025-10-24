@@ -49,6 +49,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     const [categories, setCategories] = useState<Category[]>([]);
     const [seasons, setSeasons] = useState<string[]>(['Primavera', 'Verão', 'Outono', 'Inverno', 'Atemporal']);
     const [sizes, setSizes] = useState<string[]>(['XS', 'S', 'M', 'L', 'XL', 'XXL']);
+    const [collections, setCollections] = useState<Array<{id: string; name: string}>>([]);
+    const [promotions, setPromotions] = useState<Array<{id: string; name: string}>>([]);
     const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
     const [showNewCategoryDialog, setShowNewCategoryDialog] = useState(false);
     const [showNewSeasonDialog, setShowNewSeasonDialog] = useState(false);
@@ -82,6 +84,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         material: '',
         brand: '',
         season: '',
+        collectionId: '',
+        promotionId: '',
     });
 
     const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -127,6 +131,24 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                     }
                 } catch (err) {
                     console.error('Erro ao buscar cores:', err);
+                }
+                // Buscar coleções e promoções
+                try {
+                    const [collectionsResp, promotionsResp] = await Promise.all([
+                        fetch('/api/collections'),
+                        fetch('/api/promotions'),
+                    ]);
+
+                    if (collectionsResp.ok) {
+                        const data = await collectionsResp.json();
+                        setCollections(data.data || []);
+                    }
+                    if (promotionsResp.ok) {
+                        const data = await promotionsResp.json();
+                        setPromotions(data.data || []);
+                    }
+                } catch (err) {
+                    console.error('Erro ao buscar coleções/promos:', err);
                 }
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
@@ -546,6 +568,8 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                 material: '',
                 brand: '',
                 season: '',
+                collectionId: '',
+                promotionId: '',
             });
             setVariants([]);
             setNewVariant({ size: '', color: '', stock: '0' });
@@ -823,6 +847,22 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                         </div>
 
                         {/* Marca e Material na mesma linha */}
+                        {/* Coleção (opcional) */}
+                        <div className="mt-2">
+                            <Label htmlFor="collectionId" className="text-sm font-medium">Coleção (opcional)</Label>
+                            <Select value={formData.collectionId} onValueChange={(value) => setFormData({ ...formData, collectionId: value === 'none' ? '' : value })}>
+                                <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
+                                    <SelectValue placeholder="Nenhuma" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Nenhuma</SelectItem>
+                                    {collections.map((col) => (
+                                        <SelectItem key={col.id} value={col.id}>{col.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-gray-500">Associar este produto a uma coleção (ex: Nova Coleção, Coleção Inverno)</p>
+                        </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="brand" className="text-sm font-medium">Marca/Coleção</Label>
@@ -848,6 +888,24 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
                                 />
                             </div>
                         </div>
+
+                        {/* Seleção de promoção - opcional */}
+                        <div className="mt-3">
+                            <Label className="text-sm font-medium">Promoção (opcional)</Label>
+                            <Select value={formData.promotionId} onValueChange={(value) => setFormData({ ...formData, promotionId: value === 'none' ? '' : value })}>
+                                <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
+                                    <SelectValue placeholder="Nenhuma" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Nenhuma</SelectItem>
+                                    {promotions.map((promo) => (
+                                        <SelectItem key={promo.id} value={promo.id}>{promo.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-gray-500">Associe o produto a uma promoção existente (ex: SALDOS 20%)</p>
+                        </div>
+
                     </div>
 
                     {/* Seção: Preços e Promoções */}

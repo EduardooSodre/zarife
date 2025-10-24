@@ -37,6 +37,30 @@ export default async function Home() {
     },
   });
 
+  // Fetch active promotions with up to 8 products each (if promotions model exists)
+  let promotions: Array<any> = [];
+  try {
+    promotions = await (prisma as any).promotion.findMany({
+      where: { isActive: true },
+      include: {
+        products: {
+          where: { isActive: true },
+          include: {
+            images: { take: 1, orderBy: { order: 'asc' } },
+            category: { select: { name: true, slug: true } },
+            variants: true,
+          },
+          take: 8,
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+    });
+  } catch (err) {
+    // If promotions model doesn't exist yet (no migration), ignore
+    promotions = [];
+  }
+
   // Fetch categories for the category grid - apenas ativas e por ordem
   const categories = await prisma.category.findMany({
     where: {
@@ -152,6 +176,36 @@ export default async function Home() {
             </MotionContainer>
           </div>
         </section>
+        {/* Promotions */}
+        {promotions.length > 0 && (
+          <section className="py-18 bg-white">
+            <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider">Promoções</h2>
+                <p className="text-gray-600">Ofertas e campanhas ativas</p>
+              </div>
+              <div className="space-y-10">
+                {promotions.map((promo: any) => (
+                  <div key={promo.id} className="mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-medium">{promo.name}</h3>
+                      <p className="text-sm text-gray-500">Veja todos</p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+                      {promo.products && promo.products.length > 0 ? (
+                        promo.products.map((product: any, index: number) => (
+                          <ProductCard key={product.id} product={product} index={index} />
+                        ))
+                      ) : (
+                        <div className="col-span-4 text-center text-gray-500">Nenhum produto nesta promoção</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Featured Products */}
         <section className="py-18 bg-white">

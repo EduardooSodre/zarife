@@ -95,6 +95,8 @@ export async function POST(request: NextRequest) {
       brand,
       season,
       variants,
+      collectionId,
+      promotionId,
     } = body;
 
     // Validações de segurança
@@ -184,6 +186,8 @@ export async function POST(request: NextRequest) {
         material,
         brand,
         season,
+        ...(collectionId && { collections: { connect: { id: collectionId } } }),
+        ...(promotionId && { promotions: { connect: { id: promotionId } } }),
       },
     });
 
@@ -258,7 +262,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Buscar produto completo com todas as relações
+    // Buscar produto completo com relações básicas e retornar
     const fullProduct = await prisma.product.findUnique({
       where: { id: product.id },
       include: {
@@ -270,10 +274,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: fullProduct,
-    });
+    return NextResponse.json({ success: true, data: fullProduct });
   } catch (error) {
     console.error("Error creating product:", error);
     return NextResponse.json(

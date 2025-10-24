@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         }
       } catch (findErr) {
         // ignore find errors and proceed to create
-        console.warn('Error finding existing promotion', findErr);
+        console.warn("Error finding existing promotion", findErr);
       }
 
       const created = await db.promotion.create({
@@ -73,10 +73,16 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return NextResponse.json({ success: true, data: created }, { status: 201 });
+      return NextResponse.json(
+        { success: true, data: created },
+        { status: 201 }
+      );
     } catch (err) {
       console.error("Error creating promotion", err);
-      return NextResponse.json({ success: false, error: "Failed to create" }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: "Failed to create" },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("Error in promotions POST", error);

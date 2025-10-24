@@ -267,46 +267,46 @@ export default async function Home() {
         {promotions.length > 0 && (
           <section className="py-18 bg-white">
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                  <MotionWrapper direction="up" className="text-center mb-16">
-                    <AnimatedText
-                      text={
-                        minPercent && maxPercent
-                          ? minPercent === maxPercent
-                            ? `SALDOS ${minPercent}%`
-                            : `SALDOS ${minPercent}% - ${maxPercent}%`
-                          : "SALDOS"
-                      }
-                      className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider px-4"
-                      variant="slide"
-                    />
-                    <MotionWrapper delay={0.3} direction="scale">
-                      <div className="w-24 h-px bg-accent mx-auto"></div>
-                    </MotionWrapper>
-                  </MotionWrapper>
+              <MotionWrapper direction="up" className="text-center mb-16">
+                <AnimatedText
+                  text={
+                    minPercent && maxPercent
+                      ? minPercent === maxPercent
+                        ? `SALDOS ${minPercent}%`
+                        : `SALDOS ${minPercent}% - ${maxPercent}%`
+                      : "SALDOS"
+                  }
+                  className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider px-4"
+                  variant="slide"
+                />
+                <MotionWrapper delay={0.3} direction="scale">
+                  <div className="w-24 h-px bg-accent mx-auto"></div>
+                </MotionWrapper>
+              </MotionWrapper>
 
-                  <div className="space-y-10">
-                    <div className="mb-6">
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-                        {promoProducts && promoProducts.length > 0 ? (
-                          promoProducts.map((product: ProductPreview, index: number) => (
-                            <ProductCard key={product.id} product={product} index={index} />
-                          ))
-                        ) : (
-                          <div className="col-span-4 text-center text-gray-500">Nenhum produto nesta promoção</div>
-                        )}
-                      </div>
-
-                      {/* CTA button matching the Featured Products section */}
-                      <MotionWrapper delay={0.6} direction="up" className="text-center mt-12">
-                        <Link
-                          href="/produtos"
-                          className="inline-block bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium"
-                        >
-                          VER TODAS AS PROMOÇÕES
-                        </Link>
-                      </MotionWrapper>
-                    </div>
+              <div className="space-y-10">
+                <div className="mb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+                    {promoProducts && promoProducts.length > 0 ? (
+                      promoProducts.map((product: ProductPreview, index: number) => (
+                        <ProductCard key={product.id} product={product} index={index} />
+                      ))
+                    ) : (
+                      <div className="col-span-4 text-center text-gray-500">Nenhum produto nesta promoção</div>
+                    )}
                   </div>
+
+                  {/* CTA button matching the Featured Products section */}
+                  <MotionWrapper delay={0.6} direction="up" className="text-center mt-12">
+                    <Link
+                      href="/produtos"
+                      className="inline-block bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium"
+                    >
+                      VER TODAS AS PROMOÇÕES
+                    </Link>
+                  </MotionWrapper>
+                </div>
+              </div>
             </div>
           </section>
         )}

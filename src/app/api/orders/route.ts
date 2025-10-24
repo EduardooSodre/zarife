@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db: any = prisma as any;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const products: any[] = await db.product.findMany({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const products: any[] = await db.product.findMany({
       where: {
         id: { in: productIds },
         isActive: true,
@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
     let serverSubtotal = 0;
 
     for (const item of items) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const product = products.find((p: any) => p.id === item.productId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const product = products.find((p: any) => p.id === item.productId);
       if (!product) {
         return NextResponse.json(
           { error: `Produto ${item.productId} não encontrado` },
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
           return sizeMatches && colorMatches;
         });
 
-  if (!variant) {
+        if (!variant) {
           // Improve debug information to diagnose mismatches (don't log PII)
           // Do not log variant internals in production - return generic error
 
@@ -174,8 +174,8 @@ export async function POST(request: NextRequest) {
     }
     // Compute per-item price and accumulate subtotal
     for (const item of items) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const product = products.find((p: any) => p.id === item.productId)!;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const product = products.find((p: any) => p.id === item.productId)!;
 
       // Determine effective base price (product.price is original)
       const basePrice = Number(product.price);
@@ -183,11 +183,11 @@ export async function POST(request: NextRequest) {
       // Look for active percent promotions attached to the product
       const promoPercents: number[] = [];
       try {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const prodAny = product as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const prodAny = product as any;
         if (prodAny.promotions && Array.isArray(prodAny.promotions)) {
           for (const promo of prodAny.promotions) {
-            if (promo.discountType === 'PERCENT' && promo.value != null) {
+            if (promo.discountType === "PERCENT" && promo.value != null) {
               let nv = Number(promo.value);
               if (!isNaN(nv)) {
                 if (nv > 0 && nv <= 1) nv = nv * 100;
@@ -224,8 +224,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate/normalize shipping amount provided by client (allow override but sanitize)
-    const shippingAmount = Number(amounts.shipping) >= 0 ? Number(amounts.shipping) : 0;
-    const serverTotal = Math.round((serverSubtotal + shippingAmount) * 100) / 100;
+    const shippingAmount =
+      Number(amounts.shipping) >= 0 ? Number(amounts.shipping) : 0;
+    const serverTotal =
+      Math.round((serverSubtotal + shippingAmount) * 100) / 100;
 
     const order = await prisma.order.create({
       data: {

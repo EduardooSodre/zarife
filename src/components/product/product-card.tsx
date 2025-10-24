@@ -83,15 +83,15 @@ export function ProductCard({
           )}
         </div>
         <HomeAddToCartButton
-            product={{
-              id: product.id,
-              name: product.name,
-              // Pass the effective price to cart (salePrice if present)
-              price: Number(product.salePrice && Number(product.salePrice) < Number(product.price) ? product.salePrice : product.price),
-              image: product.images?.[0]?.url || '/placeholder-product.jpg',
-              stock: totalStock,
-              variants: product.variants || [],
-            }}
+          product={{
+            id: product.id,
+            name: product.name,
+            // Pass the effective price to cart (salePrice if present)
+            price: Number(product.salePrice && Number(product.salePrice) < Number(product.price) ? product.salePrice : product.price),
+            image: product.images?.[0]?.url || '/placeholder-product.jpg',
+            stock: totalStock,
+            variants: product.variants || [],
+          }}
         />
       </div>
     </MotionCard>

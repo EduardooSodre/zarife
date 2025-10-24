@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
@@ -6,6 +5,24 @@ import { MotionWrapper, MotionContainer, MotionCard, MotionText } from "@/compon
 import { AnimatedText, AnimatedLetters } from "@/components/animations/animated-text";
 import { ProductCard } from "@/components/product/product-card";
 import { ParallaxBanner } from "@/components/parallax-banner";
+
+type ProductPreview = {
+  id: string;
+  name: string;
+  images?: Array<{ url: string }>;
+  category?: { name: string; slug: string } | null;
+  variants?: { stock: number }[];
+  price: number;
+  oldPrice?: number | null;
+};
+
+type Promotion = {
+  id: string;
+  name: string;
+  products?: ProductPreview[];
+  discountType?: string;
+  value?: number | string | null;
+};
 
 // Cache por 60 segundos para atualizar stock mais frequentemente
 export const revalidate = 60;
@@ -39,8 +56,9 @@ export default async function Home() {
   });
 
   // Fetch active promotions with up to 8 products each (if promotions model exists)
-  let promotions: Array<any> = [];
+  let promotions: Promotion[] = [];
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     promotions = await (prisma as any).promotion.findMany({
       where: { isActive: true },
       include: {
@@ -61,6 +79,74 @@ export default async function Home() {
     // If promotions model doesn't exist yet (no migration), ignore
     promotions = [];
   }
+
+  // Compute overall sale range (min and max percent) from percent-based promotions
+  // Normalize promotion values to integer percentages.
+  // Handles values stored as 0.2 (=> 20), 20, '20', or '0.2'.
+  // Fallback: if promotion.value looks missing/incorrect, try each promoted product's salePercentage.
+  const percentSet = new Set<number>();
+
+  for (const p of promotions) {
+    try {
+      if (p.discountType === 'PERCENT') {
+        let num = Number(p.value);
+        if (!isNaN(num)) {
+          if (num > 0 && num <= 1) num = num * 100; // fraction stored as 0.x
+          const rounded = Math.round(num);
+          if (rounded >= 1) percentSet.add(rounded);
+          continue; // we have a value for this promotion
+        }
+      }
+    } catch {
+      // ignore and try fallback below
+    }
+
+    // Fallback: inspect products in this promotion for salePercentage fields
+    if (p.products && Array.isArray(p.products)) {
+      for (const prod of p.products) {
+        try {
+          // product.salePercentage may be number or string or nested; be defensive
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const maybe = (prod as any).salePercentage ?? (prod as any).sale_percentage ?? null;
+          const num = Number(maybe);
+          if (!isNaN(num)) {
+            let normalized = num;
+            if (normalized > 0 && normalized <= 1) normalized = normalized * 100;
+            const rounded = Math.round(normalized);
+            if (rounded >= 1) percentSet.add(rounded);
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }
+
+  const percentValues = Array.from(percentSet).sort((a, b) => a - b);
+
+  const minPercent = percentValues.length > 0 ? Math.min(...percentValues) : null;
+  const maxPercent = percentValues.length > 0 ? Math.max(...percentValues) : null;
+
+  // Aggregate unique products across promotions to show sample products for the range
+  const productMap = new Map<string, ProductPreview>();
+  for (const promo of promotions) {
+    if (!promo.products) continue;
+    for (const prod of promo.products) {
+      if (!productMap.has(prod.id)) {
+        // Normalize minimal fields expected by ProductCard
+        productMap.set(prod.id, {
+          id: prod.id,
+          name: prod.name,
+          images: prod.images || [],
+          category: prod.category || null,
+          variants: prod.variants || [],
+          price: typeof prod.price === 'number' ? prod.price : Number(prod.price),
+          oldPrice: prod.oldPrice ? Number(prod.oldPrice) : null,
+        });
+      }
+    }
+  }
+  const promoProducts = Array.from(productMap.values()).slice(0, 8);
 
   // Fetch categories for the category grid - apenas ativas e por ordem
   const categories = await prisma.category.findMany({
@@ -181,29 +267,46 @@ export default async function Home() {
         {promotions.length > 0 && (
           <section className="py-18 bg-white">
             <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider">Promoções</h2>
-                <p className="text-gray-600">Ofertas e campanhas ativas</p>
-              </div>
-              <div className="space-y-10">
-                {promotions.map((promo: any) => (
-                  <div key={promo.id} className="mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-medium">{promo.name}</h3>
-                      <p className="text-sm text-gray-500">Veja todos</p>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-                      {promo.products && promo.products.length > 0 ? (
-                        promo.products.map((product: any, index: number) => (
-                          <ProductCard key={product.id} product={product} index={index} />
-                        ))
-                      ) : (
-                        <div className="col-span-4 text-center text-gray-500">Nenhum produto nesta promoção</div>
-                      )}
+                  <MotionWrapper direction="up" className="text-center mb-16">
+                    <AnimatedText
+                      text={
+                        minPercent && maxPercent
+                          ? minPercent === maxPercent
+                            ? `SALDOS ${minPercent}%`
+                            : `SALDOS ${minPercent}% - ${maxPercent}%`
+                          : "SALDOS"
+                      }
+                      className="text-2xl sm:text-3xl md:text-4xl font-light text-black mb-4 tracking-wider px-4"
+                      variant="slide"
+                    />
+                    <MotionWrapper delay={0.3} direction="scale">
+                      <div className="w-24 h-px bg-accent mx-auto"></div>
+                    </MotionWrapper>
+                  </MotionWrapper>
+
+                  <div className="space-y-10">
+                    <div className="mb-6">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+                        {promoProducts && promoProducts.length > 0 ? (
+                          promoProducts.map((product: ProductPreview, index: number) => (
+                            <ProductCard key={product.id} product={product} index={index} />
+                          ))
+                        ) : (
+                          <div className="col-span-4 text-center text-gray-500">Nenhum produto nesta promoção</div>
+                        )}
+                      </div>
+
+                      {/* CTA button matching the Featured Products section */}
+                      <MotionWrapper delay={0.6} direction="up" className="text-center mt-12">
+                        <Link
+                          href="/produtos"
+                          className="inline-block bg-black text-white px-12 py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition-all duration-300 font-medium"
+                        >
+                          VER TODAS AS PROMOÇÕES
+                        </Link>
+                      </MotionWrapper>
                     </div>
                   </div>
-                ))}
-              </div>
             </div>
           </section>
         )}

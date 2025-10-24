@@ -38,6 +38,29 @@ export async function POST(request: NextRequest) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db: any = prisma as any;
+
+      // Normalize incoming numeric value for percent comparisons
+      const num = Number(value);
+      let normalized = num;
+      if (!isNaN(num) && num > 0 && num <= 1) normalized = num * 100;
+
+      // Try to find an existing promotion with same discountType and value to avoid duplicate slugs
+      try {
+        const existing = await db.promotion.findFirst({
+          where: {
+            discountType,
+            // if value provided is numeric, compare to that numeric value
+            value: !isNaN(normalized) ? normalized : undefined,
+          },
+        });
+        if (existing) {
+          return NextResponse.json({ success: true, data: existing });
+        }
+      } catch (findErr) {
+        // ignore find errors and proceed to create
+        console.warn('Error finding existing promotion', findErr);
+      }
+
       const created = await db.promotion.create({
         data: {
           name: name.trim(),
@@ -50,16 +73,10 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return NextResponse.json(
-        { success: true, data: created },
-        { status: 201 }
-      );
+      return NextResponse.json({ success: true, data: created }, { status: 201 });
     } catch (err) {
       console.error("Error creating promotion", err);
-      return NextResponse.json(
-        { success: false, error: "Failed to create" },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: "Failed to create" }, { status: 500 });
     }
   } catch (error) {
     console.error("Error in promotions POST", error);

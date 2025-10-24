@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return NextResponse.json({ success: true, data: created }, { status: 201 });
+      return NextResponse.json(
+        { success: true, data: created },
+        { status: 201 }
+      );
     } catch (err) {
       console.error("Error creating collection", err);
       return NextResponse.json(

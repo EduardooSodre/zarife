@@ -13,9 +13,20 @@ type ProductImageWithPublicId = {
   publicId?: string | null;
 };
 
-type RawVariant = { id: string; stock: number; size?: string | null; color?: string | null; images?: Array<{ id: string; url: string; order: number }>; };
+type RawVariant = {
+  id: string;
+  stock: number;
+  size?: string | null;
+  color?: string | null;
+  images?: Array<{ id: string; url: string; order: number }>;
+};
 type RawCollection = { id: string; name: string };
-type RawPromotion = { id: string; name: string; discountType?: string; value?: number | string };
+type RawPromotion = {
+  id: string;
+  name: string;
+  discountType?: string;
+  value?: number | string;
+};
 
 export async function GET(
   request: NextRequest,
@@ -71,14 +82,14 @@ export async function GET(
       id: string;
       name: string;
       description?: string | null;
-  additionalDescriptions?: unknown;
+      additionalDescriptions?: unknown;
       price: number | string;
       oldPrice?: number | string | null;
       salePrice?: number | string | null;
       variants?: RawVariant[];
       collections?: RawCollection[];
       promotions?: RawPromotion[];
-  [key: string]: unknown;
+      [key: string]: unknown;
     };
 
     const normalized = {
@@ -86,10 +97,20 @@ export async function GET(
       price: Number(p.price),
       oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
       salePrice: p.salePrice ? Number(p.salePrice) : null,
-      variants: (p.variants || []).map((v: RawVariant) => ({ ...v, stock: v.stock })),
-      collections: p.collections ? p.collections.map((c: RawCollection) => ({ id: c.id, name: c.name })) : [],
+      variants: (p.variants || []).map((v: RawVariant) => ({
+        ...v,
+        stock: v.stock,
+      })),
+      collections: p.collections
+        ? p.collections.map((c: RawCollection) => ({ id: c.id, name: c.name }))
+        : [],
       promotions: p.promotions
-        ? p.promotions.map((pr: RawPromotion) => ({ id: pr.id, name: pr.name, discountType: pr.discountType, value: pr.value }))
+        ? p.promotions.map((pr: RawPromotion) => ({
+            id: pr.id,
+            name: pr.name,
+            discountType: pr.discountType,
+            value: pr.value,
+          }))
         : [],
       stock,
     };
@@ -294,7 +315,10 @@ export async function PUT(
               },
             });
           } catch (err) {
-            console.warn('Could not update collections relation in transaction', err);
+            console.warn(
+              "Could not update collections relation in transaction",
+              err
+            );
           }
         }
         if (promotionId !== undefined) {
@@ -310,7 +334,10 @@ export async function PUT(
               },
             });
           } catch (err) {
-            console.warn('Could not update promotions relation in transaction', err);
+            console.warn(
+              "Could not update promotions relation in transaction",
+              err
+            );
           }
         }
       } catch (err) {

@@ -1,16 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
     // Retornar coleções ativas para uso em forms/admin
-    const collections = await (prisma as any).collection
-      .findMany({
-        where: { isActive: true },
-        orderBy: { name: "asc" },
-      })
-      .catch(() => []);
+    // Use a local any-typed reference if the generated client doesn't expose the model in some environments
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db: any = prisma as any;
+    const collections = await db.collection.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+    });
 
     return NextResponse.json({ success: true, data: collections });
   } catch (error) {
@@ -30,27 +30,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const created = await (prisma as any).collection
-      .create({
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db: any = prisma as any;
+      const created = await db.collection.create({
         data: {
           name: name.trim(),
           description: description || null,
           isActive: true,
         },
-      })
-      .catch((err: any) => {
-        console.error("Error creating collection", err);
-        return null;
       });
 
-    if (!created) {
+      return NextResponse.json({ success: true, data: created }, { status: 201 });
+    } catch (err) {
+      console.error("Error creating collection", err);
       return NextResponse.json(
         { success: false, error: "Failed to create collection" },
         { status: 500 }
       );
     }
-
-    return NextResponse.json({ success: true, data: created }, { status: 201 });
   } catch (error) {
     console.error("Error in collections POST", error);
     return NextResponse.json(

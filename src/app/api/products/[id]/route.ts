@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deleteFromCloudinary } from "@/lib/upload";
@@ -14,6 +13,10 @@ type ProductImageWithPublicId = {
   publicId?: string | null;
 };
 
+type RawVariant = { id: string; stock: number; size?: string | null; color?: string | null; images?: Array<{ id: string; url: string; order: number }>; };
+type RawCollection = { id: string; name: string };
+type RawPromotion = { id: string; name: string; discountType?: string; value?: number | string };
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -24,7 +27,9 @@ export async function GET(
     let product;
     try {
       // Try to include collections/promotions if the schema supports it
-      product = await (prisma as any).product.findUnique({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db: any = prisma as any;
+      product = await db.product.findUnique({
         where: { id },
         include: {
           category: true,
@@ -62,24 +67,29 @@ export async function GET(
       product as unknown as { variants?: { stock: number }[] }
     );
 
-    const p: any = product as any;
+    const p = product as unknown as {
+      id: string;
+      name: string;
+      description?: string | null;
+  additionalDescriptions?: unknown;
+      price: number | string;
+      oldPrice?: number | string | null;
+      salePrice?: number | string | null;
+      variants?: RawVariant[];
+      collections?: RawCollection[];
+      promotions?: RawPromotion[];
+  [key: string]: unknown;
+    };
 
     const normalized = {
       ...p,
       price: Number(p.price),
       oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
       salePrice: p.salePrice ? Number(p.salePrice) : null,
-      variants: (p.variants || []).map((v: any) => ({ ...v, stock: v.stock })),
-      collections: p.collections
-        ? p.collections.map((c: any) => ({ id: c.id, name: c.name }))
-        : [],
+      variants: (p.variants || []).map((v: RawVariant) => ({ ...v, stock: v.stock })),
+      collections: p.collections ? p.collections.map((c: RawCollection) => ({ id: c.id, name: c.name })) : [],
       promotions: p.promotions
-        ? p.promotions.map((pr: any) => ({
-            id: pr.id,
-            name: pr.name,
-            discountType: pr.discountType,
-            value: pr.value,
-          }))
+        ? p.promotions.map((pr: RawPromotion) => ({ id: pr.id, name: pr.name, discountType: pr.discountType, value: pr.value }))
         : [],
       stock,
     };
@@ -272,24 +282,36 @@ export async function PUT(
       try {
         if (collectionId !== undefined) {
           // set association (single collection) - override existing
-          await (tx as any).product.update({
-            where: { id },
-            data: {
-              collections: collectionId
-                ? { set: [{ id: collectionId }] }
-                : { set: [] },
-            },
-          });
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const txAny: any = tx as any;
+            await txAny.product.update({
+              where: { id },
+              data: {
+                collections: collectionId
+                  ? { set: [{ id: collectionId }] }
+                  : { set: [] },
+              },
+            });
+          } catch (err) {
+            console.warn('Could not update collections relation in transaction', err);
+          }
         }
         if (promotionId !== undefined) {
-          await (tx as any).product.update({
-            where: { id },
-            data: {
-              promotions: promotionId
-                ? { set: [{ id: promotionId }] }
-                : { set: [] },
-            },
-          });
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const txAny: any = tx as any;
+            await txAny.product.update({
+              where: { id },
+              data: {
+                promotions: promotionId
+                  ? { set: [{ id: promotionId }] }
+                  : { set: [] },
+              },
+            });
+          } catch (err) {
+            console.warn('Could not update promotions relation in transaction', err);
+          }
         }
       } catch (err) {
         // ignore relation update errors if prisma client/migration not present

@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
     // Retornar promoções ativas
-    const promotions = await (prisma as any).promotion
-      .findMany({
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-      })
-      .catch(() => []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db: any = prisma as any;
+    const promotions = await db.promotion.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+    });
 
     return NextResponse.json({ success: true, data: promotions });
   } catch (error) {
@@ -36,8 +35,10 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
 
-    const created = await (prisma as any).promotion
-      .create({
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db: any = prisma as any;
+      const created = await db.promotion.create({
         data: {
           name: name.trim(),
           slug,
@@ -47,19 +48,16 @@ export async function POST(request: NextRequest) {
           startAt: startAt ? new Date(startAt) : null,
           endAt: endAt ? new Date(endAt) : null,
         },
-      })
-      .catch((err: any) => {
-        console.error("Error creating promotion", err);
-        return null;
       });
 
-    if (!created)
+      return NextResponse.json({ success: true, data: created }, { status: 201 });
+    } catch (err) {
+      console.error("Error creating promotion", err);
       return NextResponse.json(
         { success: false, error: "Failed to create" },
         { status: 500 }
       );
-
-    return NextResponse.json({ success: true, data: created }, { status: 201 });
+    }
   } catch (error) {
     console.error("Error in promotions POST", error);
     return NextResponse.json(

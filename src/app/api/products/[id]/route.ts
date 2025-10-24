@@ -36,7 +36,10 @@ export async function GET(
       });
     } catch (err) {
       // Fallback for environments where migrations/types aren't applied yet
-      console.warn("Could not include collections/promotions on product GET, falling back:", err);
+      console.warn(
+        "Could not include collections/promotions on product GET, falling back:",
+        err
+      );
       product = await prisma.product.findUnique({
         where: { id },
         include: {
@@ -67,8 +70,17 @@ export async function GET(
       oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
       salePrice: p.salePrice ? Number(p.salePrice) : null,
       variants: (p.variants || []).map((v: any) => ({ ...v, stock: v.stock })),
-      collections: p.collections ? p.collections.map((c: any) => ({ id: c.id, name: c.name })) : [],
-      promotions: p.promotions ? p.promotions.map((pr: any) => ({ id: pr.id, name: pr.name, discountType: pr.discountType, value: pr.value })) : [],
+      collections: p.collections
+        ? p.collections.map((c: any) => ({ id: c.id, name: c.name }))
+        : [],
+      promotions: p.promotions
+        ? p.promotions.map((pr: any) => ({
+            id: pr.id,
+            name: pr.name,
+            discountType: pr.discountType,
+            value: pr.value,
+          }))
+        : [],
       stock,
     };
 

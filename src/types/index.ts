@@ -33,7 +33,12 @@ export interface Product {
   images?: ProductImage[];
   variants?: ProductVariant[];
   collections?: Array<{ id: string; name: string }>;
-  promotions?: Array<{ id: string; name: string; discountType?: string; value?: number }>;
+  promotions?: Array<{
+    id: string;
+    name: string;
+    discountType?: string;
+    value?: number;
+  }>;
 }
 
 export interface ProductImage {

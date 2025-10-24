@@ -166,6 +166,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
     // When isOnSale switches on and a salePercentage is present, ensure a promotion exists or is selected
     useEffect(() => {
         const ensurePromotion = async () => {
+            if (!open) return; // only run when dialog is open
             if (!formData.isOnSale) return;
             const pct = parseInt(String(formData.salePercentage));
             if (isNaN(pct)) return;
@@ -206,7 +207,7 @@ export function NewProductDialog({ onCreated, buttonText = "Novo Produto", butto
         };
 
         ensurePromotion();
-    }, [formData.isOnSale, formData.salePercentage]);
+        }, [formData.isOnSale, formData.salePercentage, open]);
 
     // Calcular preço com desconto
     const calculateSalePrice = () => {

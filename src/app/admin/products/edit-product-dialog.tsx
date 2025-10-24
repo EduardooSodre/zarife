@@ -197,6 +197,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   // When isOnSale switches on and a salePercentage is present, ensure a promotion exists or is selected
   useEffect(() => {
     const ensurePromotion = async () => {
+      if (!open) return; // only run when dialog is open
       if (!formData.isOnSale) return;
       const pct = parseInt(String(formData.salePercentage));
       if (isNaN(pct)) return;
@@ -248,7 +249,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
 
     ensurePromotion();
     // include promotions in deps so we can reuse loaded list
-  }, [formData.isOnSale, formData.salePercentage, promotions]);
+  }, [formData.isOnSale, formData.salePercentage, promotions, open]);
 
   // Calcular preço com desconto
   const calculateSalePrice = () => {

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-07-30.basil",
-});
+// Allow using an env override for apiVersion; cast to Stripe.StripeConfig to avoid literal-type mismatch
+const stripeConfig = ({
+  apiVersion: process.env.STRIPE_API_VERSION || "2025-08-27.basil",
+} as unknown) as Stripe.StripeConfig;
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, stripeConfig);
 
 type CheckoutItem = {
   name: string;

@@ -72,8 +72,10 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
   const [categories, setCategories] = useState<Category[]>([]);
   const [seasons, setSeasons] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
-  const [collections, setCollections] = useState<Array<{id: string; name: string}>>([]);
-  const [promotions, setPromotions] = useState<Array<{id: string; name: string}>>([]);
+  const [collections, setCollections] = useState<Array<{ id: string; name: string }>>([]);
+  const [promotions, setPromotions] = useState<Array<{ id: string; name: string }>>([]);
+  const [showNewCollectionDialog, setShowNewCollectionDialog] = useState(false);
+  const [newCollectionForm, setNewCollectionForm] = useState({ name: '', description: '' });
   const [activeVariantTab, setActiveVariantTab] = useState<string>("0");
 
   const [additionalDescriptions, setAdditionalDescriptions] = useState<Array<{ title: string; content: string }>>([]);
@@ -95,6 +97,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     collectionId: '',
     promotionId: '',
   });
+  const [collectionEnabled, setCollectionEnabled] = useState<boolean>(() => false);
 
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [newVariant, setNewVariant] = useState({
@@ -190,6 +193,62 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
 
     fetchData();
   }, [open, product.id]);
+
+  // When isOnSale switches on and a salePercentage is present, ensure a promotion exists or is selected
+  useEffect(() => {
+    const ensurePromotion = async () => {
+      if (!formData.isOnSale) return;
+      const pct = parseInt(String(formData.salePercentage));
+      if (isNaN(pct)) return;
+
+      // check currently loaded promotions first
+      const already = promotions.find((p: any) => {
+        try { return p.discountType === 'PERCENT' && Number(p.value) === pct; } catch { return false; }
+      });
+
+      if (already) {
+        setFormData((prev) => ({ ...prev, promotionId: already.id }));
+        return;
+      }
+
+      try {
+        const resp = await fetch('/api/promotions');
+        let promos = [];
+        if (resp.ok) {
+          const data = await resp.json();
+          promos = data.data || [];
+          setPromotions(promos);
+        }
+
+        const found = promos.find((p: any) => {
+          try { return (p.discountType === 'PERCENT') && Number(p.value) === pct; } catch { return false; }
+        });
+
+        if (found) {
+          setFormData((prev) => ({ ...prev, promotionId: found.id }));
+          return;
+        }
+
+        // create automatically
+        const name = `SALDOS ${pct}%`;
+        const createResp = await fetch('/api/promotions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, discountType: 'PERCENT', value: pct }),
+        });
+        if (createResp.ok) {
+          const created = await createResp.json();
+          setPromotions((prev) => [created.data, ...(prev || [])]);
+          setFormData((prev) => ({ ...prev, promotionId: created.data.id }));
+        }
+      } catch (err) {
+        console.error('Erro ao garantir promoção:', err);
+      }
+    };
+
+    ensurePromotion();
+    // include promotions in deps so we can reuse loaded list
+  }, [formData.isOnSale, formData.salePercentage, promotions]);
 
   // Calcular preço com desconto
   const calculateSalePrice = () => {
@@ -385,6 +444,37 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateCollection = async () => {
+    if (!newCollectionForm.name.trim()) return toast({ variant: 'destructive', title: 'Erro', description: 'Nome da coleção é obrigatório' });
+
+    try {
+      const resp = await fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCollectionForm.name, description: newCollectionForm.description }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error || 'Erro ao criar coleção');
+      }
+
+      const result = await resp.json();
+      const colsResp = await fetch('/api/collections');
+      if (colsResp.ok) {
+        const data = await colsResp.json();
+        setCollections(data.data || []);
+      }
+
+      setFormData({ ...formData, collectionId: result.data.id });
+      setNewCollectionForm({ name: '', description: '' });
+      setShowNewCollectionDialog(false);
+      toast({ title: 'Coleção criada', description: 'Coleção criada com sucesso.' });
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'Erro', description: err instanceof Error ? err.message : 'Erro ao criar coleção' });
     }
   };
 
@@ -593,35 +683,7 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
               </div>
             </div>
 
-            {/* Seleção de promoção - opcional */}
-            <div className="mt-3">
-              <Label className="text-sm font-medium">Promoção (opcional)</Label>
-              <Select value={formData.promotionId} onValueChange={(value) => setFormData({ ...formData, promotionId: value === 'none' ? '' : value })}>
-                <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
-                  <SelectValue placeholder="Nenhuma" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhuma</SelectItem>
-                  {promotions.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="mt-3">
-              <Label htmlFor="collectionId" className="text-sm font-medium">Coleção (opcional)</Label>
-              <Select value={formData.collectionId} onValueChange={(value) => setFormData({ ...formData, collectionId: value === 'none' ? '' : value })}>
-                <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black">
-                  <SelectValue placeholder="Nenhuma" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhuma</SelectItem>
-                  {collections.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Coleção e Promoção: moved to final settings area */}
 
             {/* Seção: Preços e Promoções */}
             <div className="space-y-4">
@@ -919,6 +981,52 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                   </div>
                 </div>
               </div>
+
+            {/* Coleção: switch colocado abaixo de Produto Destaque conforme solicitado */}
+            <div className="mt-3">
+              <div className="flex items-center gap-3">
+                <Switch id="collectionEnabled" checked={collectionEnabled} onCheckedChange={(checked) => {
+                  setCollectionEnabled(checked as boolean);
+                  if (!checked) setFormData(prev => ({ ...prev, collectionId: '' }));
+                }} />
+                <div>
+                  <Label className="text-base font-semibold cursor-pointer">Coleção (opcional)</Label>
+                  <p className="text-xs text-gray-500">Associar a uma coleção personalizada</p>
+                </div>
+              </div>
+              {collectionEnabled && (
+                <div className="mt-2 flex gap-2 items-center">
+                  <Select value={formData.collectionId} onValueChange={(value) => setFormData({ ...formData, collectionId: value === 'none' ? '' : value })}>
+                    <SelectTrigger className="h-11 bg-white border-2 border-gray-300 focus:border-black flex-1">
+                      <SelectValue placeholder="Selecione uma coleção" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
+                      {collections.map((col) => (
+                        <SelectItem key={col.id} value={col.id}>{col.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="outline" size="icon" className="h-11 w-11" onClick={() => setShowNewCollectionDialog(true)}>
+                          <FolderPlus className="w-4 h-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Criar nova coleção</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+            </div>
+
+                {/* Coleção e Promoção - colocadas aqui junto aos switches */}
+                <div className="mt-3">
+                  <p className="text-xs text-gray-500">Promoções são gerenciadas via o switch &quot;Produto em Promoção&quot; e o percentual de desconto.</p>
+                </div>
             </div>
 
             {/* Botões de Ação */}
@@ -998,6 +1106,43 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
                 setShowNewColorDialog(false);
               }}>
                 Criar Cor
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Dialog para criar nova coleção */}
+      <Dialog open={showNewCollectionDialog} onOpenChange={setShowNewCollectionDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nova Coleção</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newCollectionName">Nome *</Label>
+              <Input
+                id="newCollectionName"
+                value={newCollectionForm.name}
+                onChange={(e) => setNewCollectionForm({ ...newCollectionForm, name: e.target.value })}
+                placeholder="Ex: Nova Coleção, Coleção Inverno..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="newCollectionDescription">Descrição</Label>
+              <Textarea
+                id="newCollectionDescription"
+                value={newCollectionForm.description}
+                onChange={(e) => setNewCollectionForm({ ...newCollectionForm, description: e.target.value })}
+                placeholder="Descrição (opcional)"
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => { setShowNewCollectionDialog(false); setNewCollectionForm({ name: '', description: '' }); }}>
+                Cancelar
+              </Button>
+              <Button type="button" onClick={handleCreateCollection}>
+                Criar Coleção
               </Button>
             </div>
           </div>

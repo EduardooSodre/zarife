@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from 'next'
 import { prisma } from "@/lib/db";
 import { calculateProductStock } from "@/lib/products";
 import Link from "next/link";
@@ -13,6 +14,56 @@ interface ProductPageProps {
   params: Promise<{
     id: string;
   }>;
+}
+
+const SITE_URL = 'https://zarife.vercel.app'
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const id = params.id
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: { images: { orderBy: { order: 'asc' }, take: 1 } }
+  })
+
+  if (!product) {
+    return {
+      title: 'Produto - Zarife',
+      description: 'Zarife — loja de moda de luxo em Portugal. Enviamos para todo o território nacional.'
+    }
+  }
+
+  const title = `${product.name} | Zarife`
+  const description = product.description ? product.description.replace(/\n+/g, ' ').slice(0, 160) : 'Produto de moda de luxo disponível na Zarife.'
+  const imagePath = product.images && product.images.length > 0 ? product.images[0].url : '/ZARIFE_LOGO.png'
+  const imageUrl = imagePath.startsWith('http') ? imagePath : SITE_URL + (imagePath.startsWith('/') ? imagePath : `/${imagePath}`)
+  const url = `${SITE_URL}/product/${id}`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      images: [
+        {
+          url: imageUrl,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {

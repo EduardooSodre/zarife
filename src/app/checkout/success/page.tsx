@@ -30,6 +30,7 @@ function CheckoutSuccessContent() {
     id: string;
     status: string;
     total: number;
+    shipping: number;
     items: OrderItem[];
     shippingAddress: string;
     shippingCity: string;
@@ -218,6 +219,7 @@ function CheckoutSuccessContent() {
                 <Truck className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                 <p className="font-medium">Total</p>
                 <p className="text-sm text-gray-600">€{Number(order.total).toFixed(2)}</p>
+                <p className="text-xs text-gray-500 mt-1">Envio: €{Number(order.shipping ?? 0).toFixed(2)}</p>
               </div>
             </div>
 
@@ -344,7 +346,24 @@ function CheckoutSuccessContent() {
             <a href="mailto:contato@zarife.com" className="underline">
               contato@zarife.com
             </a>{' '}
-            ou pelo telefone +351 912 345 678.
+            ou pelo telefone{' '}
+            {
+              (() => {
+                try {
+                  const phoneDisplay = '+351 966 106 212';
+                  const phoneDigits = phoneDisplay.replace(/\D/g, '');
+                  const text = `Olá, tenho uma dúvida sobre o pedido ${order.id}`;
+                  const url = `https://wa.me/${phoneDigits}?text=${encodeURIComponent(text)}`;
+                  return (
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
+                      {phoneDisplay}
+                    </a>
+                  );
+                } catch {
+                  return <span className="underline">+351 966 106 212</span>;
+                }
+              })()
+            }.
           </p>
         </div>
       </div>

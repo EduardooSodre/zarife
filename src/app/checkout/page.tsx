@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Truck, MapPin } from 'lucide-react'
-import Link from 'next/link'
+// Link removed: not used after layout copy
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 
@@ -309,23 +309,27 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ paddingTop: '100px' }}>
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/cart" className="inline-flex items-center text-sm text-gray-600 hover:text-primary mb-4">
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/cart')}
+            className="mb-4"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao Carrinho
-          </Link>
+          </Button>
           <h1 className="text-3xl font-light text-primary tracking-wider uppercase">
             Finalizar Compra
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Formulário de Checkout */}
-          <div className="lg:col-span-2">
-            <form className="space-y-8">
+          <div className="lg:col-span-2 space-y-6">
+            <form className="space-y-6">
               {/* Dados Pessoais */}
               <Card>
                 <CardHeader>
@@ -490,7 +494,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Resumo do Pedido */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle className="text-lg">Resumo do Pedido</CardTitle>
@@ -552,15 +556,16 @@ export default function CheckoutPage() {
                     disabled={isSubmitting}
                     variant="ghost"
                     size="default"
-                    className="w-full h-full flex flex-row items-center justify-start gap-4 text-gray-900 bg-white border rounded-lg p-4 min-h-[64px] shadow-sm hover:shadow-md transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    className="w-full inline-flex items-center gap-3 text-white rounded-lg px-4 min-h-[56px] shadow-sm hover:shadow-lg transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    style={{ backgroundColor: 'rgba(100,92,255)', border: '1px solid rgba(0,0,0,0.06)' }}
                     aria-label="Pagar com Stripe"
                   >
-                    <div className="flex-shrink-0 w-14 h-8 flex items-center justify-center">
-                      <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={56} height={24} className="object-contain" />
+                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
+                      <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={34} height={20} className="object-contain" />
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold">{isSubmitting && processingProvider === 'stripe' ? 'Processando...' : 'Pagar com Stripe'}</div>
-                      <div className="text-xs text-gray-500">Cartão de crédito</div>
+                      <div className="text-base font-semibold">{isSubmitting && processingProvider === 'stripe' ? 'Processando...' : 'Pagar com Stripe'}</div>
+                      <div className="text-sm text-white">Cartão de crédito</div>
                     </div>
                   </Button>
 
@@ -570,15 +575,16 @@ export default function CheckoutPage() {
                     disabled={isSubmitting}
                     variant="ghost"
                     size="default"
-                    className="w-full h-full flex flex-row items-center justify-start gap-4 text-gray-900 bg-white border rounded-lg p-4 min-h-[64px] shadow-sm hover:shadow-md transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    className="w-full inline-flex items-center gap-3 text-black rounded-lg px-4 min-h-[56px] shadow-sm hover:shadow-lg transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    style={{ backgroundColor: '#FFC439' }}
                     aria-label="Pagar com PayPal"
                   >
-                    <div className="flex-shrink-0 w-14 h-8 flex items-center justify-center">
-                      <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={56} height={24} className="object-contain" />
+                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
+                      <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={34} height={20} className="object-contain" />
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</div>
-                      <div className="text-xs text-gray-500">Checkout seguro</div>
+                      <div className="text-base font-semibold">{isSubmitting && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</div>
+                      <div className="text-sm text-black/85">Checkout seguro</div>
                     </div>
                   </Button>
 
@@ -588,15 +594,16 @@ export default function CheckoutPage() {
                     disabled={isSubmitting}
                     variant="ghost"
                     size="default"
-                    className="w-full h-full flex flex-row items-center justify-start gap-4 text-gray-900 bg-white border rounded-lg p-4 min-h-[64px] shadow-sm hover:shadow-md transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    className="w-full inline-flex items-center gap-3 text-gray-900 rounded-lg px-4 min-h-[56px] shadow-sm hover:shadow-lg transition-shadow duration-150 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-200 disabled:opacity-60"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.94)', border: '1px solid rgba(0,0,0,0.06)' }}
                     aria-label="Pagar com Multibanco"
                   >
-                    <div className="flex-shrink-0 w-14 h-8 flex items-center justify-center">
-                      <Image src="/multibanco-logos/multiBanco.webp" alt="Multibanco" width={56} height={24} className="object-contain" />
+                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded bg-white">
+                      <Image src="/multibanco-logos/multiBanco.webp" alt="Multibanco" width={34} height={20} className="object-contain" />
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold">{isSubmitting && processingProviderMulti === 'multibanco' ? 'Processando...' : 'Pagar com Multibanco'}</div>
-                      <div className="text-xs text-gray-500">Pagamento por referência</div>
+                      <div className="text-base font-semibold">{isSubmitting && processingProviderMulti === 'multibanco' ? 'Processando...' : 'Pagar com Multibanco'}</div>
+                      <div className="text-sm text-gray-700">Pagamento por referência</div>
                     </div>
                   </Button>
                 </div>

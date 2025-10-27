@@ -14,13 +14,13 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Zarife - Moda Moderna e Elegante",
   description: "Descubra as últimas tendências da moda com a coleção exclusiva da Zarife. Roupas femininas e masculinas de alta qualidade com estilo único.",
-  keywords: "moda, roupas, feminino, masculino, tendências, estilo, elegante",
+  keywords: "moda, roupas, feminino, tendências, estilo, elegante",
   authors: [{ name: "Zarife" }],
   creator: "Zarife",
   openGraph: {
     type: "website",
-    locale: "pt_BR",
-    url: "https://zarife.com.br",
+    locale: "pt_PT",
+    url: "https://zarife.vercel.app",
     title: "Zarife - Moda Moderna e Elegante",
     description: "Descubra as últimas tendências da moda com a coleção exclusiva da Zarife.",
     siteName: "Zarife",

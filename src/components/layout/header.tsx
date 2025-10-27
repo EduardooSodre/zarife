@@ -4,6 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { UserButton, SignInButton, SignedIn, SignedOut, useUser } from '@clerk/nextjs'
 import { ShoppingCart, User, Search, Menu, Heart, Package, Shield } from 'lucide-react'
@@ -71,6 +72,8 @@ export default function Header() {
   const pathname = usePathname()
   const { user } = useUser()
 
+  const router = useRouter()
+
   const { totalItems, setIsOpen } = useCart()
   const { favoritesCount } = useFavorites()
 
@@ -88,7 +91,17 @@ export default function Header() {
       }
     }
     loadCategories()
-  }, [])
+    // Prefetch products listing to reduce navigation latency when user opens product pages
+    if (router && router.prefetch) {
+      (async () => {
+        try {
+          await router.prefetch('/produtos')
+        } catch {
+          // ignore prefetch errors
+        }
+      })()
+    }
+  }, [router])
 
   // Verificar se o usuário é admin
   useEffect(() => {

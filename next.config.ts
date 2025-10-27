@@ -23,6 +23,9 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+      // Allowed quality values for next/image. Including 100 because some components request it.
+      // Next.js 16 will require explicit configuration.
+      qualities: [75, 85, 100],
   },
   async redirects() {
     return [

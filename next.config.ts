@@ -5,27 +5,27 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'img.clerk.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "img.clerk.com",
+        port: "",
+        pathname: "/**",
       },
     ],
-      // Allowed quality values for next/image. Including 100 because some components request it.
-      // Next.js 16 will require explicit configuration.
-      qualities: [75, 85, 100],
+    // Allowed quality values for next/image. Including 100 because some components request it.
+    // Next.js 16 will require explicit configuration.
+    qualities: [75, 85, 100],
   },
   async redirects() {
     return [

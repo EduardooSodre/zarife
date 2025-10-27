@@ -18,8 +18,9 @@ interface ProductPageProps {
 
 const SITE_URL = 'https://zarife.vercel.app'
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const id = params.id
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolved = await params
+  const id = resolved.id
   const product = await prisma.product.findUnique({
     where: { id },
     include: { images: { orderBy: { order: 'asc' }, take: 1 } }
@@ -67,12 +68,13 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const resolvedParams = await params;
+  const resolved = await params;
+  const { id } = resolved;
 
   // Get product
   const product = await prisma.product.findUnique({
     where: {
-      id: resolvedParams.id,
+      id,
       isActive: true
     },
     include: {

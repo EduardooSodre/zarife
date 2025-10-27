@@ -26,7 +26,8 @@ export function CartSheet() {
     totalPrice
   } = useCart()
 
-  const shipping = totalPrice > 50 ? 0 : 9.99
+  // Shipping: fixed €8 for Portugal (server enforces Portugal-only)
+  const shipping = 8.0
   const total = totalPrice + shipping
 
   const handleViewFullCart = () => {
@@ -168,16 +169,8 @@ export function CartSheet() {
 
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Envio</span>
-                  <span className="font-medium">
-                    {shipping === 0 ? 'Grátis' : `€${shipping.toFixed(2)}`}
-                  </span>
+                  <span className="font-medium">€{shipping.toFixed(2)}</span>
                 </div>
-
-                {shipping === 0 && (
-                  <p className="text-xs text-green-600">
-                    ✓ Envio grátis em compras acima de €50
-                  </p>
-                )}
 
                 <div className="border-t border-gray-200 pt-2">
                   <div className="flex justify-between text-base font-medium">

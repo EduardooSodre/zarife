@@ -224,10 +224,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Compute shipping server-side to avoid client tampering and ensure consistency.
-    // Policy: free shipping for subtotal > 50
-    const shippingAmount = serverSubtotal > 50 ? 0 : 9.99;
-    const serverTotal =
-      Math.round((serverSubtotal + shippingAmount) * 100) / 100;
+    // Shipping policy structure prepared for future countries. For now:
+    // - Only ship to Portugal
+    // - Flat shipping fee of €8.00
+    const shippingCountry = (shipping.country || "").toString().trim().toLowerCase();
+    if (shippingCountry !== "portugal") {
+      return NextResponse.json(
+        { error: "Atualmente só enviamos para Portugal." },
+        { status: 400 }
+      );
+    }
+
+    const shippingAmount = 8.0; // fixed price for Portugal
+    const serverTotal = Math.round((serverSubtotal + shippingAmount) * 100) / 100;
 
     const order = await prisma.order.create({
       data: {

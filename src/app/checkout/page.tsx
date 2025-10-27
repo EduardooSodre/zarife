@@ -75,7 +75,8 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
 
   // Cálculos
-  const shipping = totalPrice > 50 ? 0 : 9.99
+  // Shipping: fixed €8 for Portugal (server also enforces Portugal-only)
+  const shipping = 8.0
   const total = totalPrice + shipping
 
   // Redirecionar se carrinho vazio - usar useEffect para evitar SSR issues
@@ -535,13 +536,8 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Envio</span>
-                    <span>{shipping === 0 ? 'Grátis' : `€${shipping.toFixed(2)}`}</span>
+                    <span>€{shipping.toFixed(2)}</span>
                   </div>
-                  {shipping === 0 && (
-                    <p className="text-xs text-green-600">
-                      ✓ Envio grátis em compras acima de €50
-                    </p>
-                  )}
                   <Separator />
                   <div className="flex justify-between font-medium">
                     <span>Total</span>

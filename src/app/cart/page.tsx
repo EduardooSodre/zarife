@@ -9,7 +9,8 @@ import Image from 'next/image'
 export default function CartPage() {
   const { items, updateQuantity, removeItem, totalPrice } = useCart()
 
-  const shipping = totalPrice > 50 ? 0 : 9.99
+  // Shipping: fixed €8 for Portugal (server enforces Portugal-only)
+  const shipping = 8.0
   const total = totalPrice + shipping
 
   if (items.length === 0) {
@@ -132,13 +133,8 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Envio</span>
-                  <span>{shipping === 0 ? 'Grátis' : `€${shipping.toFixed(2)}`}</span>
+                  <span>€{shipping.toFixed(2)}</span>
                 </div>
-                {shipping === 0 && (
-                  <p className="text-sm text-green-600">
-                    ✓ Envio grátis em compras acima de €50
-                  </p>
-                )}
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-lg font-medium text-gray-900">
                     <span>Total</span>

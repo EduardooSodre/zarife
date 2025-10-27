@@ -84,6 +84,8 @@ export default function OrderDetailsPage() {
     const orderId = params.orderId as string;
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [processingProvider, setProcessingProvider] = useState<string | null>(null);
 
     useEffect(() => {
         // Avoid cached responses so order status reflects webhook updates (Stripe, PayPal, etc.)
@@ -154,6 +156,7 @@ export default function OrderDetailsPage() {
                             minute: '2-digit'
                         })}
                     </p>
+                    {/* retry payment buttons moved below Produtos (see insertion after Produtos card) */}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -257,6 +260,161 @@ export default function OrderDetailsPage() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* Retry payment buttons (moved here so they appear under Produtos) */}
+                        {order.status === 'PENDING' && (
+                            <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:flex-nowrap gap-4">
+                                <Button
+                                    onClick={async () => {
+                                        if (isProcessing) return;
+                                        setIsProcessing(true);
+                                        setProcessingProvider('stripe');
+                                        try {
+                                            const res = await fetch('/api/stripe/checkout', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ orderId: order.id, customerEmail: order.customerEmail }),
+                                            });
+                                            if (!res.ok) {
+                                                const ct = res.headers.get('content-type') || '';
+                                                let msg = 'Erro ao iniciar pagamento via Stripe';
+                                                if (ct.includes('application/json')) {
+                                                    const j = await res.json();
+                                                    msg = (j && (j.error || j.message)) ? (j.error || j.message) as string : msg;
+                                                } else {
+                                                    msg = await res.text();
+                                                }
+                                                throw new Error(msg);
+                                            }
+                                            const data = await res.json();
+                                            if (data && data.url) {
+                                                window.location.href = data.url;
+                                                return;
+                                            }
+                                            throw new Error('Resposta inválida do Stripe');
+                                        } catch (err) {
+                                            console.error('Stripe retry error', err);
+                                            alert('Erro ao iniciar pagamento Stripe: ' + (err instanceof Error ? err.message : String(err)));
+                                        } finally {
+                                            setIsProcessing(false);
+                                            setProcessingProvider(null);
+                                        }
+                                    }}
+                                    className="inline-flex items-center gap-3 text-white rounded-lg px-4 min-h-[56px] shadow-sm hover:shadow-lg transition-shadow duration-150"
+                                    style={{ backgroundColor: 'rgba(100,92,255)', border: '1px solid rgba(0,0,0,0.06)' }}
+                                    aria-label="Pagar com Stripe"
+                                >
+                                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
+                                        <Image src="/stripe-logos/stripe.webp" alt="Stripe" width={34} height={20} className="object-contain" />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-base font-semibold">{isProcessing && processingProvider === 'stripe' ? 'Processando...' : 'Pagar com Stripe'}</div>
+                                        <div className="text-sm text-white">Cartão de crédito</div>
+                                    </div>
+                                </Button>
+
+                                <Button
+                                    variant="outline"
+                                    onClick={async () => {
+                                        if (isProcessing) return;
+                                        setIsProcessing(true);
+                                        setProcessingProvider('paypal');
+                                        try {
+                                            const res = await fetch('/api/paypal/checkout', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ orderId: order.id }),
+                                            });
+                                            if (!res.ok) {
+                                                const ct = res.headers.get('content-type') || '';
+                                                let msg = 'Erro ao iniciar pagamento via PayPal';
+                                                if (ct.includes('application/json')) {
+                                                    const j = await res.json();
+                                                    msg = (j && (j.error || j.message)) ? (j.error || j.message) as string : msg;
+                                                } else {
+                                                    msg = await res.text();
+                                                }
+                                                throw new Error(msg);
+                                            }
+                                            const data = await res.json();
+                                            if (data && data.url) {
+                                                window.location.href = data.url;
+                                                return;
+                                            }
+                                            throw new Error('Resposta inválida do PayPal');
+                                        } catch (err) {
+                                            console.error('PayPal retry error', err);
+                                            alert('Erro ao iniciar pagamento PayPal: ' + (err instanceof Error ? err.message : String(err)));
+                                        } finally {
+                                            setIsProcessing(false);
+                                            setProcessingProvider(null);
+                                        }
+                                    }}
+                                    className="inline-flex items-center gap-3 text-black rounded-lg px-4 min-h-[56px] shadow-sm hover:shadow-lg transition-shadow duration-150"
+                                    style={{ backgroundColor: '#FFC439' }}
+                                    aria-label="Pagar com PayPal"
+                                >
+                                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center">
+                                        <Image src="/paypal-logos/Paypal-2png.webp" alt="PayPal" width={34} height={20} className="object-contain" />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-base font-semibold">{isProcessing && processingProvider === 'paypal' ? 'Processando...' : 'Pagar com PayPal'}</div>
+                                        <div className="text-sm text-black/85">Checkout seguro</div>
+                                    </div>
+                                </Button>
+
+                                <Button
+                                    variant="ghost"
+                                    onClick={async () => {
+                                        if (isProcessing) return;
+                                        setIsProcessing(true);
+                                        setProcessingProvider('multibanco');
+                                        try {
+                                            const fullName = `${order.customerFirstName} ${order.customerLastName}`;
+                                            const res = await fetch('/api/paypal/multibanco', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ orderId: order.id, fullName }),
+                                            });
+                                            if (!res.ok) {
+                                                const ct = res.headers.get('content-type') || '';
+                                                let msg = 'Erro ao iniciar Multibanco';
+                                                if (ct.includes('application/json')) {
+                                                    const j = await res.json();
+                                                    msg = (j && (j.error || j.message)) ? (j.error || j.message) as string : msg;
+                                                } else {
+                                                    msg = await res.text();
+                                                }
+                                                throw new Error(msg);
+                                            }
+                                            const data = await res.json();
+                                            if (data && data.redirectUrl) {
+                                                window.location.href = data.redirectUrl;
+                                                return;
+                                            }
+                                            throw new Error('Resposta inválida do Multibanco');
+                                        } catch (err) {
+                                            console.error('Multibanco retry error', err);
+                                            alert('Erro ao iniciar Multibanco: ' + (err instanceof Error ? err.message : String(err)));
+                                        } finally {
+                                            setIsProcessing(false);
+                                            setProcessingProvider(null);
+                                        }
+                                    }}
+                                    className="inline-flex items-center gap-3 text-gray-900 rounded-lg px-4 min-h-[56px] shadow-sm hover:shadow-lg transition-shadow duration-150"
+                                    style={{ backgroundColor: 'rgba(255,255,255,0.94)', border: '1px solid rgba(0,0,0,0.06)' }}
+                                    aria-label="Pagar com Multibanco"
+                                >
+                                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded bg-white">
+                                        <Image src="/multibanco-logos/multiBanco.webp" alt="Multibanco" width={34} height={20} className="object-contain" />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-base font-semibold">{isProcessing && processingProvider === 'multibanco' ? 'Processando...' : 'Pagar com Multibanco'}</div>
+                                        <div className="text-sm text-gray-700">Pagamento por referência</div>
+                                    </div>
+                                </Button>
+                            </div>
+                        )}
 
                         {/* Notas */}
                         {order.notes && (

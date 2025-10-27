@@ -227,7 +227,10 @@ export async function POST(request: NextRequest) {
     // Shipping policy structure prepared for future countries. For now:
     // - Only ship to Portugal
     // - Flat shipping fee of €8.00
-    const shippingCountry = (shipping.country || "").toString().trim().toLowerCase();
+    const shippingCountry = (shipping.country || "")
+      .toString()
+      .trim()
+      .toLowerCase();
     if (shippingCountry !== "portugal") {
       return NextResponse.json(
         { error: "Atualmente só enviamos para Portugal." },
@@ -236,7 +239,8 @@ export async function POST(request: NextRequest) {
     }
 
     const shippingAmount = 8.0; // fixed price for Portugal
-    const serverTotal = Math.round((serverSubtotal + shippingAmount) * 100) / 100;
+    const serverTotal =
+      Math.round((serverSubtotal + shippingAmount) * 100) / 100;
 
     const order = await prisma.order.create({
       data: {

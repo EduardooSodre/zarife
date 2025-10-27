@@ -89,30 +89,39 @@ export default function CartPage() {
 
                     {/* Quantity Controls */}
                     <div className="flex items-center space-x-3">
-                      <button
+                      <Button
+                        type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1, item.size, item.color)}
-                        className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50 p-0"
+                        aria-label={`Diminuir quantidade de ${item.name}`}
+                        title={`Diminuir quantidade de ${item.name}`}
                       >
                         <Minus className="w-4 h-4" />
-                      </button>
+                      </Button>
                       <span className="w-8 text-center text-gray-900 font-medium">
                         {item.quantity}
                       </span>
-                      <button
+                      <Button
+                        type="button"
                         onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
-                        className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        className="w-8 h-8 border border-gray-300 flex items-center justify-center hover:bg-gray-50 p-0"
+                        aria-label={`Aumentar quantidade de ${item.name}`}
+                        title={`Aumentar quantidade de ${item.name}`}
                       >
                         <Plus className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
 
                     {/* Remove Button */}
-                    <button
+                    <Button
+                      type="button"
                       onClick={() => removeItem(item.id, item.size, item.color)}
                       className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                      aria-label={`Remover ${item.name} do carrinho`}
+                      title={`Remover ${item.name} do carrinho`}
                     >
                       <Trash2 className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>

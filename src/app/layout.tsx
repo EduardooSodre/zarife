@@ -56,32 +56,34 @@ export default function RootLayout({
           <LayoutWrapper>
             {children}
             {/* Structured data for SEO: Organization + WebSite + SearchAction */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                {
-                  "@type": "Organization",
-                  "name": "Zarife",
-                  "url": "https://zarife.vercel.app",
-                  "logo": "https://zarife.vercel.app/ZARIFE_LOGO.png",
-                  "address": {
-                    "@type": "PostalAddress",
-                    "addressCountry": "PT",
-                    "addressLocality": "Portugal"
+            <script type="application/ld+json" dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@graph": [
+                  {
+                    "@type": "Organization",
+                    "name": "Zarife",
+                    "url": "https://zarife.vercel.app",
+                    "logo": "https://zarife.vercel.app/ZARIFE_LOGO.png",
+                    "address": {
+                      "@type": "PostalAddress",
+                      "addressCountry": "PT",
+                      "addressLocality": "Portugal"
+                    },
+                    "sameAs": []
                   },
-                  "sameAs": []
-                },
-                {
-                  "@type": "WebSite",
-                  "url": "https://zarife.vercel.app",
-                  "potentialAction": {
-                    "@type": "SearchAction",
-                    "target": "https://zarife.vercel.app/produtos?search={search_term_string}",
-                    "query-input": "required name=search_term_string"
+                  {
+                    "@type": "WebSite",
+                    "url": "https://zarife.vercel.app",
+                    "potentialAction": {
+                      "@type": "SearchAction",
+                      "target": "https://zarife.vercel.app/produtos?search={search_term_string}",
+                      "query-input": "required name=search_term_string"
+                    }
                   }
-                }
-              ]
-            }) }} />
+                ]
+              })
+            }} />
           </LayoutWrapper>
           <Toaster />
         </ClerkProvider>

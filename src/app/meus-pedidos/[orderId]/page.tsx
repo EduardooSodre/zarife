@@ -86,7 +86,8 @@ export default function OrderDetailsPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`/api/orders/${orderId}`)
+        // Avoid cached responses so order status reflects webhook updates (Stripe, PayPal, etc.)
+        fetch(`/api/orders/${orderId}`, { cache: "no-store" })
             .then((res) => {
                 if (!res.ok) throw new Error("Pedido não encontrado");
                 return res.json();

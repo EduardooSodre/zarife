@@ -43,12 +43,32 @@ type Order = {
     notes?: string | null;
 };
 
+// Map backend enum status to Portuguese labels
+const translateStatus = (status: string) => {
+    switch (status) {
+        case "PAID":
+            return "Pago";
+        case "PROCESSING":
+            return "Em processamento";
+        case "SHIPPED":
+            return "Enviado";
+        case "DELIVERED":
+            return "Entregue";
+        case "CANCELLED":
+            return "Cancelado";
+        case "PENDING":
+        default:
+            return "Pendente";
+    }
+};
+
 export default function MeusPedidosPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/orders")
+        // Avoid returning cached/stale order data so pages reflect webhook updates (e.g. Stripe -> PAID)
+        fetch("/api/orders", { cache: "no-store" })
             .then((res) => res.json())
             .then((data) => {
                 setOrders(data);
@@ -97,7 +117,7 @@ export default function MeusPedidosPage() {
                                     <Package className="w-5 h-5 text-primary" />
                                     Pedido #{order.id.slice(-8).toUpperCase()}
                                     <span className="ml-auto text-sm font-medium">
-                                        Status: <span className="uppercase">{order.status}</span>
+                                        Status: <span className="capitalize">{translateStatus(order.status)}</span>
                                     </span>
                                 </CardTitle>
                             </CardHeader>

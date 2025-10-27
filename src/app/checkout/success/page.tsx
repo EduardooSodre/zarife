@@ -56,7 +56,8 @@ function CheckoutSuccessContent() {
   useEffect(() => {
     if (!orderId) return;
     setIsLoading(true)
-    fetch(`/api/orders/${orderId}`)
+    // always request fresh order state (avoid stale caches) and include no-store
+    fetch(`/api/orders/${orderId}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data && !data.error) {
@@ -103,6 +104,44 @@ function CheckoutSuccessContent() {
     })()
   }, [orderId, provider, token])
 
+  // If returned from Stripe (or paid flag), poll the order a few times to wait for webhook
+  useEffect(() => {
+    const paidFlag = searchParams.get('paid');
+    const isStripeRedirect = paidFlag === '1' || provider === 'stripe';
+    if (!orderId || !isStripeRedirect) return;
+
+    let cancelled = false;
+
+    (async () => {
+      // If current order already PAID, nothing to do
+      if (order && order.status !== 'PENDING') return;
+
+      // Poll up to 6 times (6s) for webhook to update order status
+      for (let i = 0; i < 6; i++) {
+        if (cancelled) return;
+        // wait 1s before next attempt (give webhook time to process)
+        await new Promise((r) => setTimeout(r, 1000));
+        try {
+          const r = await fetch(`/api/orders/${orderId}`, { cache: 'no-store' });
+          const d = await r.json();
+          if (d && !d.error) {
+            setOrder(d);
+            if (d.status && d.status !== 'PENDING') {
+              // got final status
+              return;
+            }
+          }
+        } catch {
+          // ignore and retry
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [orderId, provider, searchParams, order]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-28">
@@ -124,6 +163,25 @@ function CheckoutSuccessContent() {
         </div>
       </div>
     )
+  }
+
+  const localizeStatus = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'Pendente';
+      case 'PAID':
+        return 'Pago';
+      case 'PROCESSING':
+        return 'Em processamento';
+      case 'SHIPPED':
+        return 'Enviado';
+      case 'DELIVERED':
+        return 'Entregue';
+      case 'CANCELLED':
+        return 'Cancelado';
+      default:
+        return status;
+    }
   }
 
   return (
@@ -154,7 +212,7 @@ function CheckoutSuccessContent() {
               <div className="text-center">
                 <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
                 <p className="font-medium">Status</p>
-                <p className="text-sm text-gray-600">{order.status}</p>
+                <p className="text-sm text-gray-600">{localizeStatus(order.status)}</p>
               </div>
               <div className="text-center">
                 <Truck className="w-8 h-8 text-blue-500 mx-auto mb-2" />

@@ -223,11 +223,10 @@ export async function POST(request: NextRequest) {
       (item as any).__serverPrice = itemUnitPrice;
     }
 
-    // Validate/normalize shipping amount provided by client (allow override but sanitize)
-    const shippingAmount =
-      Number(amounts.shipping) >= 0 ? Number(amounts.shipping) : 0;
-    const serverTotal =
-      Math.round((serverSubtotal + shippingAmount) * 100) / 100;
+    // Compute shipping server-side to avoid client tampering and ensure consistency.
+    // Policy: free shipping for subtotal > 50
+    const shippingAmount = serverSubtotal > 50 ? 0 : 9.99;
+    const serverTotal = Math.round((serverSubtotal + shippingAmount) * 100) / 100;
 
     const order = await prisma.order.create({
       data: {

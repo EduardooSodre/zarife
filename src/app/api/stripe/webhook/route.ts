@@ -40,12 +40,13 @@ export async function POST(request: NextRequest) {
       });
 
       if (order && order.status === "PENDING") {
-        // Atualizar status do pedido para PAID
+        // Atualizar status do pedido para PAID e definir método de pagamento como Stripe
         await prisma.order.update({
           where: { id: orderId },
           data: {
             status: "PAID",
-            stripePaymentId: session.payment_intent as string,
+            stripePaymentId: (session.payment_intent as string) || undefined,
+            paymentMethod: "stripe",
           },
         });
 
@@ -65,13 +66,18 @@ export async function POST(request: NextRequest) {
                 },
               },
             });
+          } else {
+            // Sem variante especificada: não há campo de stock no produto principal (apenas variantes têm stock).
+            // Registrar para facilitar debugging — estoque não pode ser decrementado sem variantes.
+            console.warn(`Item ${item.id} do pedido ${orderId} não tem variante para decrementar stock.`);
           }
+          // Revalidar a página do produto individual para atualizar stock/imagens/labels
+          revalidatePath(`/product/${item.productId}`);
         }
 
-        // Revalidar páginas para atualizar o stock imediatamente
+        // Revalidar listas e home
         revalidatePath("/");
         revalidatePath("/produtos");
-        revalidatePath("/product/[id]", "page");
       }
     }
   }

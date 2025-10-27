@@ -127,7 +127,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               </div>
 
               {/* Products Grid */}
-              <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
                 {serializedCategory.products.map((product) => (
                   <FastProductCard
                     key={product.id}

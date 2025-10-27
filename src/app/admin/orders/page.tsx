@@ -87,7 +87,7 @@ export default async function AdminOrdersPage() {
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                                <select aria-label="Filtrar por status" className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
                                     <option value="">Todos os status</option>
                                     <option value="PENDING">Pendente</option>
                                     <option value="PAID">Pago</option>

@@ -8,6 +8,8 @@ export function ParallaxBanner() {
   const ticking = useRef(false);
   const [mounted, setMounted] = useState(false);
   const [useParallax, setUseParallax] = useState(true);
+  const parallaxFactorRef = useRef(0.5);
+  const [smallParallax, setSmallParallax] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -16,9 +18,23 @@ export function ParallaxBanner() {
     const mmSmall = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 768px)');
     const mmReduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    if ((mmSmall && mmSmall.matches) || (mmReduce && mmReduce.matches)) {
+    // If user prefers reduced motion, disable parallax entirely
+    if (mmReduce && mmReduce.matches) {
       setUseParallax(false);
       return;
+    }
+
+    // Adjust parallax factor for smaller screens to keep motion subtle and performant
+    if (mmSmall && mmSmall.matches) {
+      // Increase the small-screen factor so the effect is visible on mobile
+      // while keeping motion subtle for performance.
+      parallaxFactorRef.current = 0.12;
+      setSmallParallax(true);
+      setUseParallax(true);
+    } else {
+      parallaxFactorRef.current = 0.5;
+      setSmallParallax(false);
+      setUseParallax(true);
     }
 
     const handleScroll = () => {
@@ -26,8 +42,7 @@ export function ParallaxBanner() {
       if (!ticking.current) {
         ticking.current = true;
         const y = window.scrollY;
-        // choose smaller parallax factor on narrower screens
-        const factor = window.innerWidth < 1024 ? 0.25 : 0.5;
+        const factor = parallaxFactorRef.current;
         requestAnimationFrame(() => {
           if (containerRef.current) {
             containerRef.current.style.transform = `translate3d(0, ${y * factor}px, 0)`;
@@ -37,8 +52,14 @@ export function ParallaxBanner() {
       }
     };
 
+    // Listen to both scroll and touchmove on mobile so the transform
+    // updates during touch-driven scrolling as well.
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('touchmove', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
+    };
   }, []);
 
   // Render static image until mounted to avoid hydration mismatch
@@ -60,7 +81,7 @@ export function ParallaxBanner() {
     );
   }
 
-  // If parallax disabled (mobile or reduced motion), render a simpler static image with lower quality
+  // If parallax disabled (reduced motion), render a simpler static image with lower quality
   if (!useParallax) {
     return (
       <div className="absolute inset-0">
@@ -91,7 +112,7 @@ export function ParallaxBanner() {
           src="/banner.jpg"
           alt="Zarife Fashion Banner"
           fill
-          className="object-cover object-center"
+          className={`object-cover object-center ${smallParallax ? 'banner-zoom' : ''}`}
           priority
           quality={90}
           sizes="100vw"

@@ -167,9 +167,9 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="pt-0 bg-white border-b border-gray-100">
+        <section className="pt-0  ">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center mt-6 mb-0">
               <h1 className="text-3xl md:text-4xl font-light text-black mt-0 mb-1 tracking-wider">

@@ -75,7 +75,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen ">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
@@ -96,11 +96,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
           {/* Category Header */}
           <div className="text-center mb-0">
-            <h1 className="text-3xl md:text-4xl font-light text-black mb-0 tracking-wider uppercase">
+            <h1 className="text-3xl md:text-4xl font-light text-black mt-0 mb-1 tracking-wider">
               {serializedCategory.name}
             </h1>
             <div className="w-24 h-px bg-black mx-auto mb-0"></div>
-            <p className="text-gray-600 text-base md:text-lg">
+            <p className="text-gray-600 text-base md:text-lg mt-4 mb-4">
               Descubra a nossa seleção cuidadosa de produtos em {serializedCategory.name.toLowerCase()}
             </p>
           </div>

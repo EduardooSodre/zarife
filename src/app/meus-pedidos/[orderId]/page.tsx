@@ -132,7 +132,7 @@ export default function OrderDetailsPage() {
     const statusInfo = statusConfig[order.status] || statusConfig.PENDING;
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+        <div className="min-h-screen  pb-12">
             <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-6">

@@ -227,11 +227,15 @@ export default function Header() {
 
       <header
         className={`fixed left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-xl top-0' : 'bg-transparent top-8'}`}
+        style={{ overflow: 'visible' }}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Mobile: User Button - Left */}
-            <div className="md:hidden flex items-center">
+          {/* Responsive header: flex on mobile, 3-col grid on md+ for pixel-perfect alignment */}
+          <div className="flex items-center justify-between h-20 md:grid md:grid-cols-3 md:items-center">
+            {/* Left block: mobile user button + logo + desktop navigation grouped */}
+            <div className="flex items-center md:col-start-1 md:gap-6">
+              {/* Mobile: User Button - Left */}
+              <div className="md:hidden flex items-center">
               <SignedIn>
                 <UserButton
                   appearance={{
@@ -250,20 +254,39 @@ export default function Header() {
               </SignedOut>
             </div>
 
-            {/* Desktop: Logo - Left / Mobile: Logo - Center */}
-            <Link href="/" className="flex items-center md:relative absolute left-1/2 md:left-0 transform -translate-x-1/2 md:transform-none">
-              <Image
-                src="/ZARIFE_LOGO.png"
-                alt="Zarife"
-                width={120}
-                height={60}
-                className="h-12 w-auto"
-                priority
-              />
-            </Link>
+              {/* Logo: separate elements for mobile (centered absolute) and desktop (static left) */}
+              {/* Mobile logo - centered */}
+              <Link
+                href="/"
+                className="md:hidden flex items-center absolute left-1/2 transform -translate-x-1/2 z-50"
+              >
+                <Image
+                  src="/ZARIFE_LOGO.png"
+                  alt="Zarife"
+                  width={140}
+                  height={60}
+                  className="h-10 w-auto max-w-[160px] object-contain"
+                  priority
+                />
+              </Link>
 
-            {/* Desktop Navigation - Fixed + Dynamic */}
-            <div className="hidden md:flex items-center">
+              {/* Desktop logo - static, respects container padding */}
+              <Link
+                href="/"
+                className="hidden md:flex items-center"
+              >
+                <Image
+                  src="/ZARIFE_LOGO.png"
+                  alt="Zarife"
+                  width={140}
+                  height={60}
+                  className="h-10 md:h-12 lg:h-14 w-auto max-w-[180px] object-contain"
+                  priority
+                />
+              </Link>
+
+              {/* Desktop Navigation - Fixed + Dynamic */}
+              <div className="hidden md:flex items-center">
               {/* Fixed Menu Items */}
               <Menubar className="bg-transparent border-0 shadow-none h-auto p-0 gap-1 mr-6">
                 {/* Menu ROUPAS */}
@@ -436,10 +459,14 @@ export default function Header() {
                   </MenubarMenu>
                 )}
               </Menubar>
+              </div>
             </div>
 
+            {/* Center spacer for md grid (keeps center empty) */}
+            <div className="hidden md:block md:col-start-2" />
+
             {/* Right side actions */}
-            <div className="hidden md:flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-3 md:col-start-3 md:justify-end">
               <TooltipProvider>
                 {/* Search - Mais elegante e alinhado */}
                 <div className="relative" ref={searchRef}>

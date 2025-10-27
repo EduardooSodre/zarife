@@ -12,9 +12,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Zarife - Moda Moderna e Elegante",
-  description: "Descubra as últimas tendências da moda com a coleção exclusiva da Zarife. Roupas femininas e masculinas de alta qualidade com estilo único.",
-  keywords: "moda, roupas, feminino, tendências, estilo, elegante",
+  title: {
+    default: "Zarife - Moda Moderna e Elegante",
+    template: "%s | Zarife",
+  },
+  description: "Zarife — loja de moda de luxo em Portugal. Enviamos para todo o território nacional. Roupas femininas e masculinas com design e qualidade.",
+  keywords: ["moda", "roupas", "luxo", "Portugal", "Zarife", "vestidos", "conjuntos"],
   authors: [{ name: "Zarife" }],
   creator: "Zarife",
   openGraph: {
@@ -22,8 +25,16 @@ export const metadata: Metadata = {
     locale: "pt_PT",
     url: "https://zarife.vercel.app",
     title: "Zarife - Moda Moderna e Elegante",
-    description: "Descubra as últimas tendências da moda com a coleção exclusiva da Zarife.",
+    description: "Zarife — loja de moda de luxo em Portugal. Enviamos para todo o território nacional.",
     siteName: "Zarife",
+    images: [
+      {
+        url: "https://zarife.vercel.app/ZARIFE_LOGO.png",
+        width: 1200,
+        height: 630,
+        alt: "Zarife logo",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -39,11 +50,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-pt" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="pt-PT" className={`${inter.variable} ${playfair.variable}`}>
       <body className={`${playfair.className} antialiased`}>
         <ClerkProvider>
           <LayoutWrapper>
             {children}
+            {/* Structured data for SEO: Organization + WebSite + SearchAction */}
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "name": "Zarife",
+                  "url": "https://zarife.vercel.app",
+                  "logo": "https://zarife.vercel.app/ZARIFE_LOGO.png",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressCountry": "PT",
+                    "addressLocality": "Portugal"
+                  },
+                  "sameAs": []
+                },
+                {
+                  "@type": "WebSite",
+                  "url": "https://zarife.vercel.app",
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://zarife.vercel.app/produtos?search={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                }
+              ]
+            }) }} />
           </LayoutWrapper>
           <Toaster />
         </ClerkProvider>

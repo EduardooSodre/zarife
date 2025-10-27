@@ -31,10 +31,10 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   return (
     <CartProvider>
       <FavoritesProvider>
-        <div className="min-h-screen flex flex-col relative bg-white">
+        <div className="min-h-screen flex flex-col relative bg-gray-50">
           <UserSync />
           <Header />
-          <main className="flex-1 bg-white pt-[7rem]">
+          <main className="flex-1 bg-gray-50 pt-[7rem]">
             {children}
           </main>
           <Footer />

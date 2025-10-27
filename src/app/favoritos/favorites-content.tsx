@@ -10,7 +10,7 @@ export function FavoritesContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 py-8">
+      <div className="min-h-screen pt-0 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -25,9 +25,9 @@ export function FavoritesContent() {
 
   if (favorites.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 py-8">
+      <div className="min-h-screen  pt-0 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
+          <div className="mb-8 text-center">
             <h1 className="text-2xl md:text-3xl font-medium text-gray-900 mb-2">
               Os Meus Favoritos
             </h1>
@@ -63,13 +63,17 @@ export function FavoritesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 py-8">
+    <div className="min-h-screen bg-gray-50 pt-0 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-light text-black mb-2 tracking-wider">
             Meus Favoritos
           </h1>
-          <div className="w-24 h-px bg-black mb-3"></div>
+          <div className="w-24 h-px bg-black mb-3 mx-auto"></div>
+
+        </div>
+
+        <div className='mb-4'>
           <p className="text-gray-600">
             {favorites.length} {favorites.length === 1 ? 'produto salvo' : 'produtos salvos'}
           </p>

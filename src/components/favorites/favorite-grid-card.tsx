@@ -35,10 +35,12 @@ export function FavoriteGridCard({ product, className = "" }: FavoriteGridCardPr
   const { removeFromFavorites } = useFavorites();
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: 'EUR'
+    // Use Portuguese number formatting but place the € symbol before the value
+    const formatted = new Intl.NumberFormat('pt-PT', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(price);
+    return `€ ${formatted}`;
   };
 
   const effectivePrice = product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;

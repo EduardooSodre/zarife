@@ -28,10 +28,20 @@ export async function POST(request: NextRequest) {
       where: { id: orderId },
       include: { items: true },
     });
-    if (!order) return NextResponse.json({ error: "Pedido não encontrado" }, { status: 404 });
-    if (order.status !== "PENDING") return NextResponse.json({ error: "Pedido não está pendente" }, { status: 400 });
+    if (!order)
+      return NextResponse.json(
+        { error: "Pedido não encontrado" },
+        { status: 404 }
+      );
+    if (order.status !== "PENDING")
+      return NextResponse.json(
+        { error: "Pedido não está pendente" },
+        { status: 400 }
+      );
 
-    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = (order.items || []).map((it: { productId: string; price: unknown; quantity: number }) => ({
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = (
+      order.items || []
+    ).map((it: { productId: string; price: unknown; quantity: number }) => ({
       price_data: {
         currency: "eur",
         product_data: {

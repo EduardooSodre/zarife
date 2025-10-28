@@ -58,16 +58,7 @@ export function Footer() {
           <p className="text-gray-600 mb-6 md:mb-8 max-w-md mx-auto text-sm md:text-base px-4 md:px-0">
             Receba em primeira mão os nossos lançamentos e ofertas exclusivas
           </p>
-          <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3 px-4 md:px-0">
-            <input
-              type="email"
-              placeholder="Seu melhor e-mail"
-              className="flex-1 px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-none bg-white text-gray-800 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-            />
-            <button className="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors rounded-none cursor-pointer">
-              Assinar
-            </button>
-          </div>
+          <NewsletterForm />
         </div>
 
         {/* Trust Indicators */}
@@ -341,4 +332,71 @@ export function Footer() {
       </div>
     </footer>
   );
+}
+
+function NewsletterForm() {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setSuccess(null)
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Por favor insira um e-mail válido')
+      return
+    }
+
+    try {
+      setLoading(true)
+      const res = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data?.error || 'Erro ao enviar. Tente novamente mais tarde.')
+        setLoading(false)
+        return
+      }
+
+      setSuccess('Obrigado! Confirmação enviada para o seu e-mail.')
+      setEmail('')
+    } catch (err) {
+      console.error('Newsletter subscribe error', err)
+      setError('Erro de rede. Tente novamente mais tarde.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3 px-4 md:px-0" aria-label="Newsletter form">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Seu melhor e-mail"
+        className="flex-1 px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-none bg-white text-gray-800 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        aria-label="Email"
+      />
+      <button
+        type="submit"
+        disabled={loading}
+        className="bg-gray-900 text-white px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors rounded-none cursor-pointer disabled:opacity-60"
+      >
+        {loading ? 'Enviando...' : 'Assinar'}
+      </button>
+
+      <div className="w-full mt-2 text-center sm:text-left">
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        {success && <p className="text-xs text-green-700">{success}</p>}
+      </div>
+    </form>
+  )
 }

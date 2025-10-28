@@ -331,17 +331,17 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2 space-y-6">
             <form className="space-y-6">
               {/* Dados Pessoais */}
-              <Card>
+              <Card className="bg-white border border-gray-100 rounded-md shadow-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <MapPin className="w-5 h-5 mr-2" />
+                  <CardTitle className="flex items-center text-lg text-gray-900 font-medium">
+                    <MapPin className="w-5 h-5 mr-2 text-gray-600" />
                     Dados Pessoais
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="pt-2 space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="firstName">Nome *</Label>
+                      <Label htmlFor="firstName" className="mb-1 text-sm text-gray-700">Nome *</Label>
                       <Input
                         id="firstName"
                         value={form.firstName}
@@ -351,7 +351,7 @@ export default function CheckoutPage() {
                       {errors.firstName && <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="lastName">Sobrenome *</Label>
+                      <Label htmlFor="lastName" className="mb-1 text-sm text-gray-700">Sobrenome *</Label>
                       <Input
                         id="lastName"
                         value={form.lastName}
@@ -363,7 +363,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="email">Email *</Label>
+                      <Label htmlFor="email" className="mb-1 text-sm text-gray-700">Email *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -374,7 +374,7 @@ export default function CheckoutPage() {
                       {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="phone">Telefone *</Label>
+                      <Label htmlFor="phone" className="mb-1 text-sm text-gray-700">Telefone *</Label>
                       <Input
                         id="phone"
                         value={form.phone}
@@ -389,16 +389,16 @@ export default function CheckoutPage() {
               </Card>
 
               {/* Endereço de Entrega */}
-              <Card>
+              <Card className="bg-white border border-gray-100 rounded-md shadow-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <Truck className="w-5 h-5 mr-2" />
+                  <CardTitle className="flex items-center text-lg text-gray-900 font-medium">
+                    <Truck className="w-5 h-5 mr-2 text-gray-600" />
                     Morada de Entrega
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="pt-2 space-y-3">
                   <div>
-                    <Label htmlFor="address">Morada *</Label>
+                    <Label htmlFor="address" className="mb-1 text-sm text-gray-700">Morada *</Label>
                     <Input
                       id="address"
                       value={form.address}
@@ -409,7 +409,7 @@ export default function CheckoutPage() {
                     {errors.address && <p className="text-sm text-red-500 mt-1">{errors.address}</p>}
                   </div>
                   <div>
-                    <Label htmlFor="complement">Complemento</Label>
+                    <Label htmlFor="complement" className="mb-1 text-sm text-gray-700">Complemento</Label>
                     <Input
                       id="complement"
                       value={form.complement}
@@ -419,7 +419,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="postalCode">Código Postal *</Label>
+                      <Label htmlFor="postalCode" className="mb-1 text-sm text-gray-700">Código Postal *</Label>
                       <Input
                         id="postalCode"
                         value={form.postalCode}
@@ -430,7 +430,7 @@ export default function CheckoutPage() {
                       {errors.postalCode && <p className="text-sm text-red-500 mt-1">{errors.postalCode}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="city">Cidade *</Label>
+                      <Label htmlFor="city" className="mb-1 text-sm text-gray-700">Cidade *</Label>
                       <Input
                         id="city"
                         value={form.city}
@@ -440,7 +440,7 @@ export default function CheckoutPage() {
                       {errors.city && <p className="text-sm text-red-500 mt-1">{errors.city}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="state">Distrito *</Label>
+                      <Label htmlFor="state" className="mb-1 text-sm text-gray-700">Distrito *</Label>
                       <Select value={form.state} onValueChange={(value) => handleInputChange('state', value)}>
                         <SelectTrigger className={errors.state ? 'border-red-500' : ''}>
                           <SelectValue placeholder="Selecione" />
@@ -477,11 +477,11 @@ export default function CheckoutPage() {
               {/* Método de Pagamento removido: escolha do provedor (Stripe / PayPal) na finalização */}
 
               {/* Observações */}
-              <Card>
+              <Card className="bg-white border border-gray-100 rounded-md shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">Observações</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 font-medium">Observações</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-2">
                   <Textarea
                     value={form.notes}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('notes', e.target.value)}
@@ -495,11 +495,11 @@ export default function CheckoutPage() {
 
           {/* Resumo do Pedido */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="sticky top-24">
+            <Card className="sticky top-24 bg-white border border-gray-100 rounded-md shadow-sm">
               <CardHeader>
-                <CardTitle className="text-lg">Resumo do Pedido</CardTitle>
+                <CardTitle className="text-lg text-gray-900 font-medium">Resumo do Pedido</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-2 space-y-3">
                 {/* Produtos */}
                 <div className="space-y-3">
                   {items.map((item) => (

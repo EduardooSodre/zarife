@@ -321,7 +321,7 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao Carrinho
           </Button>
-          <h1 className="text-3xl font-light text-primary tracking-wider uppercase">
+          <h1 className="max-md:text-center text-3xl font-light text-primary tracking-wider uppercase">
             Finalizar Compra
           </h1>
         </div>

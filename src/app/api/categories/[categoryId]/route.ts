@@ -25,6 +25,11 @@ export async function GET(
               orderBy: { order: "asc" },
               take: 1,
             },
+            variants: {
+              select: {
+                stock: true,
+              },
+            },
           },
         },
         _count: {
@@ -40,9 +45,25 @@ export async function GET(
       );
     }
 
+    // Calcular o estoque total de cada produto somando suas variantes
+    const categoryWithStock = {
+      ...category,
+      products: category.products.map((product) => {
+        const totalStock = product.variants.reduce(
+          (sum, variant) => sum + variant.stock,
+          0
+        );
+        return {
+          ...product,
+          stock: totalStock,
+          variants: undefined, // Remove variants da resposta para não expor dados desnecessários
+        };
+      }),
+    };
+
     return NextResponse.json({
       success: true,
-      data: category,
+      data: categoryWithStock,
     });
   } catch (error) {
     console.error("Erro ao buscar categoria:", error);

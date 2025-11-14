@@ -187,7 +187,7 @@ export default function AdminUsersPage() {
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <select 
+                                <select
                                     aria-label="Filtrar por tipo"
                                     value={roleFilter}
                                     onChange={(e) => setRoleFilter(e.target.value)}
@@ -218,7 +218,7 @@ export default function AdminUsersPage() {
                                 {users.length === 0 ? 'Nenhum cliente encontrado' : 'Nenhum resultado encontrado'}
                             </h3>
                             <p className="text-gray-600">
-                                {users.length === 0 
+                                {users.length === 0
                                     ? 'Os clientes aparecerão aqui quando se registarem na loja'
                                     : 'Tente ajustar os filtros de pesquisa'}
                             </p>

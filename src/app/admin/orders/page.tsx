@@ -126,7 +126,7 @@ export default function AdminOrdersPage() {
             // Data rows
             ...filteredOrders.map(order => {
                 const subtotal = order.items.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
-                const productsDetails = order.items.map(item => 
+                const productsDetails = order.items.map(item =>
                     `${item.product.name}${item.size ? ` (Tamanho: ${item.size})` : ''}${item.color ? ` (Cor: ${item.color})` : ''} - Qtd: ${item.quantity} x €${Number(item.price).toFixed(2)}`
                 ).join('; ');
 
@@ -252,8 +252,8 @@ export default function AdminOrdersPage() {
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <select 
-                                    aria-label="Filtrar por status" 
+                                <select
+                                    aria-label="Filtrar por status"
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
@@ -286,7 +286,7 @@ export default function AdminOrdersPage() {
                                 {orders.length === 0 ? 'Nenhum pedido encontrado' : 'Nenhum resultado encontrado'}
                             </h3>
                             <p className="text-gray-600">
-                                {orders.length === 0 
+                                {orders.length === 0
                                     ? 'Os pedidos aparecerão aqui quando os clientes fizerem compras'
                                     : 'Tente ajustar os filtros de pesquisa'}
                             </p>

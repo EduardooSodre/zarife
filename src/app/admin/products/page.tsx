@@ -384,7 +384,7 @@ export default function AdminProductsPage() {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                         {currentProducts.map((product) => (
-                            <Card key={product.id} className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 group">
+                            <Card key={product.id} className="border border-gray-200 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200 group">
                                 <CardContent className="p-0">
                                     {/* Product Image */}
                                     <div className="relative aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
@@ -393,7 +393,7 @@ export default function AdminProductsPage() {
                                                 src={product.images[0].url}
                                                 alt={product.name}
                                                 fill
-                                                className="object-cover transition-transform duration-200 group-hover:scale-105"
+                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
                                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                                             />
                                         ) : (
@@ -405,13 +405,13 @@ export default function AdminProductsPage() {
                                         )}
 
                                         {/* Stock Status */}
-                                        <div className="absolute top-2 sm:top-3 left-2 sm:left-3">
+                                        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
                                             {(() => {
                                                 const stock = calculateProductStock(product);
                                                 return (
-                                                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full ${stock > 0
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-red-100 text-red-800"
+                                                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full backdrop-blur-sm ${stock > 0
+                                                        ? "bg-green-100/90 text-green-800"
+                                                        : "bg-red-100/90 text-red-800"
                                                         }`}>
                                                         {stock > 0 ? `${stock} em estoque` : "Esgotado"}
                                                     </span>
@@ -420,10 +420,10 @@ export default function AdminProductsPage() {
                                         </div>
 
                                         {/* Actions Overlay */}
-                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                            <div className="flex space-x-1 sm:space-x-2">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                            <div className="flex space-x-1 sm:space-x-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                                                 <Link href={`/admin/products/${product.id}`}>
-                                                    <Button size="sm" variant="outline" className="bg-white text-xs sm:text-sm h-7 sm:h-8 cursor-pointer">
+                                                    <Button size="sm" variant="outline" className="bg-white hover:bg-gray-50 text-xs sm:text-sm h-7 sm:h-8 cursor-pointer shadow-lg">
                                                         <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </Link>

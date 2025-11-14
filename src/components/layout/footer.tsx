@@ -189,7 +189,7 @@ export function Footer() {
                   <a href="#" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
                     WhatsApp
                   </a>
-                  <a href="mailto:contato@zarife.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
+                  <a href="mailto:zarife.pt@gmail.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
                     E-mail
                   </a>
                   <a href="#" className="block text-gray-600 hover:text-gray-900 transition-colors text-xs">
@@ -258,8 +258,8 @@ export function Footer() {
                 >
                   WhatsApp: +351 966 106 212
                 </Link>
-                <Link href="mailto:contato@zarife.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
-                  contato@zarife.com
+                <Link href="mailto:zarife.pt@gmail.com" className="block text-gray-600 hover:text-gray-900 transition-colors text-sm">
+                  zarife.pt@gmail.com
                 </Link>
                 <Link
                   href="https://www.instagram.com/zarife.shop/"
@@ -267,7 +267,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="block text-gray-600 hover:text-gray-900 transition-colors text-sm"
                 >
-                  @zarife_official
+                  @zarife.shop
                 </Link>
                 <Link
                   href="/contactos" target="_blank"

@@ -14,7 +14,7 @@ const ToastViewport = React.forwardRef<
     <ToastPrimitives.Viewport
         ref={ref}
         className={cn(
-            "fixed top-4 right-4 z-[100] flex max-h-screen w-full flex-col gap-2 p-4 sm:max-w-[420px]",
+            "fixed top-4 right-4 z-[200] flex max-h-screen w-full flex-col gap-2 p-4 sm:max-w-[420px]",
             className
         )}
         {...props}
@@ -47,6 +47,11 @@ const Toast = React.forwardRef<
         <ToastPrimitives.Root
             ref={ref}
             className={cn(toastVariants({ variant }), className)}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
             {...props}
         />
     )
@@ -79,6 +84,8 @@ const ToastClose = React.forwardRef<
             className
         )}
         toast-close=""
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
         {...props}
     >
         <X className="h-4 w-4" />

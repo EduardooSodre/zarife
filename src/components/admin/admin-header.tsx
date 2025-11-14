@@ -53,6 +53,8 @@ export function AdminHeader() {
                     avatarBox: "h-8 w-8",
                   },
                 }}
+                userProfileMode="navigation"
+                userProfileUrl="/admin"
               />
             </div>
           </div>

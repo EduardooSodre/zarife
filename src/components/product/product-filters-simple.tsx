@@ -277,96 +277,85 @@ export function ProductFilters() {
 
 
 
-                                    {/* Marca and Material */}
-                                    <div className="space-y-4">
-                                        {/* Brand */}
-                                        {filterData && filterData.brands.length > 0 && (
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className='space-y-3'>
-                                                    <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Marca</Label>
-                                                    <Select value={filters.brand || 'all'} onValueChange={(value) => handleFilterChange('brand', value === 'all' ? '' : value)}>
-                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                            <SelectValue placeholder="Todas as marcas" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="rounded-lg border-gray-200">
-                                                            <SelectItem value="all" className="font-medium text-gray-900">Todas as marcas</SelectItem>
-                                                            {filterData.brands.map((brand) => (
-                                                                <SelectItem key={brand} value={brand}>
-                                                                    {brand}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div>
-                                                    {filterData && filterData.materials.length > 0 && (
-                                                        <div className="space-y-3">
-                                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Material</Label>
-                                                            <Select value={filters.material || 'all'} onValueChange={(value) => handleFilterChange('material', value === 'all' ? '' : value)}>
-                                                                <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                                    <SelectValue placeholder="Todos os materiais" />
-                                                                </SelectTrigger>
-                                                                <SelectContent className="rounded-lg border-gray-200">
-                                                                    <SelectItem value="all" className="font-medium text-gray-900">Todos os materiais</SelectItem>
-                                                                    {filterData.materials.map((material) => (
-                                                                        <SelectItem key={material} value={material}>
-                                                                            {material}
-                                                                        </SelectItem>
-                                                                    ))}
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-
-
-                                        {/* Colors & Season Grid */}
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {/* Colors */}
-                                            {filterData && filterData.colors && filterData.colors.length > 0 && (
-                                                <div className="space-y-3">
-                                                    <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Cor</Label>
-                                                    <Select value={filters.color || 'all'} onValueChange={(value) => handleFilterChange('color', value === 'all' ? '' : value)}>
-                                                        <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                            <SelectValue placeholder="Todas as cores" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="rounded-lg border-gray-200">
-                                                            <SelectItem value="all" className="font-medium text-gray-900">Todas as cores</SelectItem>
-                                                            {filterData.colors.map((color) => (
-                                                                <SelectItem key={color} value={color}>
-                                                                    {color}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            )}
-
-                                            {/* Season */}
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {filterData && filterData.seasons.length > 0 && (
-                                                    <div className="space-y-3">
-                                                        <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Estação</Label>
-                                                        <Select value={filters.season || 'all'} onValueChange={(value) => handleFilterChange('season', value === 'all' ? '' : value)}>
-                                                            <SelectTrigger className="border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
-                                                                <SelectValue placeholder="Todas" />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="rounded-lg border-gray-200">
-                                                                <SelectItem value="all" className="font-medium text-gray-900">Todas as estações</SelectItem>
-                                                                {filterData.seasons.map((season) => (
-                                                                    <SelectItem key={season} value={season}>
-                                                                        {season}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                )}
-                                            </div>
+                                    {/* Marca */}
+                                    {filterData && filterData.brands.length > 0 && (
+                                        <div className="space-y-3 pb-4 border-b border-gray-100">
+                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Marca</Label>
+                                            <Select value={filters.brand || 'all'} onValueChange={(value) => handleFilterChange('brand', value === 'all' ? '' : value)}>
+                                                <SelectTrigger className="w-full border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                    <SelectValue placeholder="Todas as marcas" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-lg border-gray-200 max-w-[calc(90vw-3rem)] sm:max-w-[calc(24rem-3rem)]">
+                                                    <SelectItem value="all" className="font-medium text-gray-900">Todas as marcas</SelectItem>
+                                                    {filterData.brands.map((brand) => (
+                                                        <SelectItem key={brand} value={brand} className="truncate">
+                                                            {brand}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
-                                    </div>
+                                    )}
+
+                                    {/* Material */}
+                                    {filterData && filterData.materials.length > 0 && (
+                                        <div className="space-y-3 pb-4 border-b border-gray-100">
+                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Material</Label>
+                                            <Select value={filters.material || 'all'} onValueChange={(value) => handleFilterChange('material', value === 'all' ? '' : value)}>
+                                                <SelectTrigger className="w-full border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                    <SelectValue placeholder="Todos os materiais" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-lg border-gray-200 max-w-[calc(90vw-3rem)] sm:max-w-[calc(24rem-3rem)]">
+                                                    <SelectItem value="all" className="font-medium text-gray-900">Todos os materiais</SelectItem>
+                                                    {filterData.materials.map((material) => (
+                                                        <SelectItem key={material} value={material} className="truncate">
+                                                            {material}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
+
+                                    {/* Cor */}
+                                    {filterData && filterData.colors && filterData.colors.length > 0 && (
+                                        <div className="space-y-3 pb-4 border-b border-gray-100">
+                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Cor</Label>
+                                            <Select value={filters.color || 'all'} onValueChange={(value) => handleFilterChange('color', value === 'all' ? '' : value)}>
+                                                <SelectTrigger className="w-full border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                    <SelectValue placeholder="Todas as cores" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-lg border-gray-200 max-w-[calc(90vw-3rem)] sm:max-w-[calc(24rem-3rem)]">
+                                                    <SelectItem value="all" className="font-medium text-gray-900">Todas as cores</SelectItem>
+                                                    {filterData.colors.map((color) => (
+                                                        <SelectItem key={color} value={color} className="truncate">
+                                                            {color}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
+
+                                    {/* Estação */}
+                                    {filterData && filterData.seasons.length > 0 && (
+                                        <div className="space-y-3 pb-4 border-b border-gray-100">
+                                            <Label className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Estação</Label>
+                                            <Select value={filters.season || 'all'} onValueChange={(value) => handleFilterChange('season', value === 'all' ? '' : value)}>
+                                                <SelectTrigger className="w-full border-gray-200 focus:border-black focus:ring-1 focus:ring-black transition-all duration-200 rounded-lg h-11">
+                                                    <SelectValue placeholder="Todas as estações" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-lg border-gray-200 max-w-[calc(90vw-3rem)] sm:max-w-[calc(24rem-3rem)]">
+                                                    <SelectItem value="all" className="font-medium text-gray-900">Todas as estações</SelectItem>
+                                                    {filterData.seasons.map((season) => (
+                                                        <SelectItem key={season} value={season} className="truncate">
+                                                            {season}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Action Buttons - Fixed at bottom */}

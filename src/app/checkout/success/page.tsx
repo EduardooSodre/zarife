@@ -343,8 +343,8 @@ function CheckoutSuccessContent() {
           <h3 className="font-medium text-blue-900 mb-2">Precisa de Ajuda?</h3>
           <p className="text-sm text-blue-700">
             Se tiver alguma dúvida sobre o seu pedido, contacte-nos pelo email{' '}
-            <a href="mailto:contato@zarife.com" className="underline">
-              contato@zarife.com
+            <a href="mailto:zarife.pt@gmail.com" className="underline">
+              zarife.pt@gmail.com
             </a>{' '}
             ou pelo telefone{' '}
             {

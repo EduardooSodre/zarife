@@ -298,222 +298,222 @@ export default function Header() {
             <div className="hidden md:flex items-center justify-center">
               {/* Fixed Menu Items */}
               <Menubar className="bg-transparent border-0 shadow-none h-auto p-0 gap-1">
-                  {/* Menu ROUPAS */}
-                  {roupasCategory && (
-                    roupasCategory.children.length > 0 ? (
-                      <MenubarMenu>
-                        <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
-                          {roupasCategory.name}
-                        </MenubarTrigger>
-                        <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
-                          {roupasCategory.children.map((item, index) => (
-                            <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
-                              <MenubarItem asChild>
-                                <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
-                                  {item.name}
-                                </Link>
-                              </MenubarItem>
-                              {item.children && item.children.length > 0 && (
-                                <div className="ml-2 mt-1 space-y-0.5">
-                                  {item.children.map((subcat) => (
-                                    <MenubarItem key={subcat.name} asChild>
-                                      <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
-                                        {subcat.name}
-                                      </Link>
-                                    </MenubarItem>
-                                  ))}
-                                </div>
-                              )}
-                              {index < roupasCategory.children.length - 1 && (
-                                <MenubarSeparator className="my-2 bg-gray-200" />
-                              )}
-                            </div>
-                          ))}
-                        </MenubarContent>
-                      </MenubarMenu>
-                    ) : (
-                      <Link
-                        href={roupasCategory.href}
-                        className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
-                      >
+                {/* Menu ROUPAS */}
+                {roupasCategory && (
+                  roupasCategory.children.length > 0 ? (
+                    <MenubarMenu>
+                      <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                         {roupasCategory.name}
-                      </Link>
-                    )
-                  )}
+                      </MenubarTrigger>
+                      <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
+                        {roupasCategory.children.map((item, index) => (
+                          <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
+                            <MenubarItem asChild>
+                              <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                                {item.name}
+                              </Link>
+                            </MenubarItem>
+                            {item.children && item.children.length > 0 && (
+                              <div className="ml-2 mt-1 space-y-0.5">
+                                {item.children.map((subcat) => (
+                                  <MenubarItem key={subcat.name} asChild>
+                                    <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
+                                      {subcat.name}
+                                    </Link>
+                                  </MenubarItem>
+                                ))}
+                              </div>
+                            )}
+                            {index < roupasCategory.children.length - 1 && (
+                              <MenubarSeparator className="my-2 bg-gray-200" />
+                            )}
+                          </div>
+                        ))}
+                      </MenubarContent>
+                    </MenubarMenu>
+                  ) : (
+                    <Link
+                      href={roupasCategory.href}
+                      className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
+                    >
+                      {roupasCategory.name}
+                    </Link>
+                  )
+                )}
 
-                  {/* Menu VESTIDOS */}
-                  {vestidosCategory && (
-                    vestidosCategory.children.length > 0 ? (
-                      <MenubarMenu>
-                        <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
-                          {vestidosCategory.name}
-                        </MenubarTrigger>
-                        <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
-                          {vestidosCategory.children.map((item, index) => (
-                            <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
-                              <MenubarItem asChild>
-                                <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
-                                  {item.name}
-                                </Link>
-                              </MenubarItem>
-                              {item.children && item.children.length > 0 && (
-                                <div className="ml-2 mt-1 space-y-0.5">
-                                  {item.children.map((subcat) => (
-                                    <MenubarItem key={subcat.name} asChild>
-                                      <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
-                                        {subcat.name}
-                                      </Link>
-                                    </MenubarItem>
-                                  ))}
-                                </div>
-                              )}
-                              {index < vestidosCategory.children.length - 1 && (
-                                <MenubarSeparator className="my-2 bg-gray-200" />
-                              )}
-                            </div>
-                          ))}
-                        </MenubarContent>
-                      </MenubarMenu>
-                    ) : (
-                      <Link
-                        href={vestidosCategory.href}
-                        className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
-                      >
+                {/* Menu VESTIDOS */}
+                {vestidosCategory && (
+                  vestidosCategory.children.length > 0 ? (
+                    <MenubarMenu>
+                      <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                         {vestidosCategory.name}
-                      </Link>
-                    )
-                  )}
+                      </MenubarTrigger>
+                      <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
+                        {vestidosCategory.children.map((item, index) => (
+                          <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
+                            <MenubarItem asChild>
+                              <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                                {item.name}
+                              </Link>
+                            </MenubarItem>
+                            {item.children && item.children.length > 0 && (
+                              <div className="ml-2 mt-1 space-y-0.5">
+                                {item.children.map((subcat) => (
+                                  <MenubarItem key={subcat.name} asChild>
+                                    <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
+                                      {subcat.name}
+                                    </Link>
+                                  </MenubarItem>
+                                ))}
+                              </div>
+                            )}
+                            {index < vestidosCategory.children.length - 1 && (
+                              <MenubarSeparator className="my-2 bg-gray-200" />
+                            )}
+                          </div>
+                        ))}
+                      </MenubarContent>
+                    </MenubarMenu>
+                  ) : (
+                    <Link
+                      href={vestidosCategory.href}
+                      className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
+                    >
+                      {vestidosCategory.name}
+                    </Link>
+                  )
+                )}
 
-                  {/* Menu CONJUNTOS */}
-                  {conjuntosCategory && (
-                    conjuntosCategory.children.length > 0 ? (
-                      <MenubarMenu>
-                        <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
-                          {conjuntosCategory.name}
-                        </MenubarTrigger>
-                        <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
-                          {conjuntosCategory.children.map((item, index) => (
-                            <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
-                              <MenubarItem asChild>
-                                <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
-                                  {item.name}
-                                </Link>
-                              </MenubarItem>
-                              {item.children && item.children.length > 0 && (
-                                <div className="ml-2 mt-1 space-y-0.5">
-                                  {item.children.map((subcat) => (
-                                    <MenubarItem key={subcat.name} asChild>
-                                      <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
-                                        {subcat.name}
-                                      </Link>
-                                    </MenubarItem>
-                                  ))}
-                                </div>
-                              )}
-                              {index < conjuntosCategory.children.length - 1 && (
-                                <MenubarSeparator className="my-2 bg-gray-200" />
-                              )}
-                            </div>
-                          ))}
-                        </MenubarContent>
-                      </MenubarMenu>
-                    ) : (
-                      <Link
-                        href={conjuntosCategory.href}
-                        className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
-                      >
+                {/* Menu CONJUNTOS */}
+                {conjuntosCategory && (
+                  conjuntosCategory.children.length > 0 ? (
+                    <MenubarMenu>
+                      <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                         {conjuntosCategory.name}
-                      </Link>
-                    )
-                  )}
+                      </MenubarTrigger>
+                      <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
+                        {conjuntosCategory.children.map((item, index) => (
+                          <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
+                            <MenubarItem asChild>
+                              <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                                {item.name}
+                              </Link>
+                            </MenubarItem>
+                            {item.children && item.children.length > 0 && (
+                              <div className="ml-2 mt-1 space-y-0.5">
+                                {item.children.map((subcat) => (
+                                  <MenubarItem key={subcat.name} asChild>
+                                    <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
+                                      {subcat.name}
+                                    </Link>
+                                  </MenubarItem>
+                                ))}
+                              </div>
+                            )}
+                            {index < conjuntosCategory.children.length - 1 && (
+                              <MenubarSeparator className="my-2 bg-gray-200" />
+                            )}
+                          </div>
+                        ))}
+                      </MenubarContent>
+                    </MenubarMenu>
+                  ) : (
+                    <Link
+                      href={conjuntosCategory.href}
+                      className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
+                    >
+                      {conjuntosCategory.name}
+                    </Link>
+                  )
+                )}
 
-                  {/* Menu MODA PRAIA */}
-                  {modaPraiaCategory && (
-                    modaPraiaCategory.children.length > 0 ? (
-                      <MenubarMenu>
-                        <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
-                          {modaPraiaCategory.name}
-                        </MenubarTrigger>
-                        <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
-                          {modaPraiaCategory.children.map((item, index) => (
-                            <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
-                              <MenubarItem asChild>
-                                <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
-                                  {item.name}
-                                </Link>
-                              </MenubarItem>
-                              {item.children && item.children.length > 0 && (
-                                <div className="ml-2 mt-1 space-y-0.5">
-                                  {item.children.map((subcat) => (
-                                    <MenubarItem key={subcat.name} asChild>
-                                      <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
-                                        {subcat.name}
-                                      </Link>
-                                    </MenubarItem>
-                                  ))}
-                                </div>
-                              )}
-                              {index < modaPraiaCategory.children.length - 1 && (
-                                <MenubarSeparator className="my-2 bg-gray-200" />
-                              )}
-                            </div>
-                          ))}
-                        </MenubarContent>
-                      </MenubarMenu>
-                    ) : (
-                      <Link
-                        href={modaPraiaCategory.href}
-                        className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
-                      >
+                {/* Menu MODA PRAIA */}
+                {modaPraiaCategory && (
+                  modaPraiaCategory.children.length > 0 ? (
+                    <MenubarMenu>
+                      <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                         {modaPraiaCategory.name}
-                      </Link>
-                    )
-                  )}
+                      </MenubarTrigger>
+                      <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
+                        {modaPraiaCategory.children.map((item, index) => (
+                          <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
+                            <MenubarItem asChild>
+                              <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                                {item.name}
+                              </Link>
+                            </MenubarItem>
+                            {item.children && item.children.length > 0 && (
+                              <div className="ml-2 mt-1 space-y-0.5">
+                                {item.children.map((subcat) => (
+                                  <MenubarItem key={subcat.name} asChild>
+                                    <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
+                                      {subcat.name}
+                                    </Link>
+                                  </MenubarItem>
+                                ))}
+                              </div>
+                            )}
+                            {index < modaPraiaCategory.children.length - 1 && (
+                              <MenubarSeparator className="my-2 bg-gray-200" />
+                            )}
+                          </div>
+                        ))}
+                      </MenubarContent>
+                    </MenubarMenu>
+                  ) : (
+                    <Link
+                      href={modaPraiaCategory.href}
+                      className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
+                    >
+                      {modaPraiaCategory.name}
+                    </Link>
+                  )
+                )}
 
-                  {/* Menu LOOK COMPLETO */}
-                  {lookCompletoCategory && (
-                    lookCompletoCategory.children.length > 0 ? (
-                      <MenubarMenu>
-                        <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
-                          {lookCompletoCategory.name}
-                        </MenubarTrigger>
-                        <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
-                          {lookCompletoCategory.children.map((item, index) => (
-                            <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
-                              <MenubarItem asChild>
-                                <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
-                                  {item.name}
-                                </Link>
-                              </MenubarItem>
-                              {item.children && item.children.length > 0 && (
-                                <div className="ml-2 mt-1 space-y-0.5">
-                                  {item.children.map((subcat) => (
-                                    <MenubarItem key={subcat.name} asChild>
-                                      <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
-                                        {subcat.name}
-                                      </Link>
-                                    </MenubarItem>
-                                  ))}
-                                </div>
-                              )}
-                              {index < lookCompletoCategory.children.length - 1 && (
-                                <MenubarSeparator className="my-2 bg-gray-200" />
-                              )}
-                            </div>
-                          ))}
-                        </MenubarContent>
-                      </MenubarMenu>
-                    ) : (
-                      <Link
-                        href={lookCompletoCategory.href}
-                        className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
-                      >
+                {/* Menu LOOK COMPLETO */}
+                {lookCompletoCategory && (
+                  lookCompletoCategory.children.length > 0 ? (
+                    <MenubarMenu>
+                      <MenubarTrigger className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 data-[state=open]:bg-gray-50 data-[state=open]:text-black px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 data-[state=open]:border-black transition-all duration-300 ease-in-out cursor-pointer">
                         {lookCompletoCategory.name}
-                      </Link>
-                    )
-                  )}
-                </Menubar>
-              </div>
+                      </MenubarTrigger>
+                      <MenubarContent className="min-w-[240px] bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg mt-1 p-3">
+                        {lookCompletoCategory.children.map((item, index) => (
+                          <div key={item.name} className={`${index > 0 ? 'mt-3' : ''}`}>
+                            <MenubarItem asChild>
+                              <Link href={item.href} className="group block text-base font-medium text-gray-900 tracking-wide hover:text-black transition-colors duration-200 pb-1">
+                                {item.name}
+                              </Link>
+                            </MenubarItem>
+                            {item.children && item.children.length > 0 && (
+                              <div className="ml-2 mt-1 space-y-0.5">
+                                {item.children.map((subcat) => (
+                                  <MenubarItem key={subcat.name} asChild>
+                                    <Link href={subcat.href} className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 transition-all duration-150">
+                                      {subcat.name}
+                                    </Link>
+                                  </MenubarItem>
+                                ))}
+                              </div>
+                            )}
+                            {index < lookCompletoCategory.children.length - 1 && (
+                              <MenubarSeparator className="my-2 bg-gray-200" />
+                            )}
+                          </div>
+                        ))}
+                      </MenubarContent>
+                    </MenubarMenu>
+                  ) : (
+                    <Link
+                      href={lookCompletoCategory.href}
+                      className="text-base font-semibold tracking-wide text-gray-900 hover:text-black bg-transparent hover:bg-gray-50/50 px-6 py-3 rounded-none border-b-2 border-transparent hover:border-gray-200 transition-all duration-300 ease-in-out cursor-pointer inline-block"
+                    >
+                      {lookCompletoCategory.name}
+                    </Link>
+                  )
+                )}
+              </Menubar>
+            </div>
 
             {/* Right side actions */}
             <div className="hidden md:flex items-center space-x-3 md:justify-end">

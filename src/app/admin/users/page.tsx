@@ -22,8 +22,11 @@ interface User {
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<User[]>([]);
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [roleFilter, setRoleFilter] = useState("");
 
     useEffect(() => {
         async function fetchUsers() {
@@ -33,7 +36,16 @@ export default function AdminUsersPage() {
                     throw new Error('Falha ao carregar usuários');
                 }
                 const data = await response.json();
-                setUsers(data.users || []);
+                // Sort users: admins first, then by creation date
+                const sortedUsers = (data.users || []).sort((a: User, b: User) => {
+                    // First sort by role (ADMIN first)
+                    if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+                    if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+                    // Then sort by creation date (newest first)
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                });
+                setUsers(sortedUsers);
+                setFilteredUsers(sortedUsers);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Erro desconhecido');
             } finally {
@@ -43,6 +55,26 @@ export default function AdminUsersPage() {
 
         fetchUsers();
     }, []);
+
+    // Filter users when search term or role filter changes
+    useEffect(() => {
+        let filtered = [...users];
+
+        // Filter by search term
+        if (searchTerm) {
+            filtered = filtered.filter(user =>
+                user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+        }
+
+        // Filter by role
+        if (roleFilter) {
+            filtered = filtered.filter(user => user.role === roleFilter);
+        }
+
+        setFilteredUsers(filtered);
+    }, [searchTerm, roleFilter, users]);
 
     const formatRole = (role: string) => {
         const roleMap: { [key: string]: string } = {
@@ -149,11 +181,18 @@ export default function AdminUsersPage() {
                                 <input
                                     type="text"
                                     placeholder="Procurar por nome ou email..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                                <select 
+                                    aria-label="Filtrar por tipo"
+                                    value={roleFilter}
+                                    onChange={(e) => setRoleFilter(e.target.value)}
+                                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                >
                                     <option value="">Todos os tipos</option>
                                     <option value="USER">Clientes</option>
                                     <option value="ADMIN">Administradores</option>
@@ -167,7 +206,7 @@ export default function AdminUsersPage() {
                 </Card>
 
                 {/* Users List */}
-                {users.length === 0 ? (
+                {filteredUsers.length === 0 ? (
                     <Card className="border-0 shadow-sm">
                         <CardContent className="text-center py-16">
                             <div className="mb-4">
@@ -176,16 +215,18 @@ export default function AdminUsersPage() {
                                 </div>
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                Nenhum cliente encontrado
+                                {users.length === 0 ? 'Nenhum cliente encontrado' : 'Nenhum resultado encontrado'}
                             </h3>
                             <p className="text-gray-600">
-                                Os clientes aparecerão aqui quando se registarem na loja
+                                {users.length === 0 
+                                    ? 'Os clientes aparecerão aqui quando se registarem na loja'
+                                    : 'Tente ajustar os filtros de pesquisa'}
                             </p>
                         </CardContent>
                     </Card>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {users.map((customer) => (
+                        {filteredUsers.map((customer) => (
                             <Card key={customer.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
                                 <CardContent className="p-6">
                                     <div className="flex items-start justify-between mb-4">

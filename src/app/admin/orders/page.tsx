@@ -1,23 +1,171 @@
-import { prisma } from "@/lib/db";
+'use client';
+
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Eye, Search, Filter, Download, ArrowLeft } from "lucide-react";
 
-export default async function AdminOrdersPage() {
+interface Order {
+    id: string;
+    status: string;
+    total: number;
+    shipping: number;
+    createdAt: string;
+    updatedAt: string;
+    stripePaymentId: string | null;
+    paypalOrderId: string | null;
+    trackingCode: string | null;
+    customerFirstName: string;
+    customerLastName: string;
+    customerPhone: string | null;
+    shippingAddress: string;
+    shippingComplement: string | null;
+    shippingCity: string;
+    shippingState: string | null;
+    shippingPostalCode: string;
+    shippingCountry: string;
+    user: {
+        name: string | null;
+        email: string;
+    };
+    items: Array<{
+        id: string;
+        quantity: number;
+        price: number;
+        size: string | null;
+        color: string | null;
+        product: {
+            id: string;
+            name: string;
+        };
+    }>;
+}
 
-    // Get all orders
-    const orders = await prisma.order.findMany({
-        include: {
-            user: true,
-            items: {
-                include: {
-                    product: true,
-                },
-            },
-        },
-        orderBy: { createdAt: "desc" },
-    });
+export default function AdminOrdersPage() {
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+
+    useEffect(() => {
+        async function fetchOrders() {
+            try {
+                const response = await fetch('/api/admin/orders');
+                if (!response.ok) throw new Error('Failed to fetch orders');
+                const data = await response.json();
+                setOrders(data.orders || []);
+                setFilteredOrders(data.orders || []);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchOrders();
+    }, []);
+
+    // Filter orders when search term or status filter changes
+    useEffect(() => {
+        let filtered = [...orders];
+
+        // Filter by search term
+        if (searchTerm) {
+            filtered = filtered.filter(order =>
+                order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (order.user.name && order.user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+        }
+
+        // Filter by status
+        if (statusFilter) {
+            filtered = filtered.filter(order => order.status === statusFilter);
+        }
+
+        setFilteredOrders(filtered);
+    }, [searchTerm, statusFilter, orders]);
+
+    const handleExport = () => {
+        // Helper to escape CSV values
+        const escapeCsv = (value: string | number | null | undefined) => {
+            if (value === null || value === undefined) return '';
+            const str = String(value);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        // Create CSV content with all order details
+        const csvContent = [
+            // Header
+            [
+                'Pedido ID',
+                'Cliente Nome',
+                'Cliente Email',
+                'Cliente Telefone',
+                'Data Pedido',
+                'Última Atualização',
+                'Status',
+                'Endereço',
+                'Complemento',
+                'Cidade',
+                'Estado',
+                'Código Postal',
+                'País',
+                'Produtos',
+                'Subtotal',
+                'Envio',
+                'Total',
+                'ID Pagamento Stripe',
+                'ID Pedido PayPal',
+                'Código Rastreamento'
+            ].join(','),
+            // Data rows
+            ...filteredOrders.map(order => {
+                const subtotal = order.items.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+                const productsDetails = order.items.map(item => 
+                    `${item.product.name}${item.size ? ` (Tamanho: ${item.size})` : ''}${item.color ? ` (Cor: ${item.color})` : ''} - Qtd: ${item.quantity} x €${Number(item.price).toFixed(2)}`
+                ).join('; ');
+
+                return [
+                    escapeCsv(`#${order.id.slice(-8)}`),
+                    escapeCsv(`${order.customerFirstName} ${order.customerLastName}`),
+                    escapeCsv(order.user.email),
+                    escapeCsv(order.customerPhone),
+                    escapeCsv(new Date(order.createdAt).toLocaleString('pt-PT')),
+                    escapeCsv(new Date(order.updatedAt).toLocaleString('pt-PT')),
+                    escapeCsv(formatStatus(order.status)),
+                    escapeCsv(order.shippingAddress),
+                    escapeCsv(order.shippingComplement),
+                    escapeCsv(order.shippingCity),
+                    escapeCsv(order.shippingState),
+                    escapeCsv(order.shippingPostalCode),
+                    escapeCsv(order.shippingCountry),
+                    escapeCsv(productsDetails),
+                    escapeCsv(`€${subtotal.toFixed(2)}`),
+                    escapeCsv(order.shipping === 0 ? 'Grátis' : `€${Number(order.shipping).toFixed(2)}`),
+                    escapeCsv(`€${Number(order.total).toFixed(2)}`),
+                    escapeCsv(order.stripePaymentId),
+                    escapeCsv(order.paypalOrderId),
+                    escapeCsv(order.trackingCode)
+                ].join(',');
+            })
+        ].join('\n');
+
+        // Create blob and download
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `pedidos_completo_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const formatStatus = (status: string) => {
         const statusMap: { [key: string]: string } = {
@@ -45,6 +193,21 @@ export default async function AdminOrdersPage() {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                            <p>Carregando pedidos...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -68,7 +231,7 @@ export default async function AdminOrdersPage() {
                             Visualizar e gerir todos os pedidos da loja
                         </p>
                     </div>
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={handleExport}>
                         <Download className="h-4 w-4 mr-2" />
                         Exportar
                     </Button>
@@ -83,11 +246,18 @@ export default async function AdminOrdersPage() {
                                 <input
                                     type="text"
                                     placeholder="Procurar por número do pedido ou cliente..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <select aria-label="Filtrar por status" className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
+                                <select 
+                                    aria-label="Filtrar por status" 
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                >
                                     <option value="">Todos os status</option>
                                     <option value="PENDING">Pendente</option>
                                     <option value="PAID">Pago</option>
@@ -104,7 +274,7 @@ export default async function AdminOrdersPage() {
                 </Card>
 
                 {/* Orders List */}
-                {orders.length === 0 ? (
+                {filteredOrders.length === 0 ? (
                     <Card className="border-0 shadow-sm">
                         <CardContent className="text-center py-16">
                             <div className="mb-4">
@@ -113,10 +283,12 @@ export default async function AdminOrdersPage() {
                                 </div>
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                Nenhum pedido encontrado
+                                {orders.length === 0 ? 'Nenhum pedido encontrado' : 'Nenhum resultado encontrado'}
                             </h3>
                             <p className="text-gray-600">
-                                Os pedidos aparecerão aqui quando os clientes fizerem compras
+                                {orders.length === 0 
+                                    ? 'Os pedidos aparecerão aqui quando os clientes fizerem compras'
+                                    : 'Tente ajustar os filtros de pesquisa'}
                             </p>
                         </CardContent>
                     </Card>
@@ -148,7 +320,7 @@ export default async function AdminOrdersPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {orders.map((order) => (
+                                        {filteredOrders.map((order) => (
                                             <tr key={order.id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div>

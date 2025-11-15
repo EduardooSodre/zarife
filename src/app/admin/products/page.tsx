@@ -382,7 +382,7 @@ export default function AdminProductsPage() {
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                         {currentProducts.map((product) => (
                             <Card key={product.id} className="border border-gray-200 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200 group">
                                 <CardContent className="p-0">
@@ -423,7 +423,7 @@ export default function AdminProductsPage() {
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                             <div className="flex space-x-1 sm:space-x-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                                                 <Link href={`/admin/products/${product.id}`}>
-                                                    <Button size="sm" variant="outline" className="bg-white hover:bg-gray-50 text-xs sm:text-sm h-7 sm:h-8 cursor-pointer shadow-lg">
+                                                    <Button size="sm" variant="outline" className="bg-white hover:bg-gray-50 h-7 sm:h-8 w-7 sm:w-8 p-0 cursor-pointer shadow-lg">
                                                         <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                                                     </Button>
                                                 </Link>

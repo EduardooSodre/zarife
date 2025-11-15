@@ -490,8 +490,8 @@ export function EditProductDialog({ product, onUpdated }: EditProductDialogProps
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button size="sm" variant="outline" className="h-8 px-2 cursor-pointer">
-            <Edit className="w-4 h-4" />
+          <Button size="sm" variant="outline" className="h-7 sm:h-8 w-7 sm:w-8 p-0 cursor-pointer shadow-lg">
+            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">

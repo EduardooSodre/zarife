@@ -78,7 +78,7 @@ export function DeleteProductButton({ productId, productName, onDeleted }: Delet
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <button
-            className="inline-flex items-center justify-center h-7 sm:h-8 px-2 sm:px-3 rounded-md border border-border bg-white hover:bg-red-50 hover:text-red-600 text-xs sm:text-sm transition-colors cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center justify-center h-7 sm:h-8 w-7 sm:w-8 rounded-md border border-border bg-white hover:bg-red-50 hover:text-red-600 text-xs sm:text-sm transition-colors cursor-pointer disabled:opacity-50 shadow-lg"
             disabled={isDeleting}
             title="Deletar produto"
           >
